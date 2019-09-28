@@ -1,10 +1,8 @@
 # Fift: A Brief Introduction
+##### Nikolai Durov. July 4, 2019
 
-> Nikolai Durov. July 4, 2019
-
-#### Abstract
-
-The aim of this text is to provide a brief description of Fift, a new programming language specifically designed for creating and managing TON Blockchain smart contracts, and its features used for interaction with the TON Virtual Machine [4] and the TON Blockchain [5].
+> #### Abstract
+> The aim of this text is to provide a brief description of Fift, a new programming language specifically designed for creating and managing TON Blockchain smart contracts, and its features used for interaction with the TON Virtual Machine [4] and the TON Blockchain [5].
 
 ## Introduction
 
@@ -22,7 +20,7 @@ Please note that the current version of this document describes a preliminary te
 
 ### Contents
 
-1. [**Overview**](#overview)
+1. [**Overview**](#user-content-1-overview)
 2. [**Fift basics**](#fift-basics)
    1. [List of Fift stack value types](#list-of-fift-stack-value-types)
    2. [Comments](#comments)
