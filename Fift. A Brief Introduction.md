@@ -1,8 +1,13 @@
-# Fift: A Brief Introduction > Nikolai Durov. July 4, 2019
+# Fift: A Brief Introduction
+
+> Nikolai Durov. July 4, 2019
+
 #### Abstract
+
 The aim of this text is to provide a brief description of Fift, a new programming language specifically designed for creating and managing TON Blockchain smart contracts, and its features used for interaction with the TON Virtual Machine [4] and the TON Blockchain [5].
 
 ## Introduction
+
 This document provides a brief description of Fift, a stack-based generalpurpose programming language optimized for creating, debugging, and managing TON Blockchain smart contracts.
 
 Fift has been specifically designed to interact with the TON Virtual Machine (TON VM or TVM) [4] and the  TON Blockchain [5]. In particular, it offers native support for 257-bit integer arithmetic and TVM cell manipulation shared with TVM, as well as an interface to the Ed25519-based cryptography employed by the TON Blockchain. A macro assembler for TVM code, useful for writing new smart contracts, is also included in the Fift distribution.
