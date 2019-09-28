@@ -1,7 +1,8 @@
 # Fift: A Brief Introduction
-##### Nikolai Durov. July 4, 2019
+> #### Nikolai Durov. July 4, 2019
 
-> #### Abstract
+> ##### Abstract
+>
 > The aim of this text is to provide a brief description of Fift, a new programming language specifically designed for creating and managing TON Blockchain smart contracts, and its features used for interaction with the TON Virtual Machine [4] and the TON Blockchain [5].
 
 ## Introduction
@@ -12,99 +13,103 @@ Fift has been specifically designed to interact with the TON Virtual Machine (TO
 
 Being a stack-based language, Fift is not unlike Forth. Because of the brevity of this text, some knowledge of Forth might be helpful for understanding Fift.1 However, there are significant differences between the two languages. For instance, Fift enforces runtime type-checking, and keeps values of different types (not only integers) in its stack.
 
-A list of words (built-in functions, or primitives) defined in Fift, along with their brief descriptions, is presented in Appendix A.
-
-> 1 Good introductions to Forth exist; we can recommend [1].
+A list of words (built-in functions, or primitives) defined in Fift, along with their brief descriptions, is presented in _Appendix A_.
 
 Please note that the current version of this document describes a preliminary test version of Fift; some minor details are likely to change in the future.
 
-### Contents
+## Contents
 
 1. [**Overview**](#user-content-1-overview)
-2. [**Fift basics**](#fift-basics)
-   1. [List of Fift stack value types](#list-of-fift-stack-value-types)
-   2. [Comments](#comments)
-   3. [Terminating Fift](#terminating-fift)
-   4. [Simple integer arithmetic](#simple-integer-arithmetic)
-   5. [Stack manipulation words](#stack-manipulation-words)
-   6. [Defining new words](#defining-new-words)
-   7. [Named constants](#named-constants)
-   8. [Integer and fractional constants, or literals](#integer-and-fractional-constants-or-literals)
-   9. [String literals](#string-literals)
-   10. [Simple string manipulation](#simple-string-manipulation)
-   11. [Boolean expressions, or flags](#boolean-expressions-or-flags)
-   12. [Integer comparison operations](#integer-comparison-operations)
-   13. [String comparison operations](#string-comparison-operations)
-   14. [Named and unnamed variables](#named-and-unnamed-variables)
-   15. [Tuples and arrays](#tuples-and-arrays)
-   16. [Lists](#lists)
-   17. [Atoms](#atoms)
-   18. [Command line arguments in script mode](#command-line-arguments-in-script-mode)
-3. [**Blocks, loops, and conditionals**](#blocks-loops-and-conditionals)
-   1. [Defining and executing blocks](#defining-and-executing-blocks)
-   2. [Conditional execution of blocks](#conditional-execution-of-blocks)
-   3. [Simple loops](#simple-loops)
-   4. [Loops with an exit condition](#loops-with-an-exit-condition)
-   5. [Recursion](#recursion)
-   6. [Throwing exceptions](#throwing-exceptions)
-4. [**Dictionary, interpreter, and compiler**](#dictionary-interpreter-and-compiler)
-   1. [The state of the Fift interpreter](#the-state-of-the-fift-interpreter)
-   2. [Active and ordinary words](#active-and-ordinary-words)
-   3. [Compiling literals](#compiling-literals)
-   4. [Defining new active words](#defining-new-active-words)
-   5. [Defining words and dictionary manipulation](#defining-words-and-dictionary-manipulation)
-   6. [Dictionary lookup](#dictionary-lookup)
-   7. [Creating and manipulating word lists](#creating-and-manipulating-word-lists)
-   8. [Custom defining words](#custom-defining-words)
-5. [**Cell manipulation**](#cell-manipulation)
-   1. [Slice literals](#slice-literals)
-   2. [Builder primitives](#builder-primitives)
-   3. [Slice primitives](#slice-primitives)
-   4. [Cell hash operations](#cell-hash-operations)
-   5. [Bag-of-cells operations](#bag-of-cells-operations)
-   6. [Binary file I/O and Bytes manipulation](#binary-file-i-o-and-bytes-manipulation)
-6. [**TON-specific operations**](#t-o-n-specific-operations)
-   1. [Ed25519 cryptography](#ed25519-cryptography)
-   2. [Smart-contract address parser](#smart-contract-address-parser)
-   3. [Dictionary manipulation](#dictionary-manipulation)
-   4. [Invoking TVM from Fift](#invoking-t-v-m-from-fift)
-7. [**Using the Fift assembler**](#using-the-fift-assembler)
-   1. [Loading the Fift assembler](#loading-the-fift-assembler)
-   2. [Fift assembler basics](#fift-assembler-basics)
-   3. [Pushing integer constants](#pushing-integer-constants)
-   4. [Immediate arguments](#immediate-arguments)
-   5. [Immediate continuations](#immediate-continuations)
-   6. [Control flow: loops and conditionals](#control-flow-loops-and-conditionals)
-   7. [Macro definitions](#macro-definitions)
-   8. [Larger programs and subroutines](#larger-programs-and-subroutines)
+
+2. [**Fift basics**](#user-content-2-fift-basics)
+   1. [List of Fift stack value types](#user-content-21-list-of-fift-stack-value-types)
+   2. [Comments](#user-content-22-comments)
+   3. [Terminating Fift](#user-content-23-terminating-fift)
+   4. [Simple integer arithmetic](#user-content-24-simple-integer-arithmetic)
+   5. [Stack manipulation words](#user-content-25-stack-manipulation-words)
+   6. [Defining new words](#user-content-26-defining-new-words)
+   7. [Named constants](#user-content-27-named-constants)
+   8. [Integer and fractional constants, or literals](#user-content-28-integer-and-fractional-constants-or-literals)
+   9. [String literals](#user-content-29-string-literals)
+   10. [Simple string manipulation](#user-content-210-simple-string-manipulation)
+   11. [Boolean expressions, or flags](#user-content-211-boolean-expressions-or-flags)
+   12. [Integer comparison operations](#user-content-212-integer-comparison-operations)
+   13. [String comparison operations](#user-content-213-string-comparison-operations)
+   14. [Named and unnamed variables](#user-content-214-named-and-unnamed-variables)
+   15. [Tuples and arrays](#user-content-215-tuples-and-arrays)
+   16. [Lists](#user-content-216-lists)
+   17. [Atoms](#user-content-217-atoms)
+   18. [Command line arguments in script mode](#user-content-218-command-line-arguments-in-script-mode)
+
+3. [**Blocks, loops, and conditionals**](#user-content-3-blocks-loops-and-conditionals)
+   1. [Defining and executing blocks](#user-content-31-defining-and-executing-blocks)
+   2. [Conditional execution of blocks](#user-content-32-conditional-execution-of-blocks)
+   3. [Simple loops](#user-content-33-simple-loops)
+   4. [Loops with an exit condition](#user-content-34-loops-with-an-exit-condition)
+   5. [Recursion](#user-content-35-recursion)
+   6. [Throwing exceptions](#user-content-36-throwing-exceptions)
+
+4. [**Dictionary, interpreter, and compiler**](#user-content-4-dictionary-interpreter-and-compiler)
+   1. [The state of the Fift interpreter](#user-content-41-the-state-of-the-fift-interpreter)
+   2. [Active and ordinary words](#user-content-42-active-and-ordinary-words)
+   3. [Compiling literals](#user-content-43-compiling-literals)
+   4. [Defining new active words](#user-content-44-defining-new-active-words)
+   5. [Defining words and dictionary manipulation](#user-content-45-defining-words-and-dictionary-manipulation)
+   6. [Dictionary lookup](#user-content-46-dictionary-lookup)
+   7. [Creating and manipulating word lists](#user-content-47-creating-and-manipulating-word-lists)
+   8. [Custom defining words](#user-content-48-custom-defining-words)
+
+5. [**Cell manipulation**](#user-content-5-cell-manipulation)
+   1. [Slice literals](#user-content-51-slice-literals)
+   2. [Builder primitives](#user-content-52-builder-primitives)
+   3. [Slice primitives](#user-content-53-slice-primitives)
+   4. [Cell hash operations](#user-content-54-cell-hash-operations)
+   5. [Bag-of-cells operations](#user-content-55-bag-of-cells-operations)
+   6. [Binary file I/O and Bytes manipulation](#user-content-56-binary-file-i-o-and-bytes-manipulation)
+
+6. [**TON-specific operations**](#user-content-6-t-o-n-specific-operations)
+   1. [Ed25519 cryptography](#user-content-61-ed25519-cryptography)
+   2. [Smart-contract address parser](#user-content-62-smart-contract-address-parser)
+   3. [Dictionary manipulation](#user-content-63-dictionary-manipulation)
+   4. [Invoking TVM from Fift](#user-content-64-invoking-t-v-m-from-fift)
+
+7. [**Using the Fift assembler**](#user-content-77-using-the-fift-assembler)
+   1. [Loading the Fift assembler](#user-content-71-loading-the-fift-assembler)
+   2. [Fift assembler basics](#user-content-72-fift-assembler-basics)
+   3. [Pushing integer constants](#user-content-73-pushing-integer-constants)
+   4. [Immediate arguments](#user-content-74-immediate-arguments)
+   5. [Immediate continuations](#user-content-75-immediate-continuations)
+   6. [Control flow: loops and conditionals](#user-content-76-control-flow-loops-and-conditionals)
+   7. [Macro definitions](#user-content-77-macro-definitions)
+   8. [Larger programs and subroutines](#user-content-78-larger-programs-and-subroutines)
+
 [**A List of Fift words**](#a-list-of-fift-words)
 
 ## 1 Overview
 
-Fift is a simple stack-based programming language designed for testing and debugging the TON Virtual Machine [4] and the TON Blockchain [5], but potentially useful for other purposes as well. When Fift is invoked (usually by executing a binary file called fift), it either reads, parses, and interprets one or several source files indicated in the command line, or enters the interactive mode and interprets Fift commands read and parsed from the standard input. There is also a “script mode”, activated by command line switch -s, in which all command line arguments except the first one are passed to the Fift program by means of the variables $n and $#. In this way, Fift can be used both for interactive experimentation and debugging as well as for writing simple scripts.
+Fift is a simple stack-based programming language designed for testing and debugging the TON Virtual Machine [4] and the TON Blockchain [5], but potentially useful for other purposes as well. When Fift is invoked (usually by executing a binary file called `fift`), it either reads, parses, and interprets one or several source files indicated in the command line, or enters the interactive mode and interprets Fift commands read and parsed from the standard input. There is also a “script mode”, activated by command line switch `-s`, in which all command line arguments except the first one are passed to the Fift program by means of the variables `$n` and `$#`. In this way, Fift can be used both for interactive experimentation and debugging as well as for writing simple scripts.
 
-All data manipulated by Fift is kept in a (LIFO) stack. Each stack entry is supplemented by a type tag, which unambiguously determines the type of the value kept in the corresponding stack entry. The types of values supported by Fift include Integer (representing signed 257-bit integers), Cell (representing a TVM cell, which consists of up to 1023 data bits and up to four references to other cells as explained in [4]), Slice (a partial view of a Cell used for parsing cells), and Builder (used for building new cells).
+All data manipulated by Fift is kept in a (LIFO) stack. Each stack entry is supplemented by a _type tag_, which unambiguously determines the type of the value kept in the corresponding stack entry. The types of values supported by Fift include _Integer_ (representing signed 257-bit integers), _Cell_ (representing a TVM cell, which consists of up to 1023 data bits and up to four references to other cells as explained in [4]), _Slice_ (a partial view of a Cell used for parsing cells), and _Builder_ (used for building new cells). These data types (and their implementations) are shared with TVM [4], and can be safely passed from the Fift stack to the TVM stack and back when necessary (e.g., when TVM is invoked from Fift by using a Fift primitive such as `runvmcode`).
 
-These data types (and their implementations) are shared with TVM [4], and can be safely passed from the Fift stack to the TVM stack and back when necessary (e.g., when TVM is invoked from Fift by using a Fift primitive such as runvmcode).
+In addition to the data types shared with TVM, Fift introduces some unique data types, such as _Bytes_ (arbitrary byte sequences), _String_ (UTF-8 strings), _WordList_, and _WordDef_ (used by Fift to create new “words” and manipulate their definitions). In fact, Fift can be extended to manipulate arbitrary “objects” (represented by the generic type _Object_), provided they are derived from C++ class `td::CntObject` in the current implementation.
 
-In addition to the data types shared with TVM, Fift introduces some unique data types, such as Bytes (arbitrary byte sequences), String (UTF-8 strings), WordList, and WordDef (used by Fift to create new “words” and manipulate their definitions). In fact, Fift can be extended to manipulate arbitrary “objects” (represented by the generic type Object), provided they are derived from C++ class td::CntObject in the current implementation.
+Fift source files and libraries are usually kept in text files with the suffix `.fif`. A search path for libraries and included files is passed to the Fift executable either in a `-I` command line argument or in the `FIFTPATH` environment variable. If neither is set, the default library search path `/usr/lib/fift` is used.
 
-Fift source files and libraries are usually kept in text files with the suffix .fif. A search path for libraries and included files is passed to the Fift executable either in a -I command line argument or in the FIFTPATH environment variable. If neither is set, the default library search path /usr/lib/fift is used.
+On startup, the standard Fift library is read from the file `Fift.fif` before interpreting any other sources. It must be present in the library search path, otherwise Fift execution will fail.
 
-On startup, the standard Fift library is read from the file Fift.fif before interpreting any other sources. It must be present in the library search path, otherwise Fift execution will fail.
+A fundamental Fift data structure is its global _dictionary_, containing _words_ — or, more precisely, _word definitions_ — that correspond both to builtin primitives and functions and to user-defined functions **`*`**. A word can be executed in Fift simply by typing its name (a UTF-8 string without space characters) in interactive mode. When Fift starts up, some words (_primitives_) are already defined (by some C++ code in the current implementation); other words are defined in the standard library `Fift.fif`. After that, the user may extend the dictionary by defining new words or redefining old ones.
 
-A fundamental Fift data structure is its global dictionary, containing words—or, more precisely, word definitions—that correspond both to builtin primitives and functions and to user-defined functions.2 A word can be executed in Fift simply by typing its name (a UTF-8 string without space characters) in interactive mode. When Fift starts up, some words (primitives) are already defined (by some C++ code in the current implementation); other words are defined in the standard library Fift.fif. After that, the user may extend the dictionary by defining new words or redefining old ones.
+> **`*`** Fift words are typically shorter than functions or subroutines of other programming languages. A nice discussion and some guidelines (for Forth words) may be found in [2].
 
-The dictionary is supposed to be split into several vocabularies, or namespaces; however, namespaces are not implemented yet, so all words are currently defined in the same global namespace.
+The dictionary is supposed to be split into several _vocabularies_, or _namespaces_; however, _namespaces_ are not implemented yet, so all words are currently defined in the same global namespace.
 
-The Fift parser for input source files and for the standard input (in the interactive mode) is rather simple: the input is read line-by-line, then blank characters are skipped, and the longest prefix of the remaining line that is (the name of) a dictionary word is detected and removed from the input line.3 After that, the word thus found is executed, and the process repeats until the end of the line. When the input line is exhausted, a subsequent line is read from the current input file or the standard input.
+The Fift parser for input source files and for the standard input (in the interactive mode) is rather simple: the input is read line-by-line, then blank characters are skipped, and the longest prefix of the remaining line that is (the name of) a dictionary word is detected and removed from the input line **`*`**. After that, the word thus found is executed, and the process repeats until the end of the line. When the input line is exhausted, a subsequent line is read from the current input file or the standard input.
 
-In order to be detected, most words require a blank character or an endof-line immediately after them; this is reflected by appending a space to their names in the dictionary. Other words, called prefix words, do not require a blank character immediately after them.
+> **`*`** Notice that in contrast to Forth, Fift word names are case-sensitive: dup and DUP are distinct words.
 
-If no word is found, the string consisting of the first remaining characters of the input line until the next blank or end-of-line character is interpreted as an Integer and pushed into the stack. For instance, if we invoke Fift, type 2 3 + . (and press Enter), Fift first pushes an Integer constant equal to 2 into its stack, followed by another integer constant equal to 3. After that, the built-in primitive “+” is parsed and found in the dictionary; when invoked, it takes the two topmost elements from the stack and replaces them with their sum (5 in our example). Finally, “.” is a primitive that prints the decimal representation of the top-of-stack Integer, followed by a space. As a result, we observe “5 ok” printed by the Fift interpreter into the standard output.
+In order to be detected, most words require a blank character or an endof-line immediately after them; this is reflected by appending a space to their names in the dictionary. Other words, called _prefix words_, do not require a blank character immediately after them.
 
-The string “ok” is printed by the interpreter whenever it finishes interpreting 2Fift words are typically shorter than functions or subroutines of other programming languages. A nice discussion and some guidelines (for Forth words) may be found in [2].
-3Notice that in contrast to Forth, Fift word names are case-sensitive: dup and DUP are distinct words.
+If no word is found, the string consisting of the first remaining characters of the input line until the next blank or end-of-line character is interpreted as an _Integer_ and pushed into the stack. For instance, if we invoke Fift, type `2 3 + .` (and press Enter), Fift first pushes an _Integer_ constant equal to `2` into its stack, followed by another integer constant equal to `3`. After that, the built-in primitive `“+”` is parsed and found in the dictionary; when invoked, it takes the two topmost elements from the stack and replaces them with their sum (`5` in our example). Finally, `“.”` is a primitive that prints the decimal representation of the top-of-stack _Integer_, followed by a space. As a result, we observe `“5 ok”` printed by the Fift interpreter into the standard output. The string `“ok”` is printed by the interpreter whenever it finishes interpreting a line read from the standard input in the interactive mode.
 
 A list of built-in words may be found in Appendix A.
 
@@ -116,31 +121,33 @@ This chapter provides an introduction into the basic features of the Fift progra
 
 Currently, the values of the following data types can be kept in a Fift stack:
 
-- `Integer` — A signed 257-bit integer. Usually denoted by `x`, `y`, or `z` in the stack notation (when the stack effect of a Fift word is described).
-- `Cell` — A TVM cell, consisting of up to `1023` data bits and up to `4` references to other cells (cf. [4]). Usually denoted by c or its variants, such as c `0` or `c2`.
-- `Slice` — A partial view of a TVM cell, used for parsing data from Cells. Usually denoted by `s`.
-- `Builder` — A partially built Cell, containing up to `1023` data bits and up to four references; can be used to create new Cells. Usually denoted by `b`.
-- `Null` — A type with exactly one `“null”` value. Used to initialize new Box es. Usually denoted by `⊥`.
-- `Tuple` — An ordered collection of values of any of these types (not necessarily the same); can be used to represent values of arbitrary algebraic data types and Lisp-style lists.
-- `String` — A (usually printable) UTF-8 string. Usually denoted by `S`.
-- `Bytes` — An arbitrary sequence of 8-bit bytes, typically used to represent binary data. Usually denoted by `B`.
-- `WordList` — A (partially created) list of word references, used for creating new Fift word definitions. Usually denoted by `l`.
-- `WordDef` — An execution token, usually representing the definition of an existing Fift word. Usually denoted by `e`.
-- `Box` — A location in memory that can be used to store one stack value. Usually denoted by `p`.
-- `Atom` — A simple entity uniquely identified by its name, a string. Can be used to represent identifiers, labels, operation names, tags, and stack markers. Usually denoted by `a`.
-- `Object` — An arbitrary C++ object of any class derived from base class `td::CntObject;` may be used by Fift extensions to manipulate other data types and interface with other C++ libraries.
+| Type | Description | Denoted&nbsp;by |
+| :--- | :--- | :------------------------: |
+| _`Integer`_ | A signed 257-bit integer. Usually denoted by `x`, `y`, or `z` in the stack notation (when the stack effect of a Fift word is described). | `x|y|z` |
+| _`Cell`_ | A TVM cell, consisting of up to `1023` data bits and up to `4` references to other cells (cf. [4]). Usually denoted by c or its variants, such as c `0` or `c2`. | `0|c2` |
+| _`Slice`_ | A partial view of a TVM cell, used for parsing data from Cells. | `s` |
+| _`Builder`_ | A partially built Cell, containing up to `1023` data bits and up to four references; can be used to create new Cells. | `b` |
+| _`Null`_ | A type with exactly one `“null”` value. Used to initialize new Box es. Usually denoted by `⊥`. | `⊥` |
+| _`Tuple`_ | An ordered collection of values of any of these types (not necessarily the same); can be used to represent values of arbitrary algebraic data types and Lisp-style lists. |    |
+| _`String`_ | A (usually printable) UTF-8 string. | `S` |
+| _`Bytes`_ | An arbitrary sequence of 8-bit bytes, typically used to represent binary data. | `B` |
+| _`WordList`_ | A (partially created) list of word references, used for creating new Fift word definitions. | `l` |
+| _`WordDef`_ | An execution token, usually representing the definition of an existing Fift word. | `e` |
+| _`Box`_ | A location in memory that can be used to store one stack value. | `p` |
+| _`Atom`_ | A simple entity uniquely identified by its name, a string. Can be used to represent identifiers, labels, operation names, tags, and stack markers. | `a` |
+| _`Object`_ | An arbitrary C++ object of any class derived from base class `td::CntObject;` may be used by Fift extensions to manipulate other data types and interface with other C++ libraries. |    |
 
-The first six types listed above are shared with TVM; the remainder are Fift-specific. Notice that not all TVM stack types are present in Fift. For instance, the TVM Continuation type is not explicitly recognized by Fift; if a value of this type ends up in a Fift stack, it is manipulated as a generic Object.
+The first six types listed above are shared with TVM; the remainder are Fift-specific. Notice that not all TVM stack types are present in Fift. For instance, the TVM _Continuation_ type is not explicitly recognized by Fift; if a value of this type ends up in a Fift stack, it is manipulated as a generic _Object_.
 
 ### 2.2 Comments
 
 Fift recognizes two kinds of comments:
 
-- `"// "` (which must be followed by a space) opens a single-line comment until the end of the line, and `/*` defines a multi-line comment until `*/`. Both words `//` and `/*` are defined in the standard Fift library (Fift.fif).
+- `"// "` (which must be followed by a space) opens a single-line comment until the end of the line, and `/*` defines a multi-line comment until `*/`. Both words `//` and `/*` are defined in the standard Fift library (`Fift.fif`).
 
 ### 2.3 Terminating Fift
 
-The word bye terminates the Fift interpreter with a zero exit code. If a non-zero exit code is required (for instance, in Fift scripts), one can use word halt, which terminates Fift with the given exit code (passed as an Integer at the top of the stack). In contrast, quit does not quit to the operating system, but rather exits to the top level of the Fift interpreter.
+The word `bye` terminates the Fift interpreter with a zero exit code. If a non-zero exit code is required (for instance, in Fift scripts), one can use word `halt`, which terminates Fift with the given exit code (passed as an _Integer_ at the top of the stack). In contrast, quit does not quit to the operating system, but rather exits to the top level of the Fift interpreter.
 
 ### 2.4 Simple integer arithmetic
 
@@ -148,27 +155,27 @@ When Fift encounters a word that is absent from the dictionary, but which can be
 
 | xxxxxxxxxxxx | xxxxxxxxxxxxxxxxxxxxxxxx | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx |
 | :--- | :--- | :------------------------    |
-| **`+`** | _`(x y – x + y)`_ | replaces two Integers `x` and `y` passed at the top of the stack with their sum `x + y`. All deeper stack elements remain intact. If either `x` or `y` is not an Integer, or if the sum does not fit into a signed 257-bit Integer, an exception is thrown. |
-| **`-`** | _`(x y – x − y)`_ | computes the difference `x` − `y` of two Integers `x` and `y`. Notice that the first argument `x` is the second entry from the top of the stack, while the second argument `y` is taken from the top of the stack. |
-| **`negate`** | _`(x – −x)`_ | changes the sign of an Integer. |
-| **`*`** | _`(x y – xy)`_ | computes the product `xy` of two Integers `x` and `y`. |
-| **`/`** | _`(x y – q := bx/yc)`_ | computes the floor-rounded quotient `bx/yc` of two Integer `s`. |
-| **`mod`** | _`(x y – r := x mod y)`_ | computes the remainder `x mod y = x − y · bx/yc` of division of `x` by `y`. |
+| **`+`** | _`(x y – x + y)`_ | replaces two _Integer_'s `x` and `y` passed at the top of the stack with their sum `x + y`. All deeper stack elements remain intact. If either `x` or `y` is not an _Integer_, or if the sum does not fit into a signed 257-bit _Integer_, an exception is thrown. |
+| **`-`** | _`(x y – x − y)`_ | computes the difference `x − y` of two _Integer_'s `x` and `y`. Notice that the first argument `x` is the second entry from the top of the stack, while the second argument `y` is taken from the top of the stack. |
+| **`negate`** | _`(x – −x)`_ | changes the sign of an _Integer_. |
+| **`*`** | _`(x y – xy)`_ | computes the product `xy` of two _Integer_'s `x` and `y`. |
+| **`/`** | _`(x y – q := ⌊x/y⌋)`_ | computes the floor-rounded quotient `⌊x/y⌋` of two _Integer_'s. |
+| **`mod`** | _`(x y – r := x mod y)`_ | computes the remainder `x` mod `y = x − y · ⌊x/y⌋` of division of `x` by `y`. |
 | **`/mod`** | _`(x y – q r)`_ | computes both the quotient and the remainder. |
-| **`/c, /r`** | _`(x y – q)`_ | division words similar to `/`, but using ceiling rounding `(q := dx/ye)` and nearest-integer rounding `(q := b1/2 + x/yc)`, respectively. |
+| **`/c, /r`** | _`(x y – q)`_ | division words similar to `/`, but using ceiling rounding `(q := ⌈x/y⌉)` and nearest-integer rounding `(q := ⌊1/2 + x/y⌋)`, respectively. |
 | **`/cmod, /rmod`** | _`(x y – q r := x − qy)`_ | division words similar to `/mod`, but using ceiling or nearest-integer rounding. |
-| **`<<`** | _`(x y – x · 2 y )`_ | computes an arithmetic left shift of binary number `x` by `y ≥ 0` positions, yielding `x · 2 y`. |
-| **`>>`** | _`(x y – q := bx · 2 −y c)`_ | computes an arithmetic right shift by `y ≥ 0` positions. |
+| **`<<`** | _`(x y – x · 2^y )`_ | computes an arithmetic left shift of binary number `x` by `y ≥ 0` positions, yielding `x · 2 y`. |
+| **`>>`** | _`(x y – q := ⌊x · 2^−y⌋)`_ | computes an arithmetic right shift by `y ≥ 0` positions. |
 | **`>>c, >>r`** | _`(x y – q)`_ | similar to `>>`, but using ceiling or nearest-integer rounding. |
-| **`and, or, xor`** | _`(x y – x ⊕ y)`_ | compute the bitwise `AND`, `OR`, or `XOR` of two Integer `s`. |
-| **`not`** | _`(x – −1 − x)`_ | bitwise complement of an Integer. |
-| **`*/`** | _`(x y z – bxy/zc)`_ | “multiply-then-divide”: multiplies two integers `x` and `y` producing a 513-bit intermediate result, then divides the product by `z`. |
+| **`and, or, xor`** | _`(x y – x ⊕ y)`_ | compute the bitwise `AND`, `OR`, or `XOR` of two _Integer_'s. |
+| **`not`** | _`(x – −1 − x)`_ | bitwise complement of an _Integer_. |
+| **`*/`** | _`(x y z – ⌊xy/z⌋)`_ | _“multiply-then-divide”_: multiplies two integers `x` and `y` producing a 513-bit intermediate result, then divides the product by `z`. |
 | **`*/mod`** | _`(x y z – q r)`_ | similar to `*/`, but computes both the quotient and the remainder. |
-| **`*/c, */r`** | _`(x y z – q)`_ | `*/cmod`, `*/rmod (x y z – q r)`, similar to `*/` or `*/mod`, but using ceiling or nearest-integer rounding. |
+| **`*/c, */r`** | _`(x y z – q)`_ | `*/cmod`, `*/rmod` _`(x y z – q r)`_, similar to `*/` or `*/mod`, but using ceiling or nearest-integer rounding. |
 | **`*>>, *>>c, *>>r`** | _`(x y z – q)`_ | similar to `*/` and its variants, but with division replaced with a right shift. Compute `q = xy/2` z rounded in the indicated fashion (floor, ceiling, or nearest integer). |
 | **`<</, <</c, <</r`** | _`(x y z – q)`_ | similar to `*/`, but with multiplication replaced with a left shift. Compute `q = 2zx/y` rounded in the indicated fashion (notice the different order of arguments `y` and `z` compared to `*/`). |
 
-In addition, the word `"."` may be used to print the decimal representation of an Integer passed at the top of the stack (followed by a single space), and `"x."` prints the hexadecimal representation of the top-of-stack integer. The integer is removed from the stack afterwards.
+In addition, the word `"."` may be used to print the decimal representation of an _Integer_ passed at the top of the stack (followed by a single space), and `"x."` prints the hexadecimal representation of the top-of-stack integer. The integer is removed from the stack afterwards.
 
 The above primitives can be employed to use the Fift interpreter in interactive mode as a simple calculator for arithmetic expressions represented in reverse Polish notation (with operation symbols after the operands). For instance,
 
@@ -187,9 +194,7 @@ computes 2 + 3 · 4 = 14 and (2 + 3) · 4 = 20, and prints “14 20 ok”.
 
 ### 2.5 Stack manipulation words
 
-Stack manipulation words rearrange one or several values near the top of
-the stack, regardless of their types, and leave all deeper stack values intact.
-Some of the most often used stack manipulation words are listed below:
+Stack manipulation words rearrange one or several values near the top of the stack, regardless of their types, and leave all deeper stack values intact. Some of the most often used stack manipulation words are listed below:
 
 > Notice that Fift word names are case-sensitive, so one cannot type DUP instead of dup.
 
