@@ -506,63 +506,191 @@ The value currently stored in a _Box_ may be fetched by means of word `@` (prono
 
 Several auxiliary words exist that can modify the current value in a more sophisticated fashion:
 
-- +! (x p – ), increases the integer value stored in Box p by Integer x.
-Equivalent to tuck @ + swap !.
-- 1+! (p – ), increases the integer value stored in Box p by one. Equivalent to 1 swap +!.
-- 0! (p – ), stores Integer 0 into Box p. Equivalent to 0 swap !.
+|  | <span style="color:transparent">XXXXXXXX</span> |  |
+| :--- | :--- | :------------------------    |
+| **`+!`** | _`(x p – )`_ | increases the integer value stored in _Box_ p by _Integer_ `x`. Equivalent to `tuck @ + swap !`. |
+| **`1+!`** | _`(p – )`_ | increases the integer value stored in _Box_ p by one. Equivalent to `1 swap +!`. |
+| **`0!`** | _`(p – )`_ | stores _Integer_ 0 into _Box_ p. Equivalent to `0 swap !`. |
+
 In this way we can implement a simple counter:
-variable counter { counter 0! } : reset-counter { counter @ 1+ dup counter ! } : next-counter reset-counter next-counter . next-counter . next-counter .
+
+```
+variable counter
+{ counter 0! } : reset-counter
+{ counter @ 1+ dup counter ! } : next-counter
+reset-counter next-counter . next-counter . next-counter .
 reset-counter next-counter .
-20 2.14. Named and unnamed variables produces 1 2 3 ok 1 ok After these definitions are in place, we can even forget the definition of counter by means of the phrase forget counter. Then the only way to access the value of this variable is by means of reset-counter and next-counter.
-Variables are usually created by variable with no value, or rather with a Null value. If one wishes to create initialized variables, one can use the phrase box constant:
-17 box constant x x 1+! x @ .
-prints “18 ok”. One can even define a special defining word for initialized variables, if they are needed often:
-{ box constant } : init-variable 17 init-variable x "test" init-variable y x 1+! x @ . y @ type prints “18 test ok”.
+```
+
+produces
+
+```
+1 2 3 ok
+1 ok
+```
+
+After these definitions are in place, we can even forget the definition of `counter` by means of the phrase `forget counter`. Then the only way to access the value of this variable is by means of `reset-counter` and `next-counter`.
+Variables are usually created by `variable` with no value, or rather with a _Null_ value. If one wishes to create initialized variables, one can use the phrase `box constant`:
+
+```
+17 box constant x
+x 1+! x @ .
+```
+
+prints `“18 ok”`. One can even define a special defining word for initialized variables, if they are needed often:
+
+```
+{ box constant } : init-variable
+17 init-variable x
+"test" init-variable y
+x 1+! x @ . y @ type
+```
+
+prints `“18 test ok”`.
+
 The variables have so far only one disadvantage compared to the constants: one has to access their current values by means of an auxiliary word @. Of course, one can mitigate this by defining a “getter” and a “setter” word for a variable, and use these words to write better-looking code:
-variable x-box { x-box @ } : x { x-box ! } : x!
+
+```
+variable x-box
+{ x-box @ } : x
+{ x-box ! } : x!
 { x x * 5 x * + 6 + } : f(x)
-{ ."( " x . .", " f(x) . .") " } : .xy 3 x! .xy 5 x! .xy prints “( 3 , 30 ) ( 5 , 56 ) ok”, which are the points (x, f(x)) on the graph of f(x) = x 2 + 5x + 6 with x = 3 and x = 5.
+{ ."( " x . .", " f(x) . .") " } : .xy
+3 x! .xy 5 x! .xy
+```
+
+prints `“( 3 , 30 ) ( 5 , 56 ) ok”`, which are the points `(x, f(x))` on the graph of `f(x) = x 2 + 5x + 6` with `x = 3` and `x = 5`.
+
 Again, if we want to define “getters” for all our variables, we can first define a defining word as explained in 4.8, and use this word to define both a getter and a setter at the same time:
-21 2.15. Tuples and arrays { hole dup 1 ’ @ does create 1 ’ ! does create } : variable-set variable-set x x!
+
+```
+{ hole dup 1 ’ @ does create 1 ’ ! does create } : variable-set
+variable-set x x!
 variable-set y y!
-{ ."x=" x . ."y=" y . ."x*y=" x y * . cr } : show { y 1+ y! } : up { x 1+ x! } : right { x y x! y! } : reflect 2 x! 5 y! show up show right show up show reflect show produces x=2 y=5 x*y=10 x=2 y=6 x*y=12 x=3 y=6 x*y=18 x=3 y=7 x*y=21 x=7 y=3 x*y=21 2.15 Tuples and arrays Fift also supports Tuples, i.e., immutable ordered collections of arbitrary values of stack value types (cf. 2.1). When a Tuple t consists of values x1,
-. . . , xn (in that order), we write t = (x1, . . . , xn). The number n is called the length of Tuple t; it is also denoted by |t|. Tuples of length two are also called pairs, tuples of length three are triples.
-- tuple (x1 . . . xn n – t), creates new Tuple t := (x1, . . . , xn) from n ≥ 0 topmost stack values.
-- pair (x y – t), creates new pair t = (x, y). Equivalent to 2 tuple.
-- triple (x y z – t), creates new triple t = (x, y, z). Equivalent to 3 tuple.
-- | ( – t), creates an empty Tuple t = (). Equivalent to 0 tuple.
-- , (t x – t 0 ), appends x to the end of Tuple t, and returns the resulting Tuple t 0 .
-- .dump (x – ), dumps the topmost stack entry in the same way as .s dumps all stack elements.
-22 2.15. Tuples and arrays For instance, both | 2 , 3 , 9 , .dump and 2 3 9 triple .dump construct and print triple (2, 3, 9):
-[ 2 3 9 ] ok Notice that the components of a Tuple are not necessarily of the same type,
-and that a component of a Tuple can also be a Tuple:
-1 2 3 triple 4 5 6 triple 7 8 9 triple triple constant Matrix Matrix .dump cr | 1 "one" pair , 2 "two" pair , 3 "three" pair , .dump produces [ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 9 ] ]
-[ [ 1 "one" ] [ 2 "two" ] [ 3 "three" ] ] ok Once a Tuple has been constructed, we can extract any of its components,
-or completely unpack the Tuple into the stack:
-- untuple (t n – x1 . . . xn), returns all components of a Tuple t =
-(x1, . . . , xn), but only if its length is equal to n. Otherwise throws an exception.
-- unpair (t – x y), unpacks a pair t = (x, y). Equivalent to 2 untuple.
-- untriple (t – x y z), unpacks a triple t = (x, y, z). Equivalent to 3 untuple.
-- explode (t – x1 . . . xn n), unpacks a Tuple t = (x1, . . . , xn) of unknown length n, and returns that length.
-- count (t – n), returns the length n = |t| of Tuple t.
-- tuple? (t – ?), checks whether t is a Tuple, and returns −1 or 0 accordingly.
-23 2.15. Tuples and arrays - [] (t i – x), returns the (i + 1)-st component ti+1 of Tuple t, where 0 ≤ i < |t|.
-- first (t – x), returns the first component of a Tuple. Equivalent to 0 [].
-- second (t – x), returns the second component of a Tuple. Equivalent to 1 [].
-- third (t – x), returns the third component of a Tuple. Equivalent to 2 [].
+{ ."x=" x . ."y=" y . ."x*y=" x y * . cr } : show
+{ y 1+ y! } : up
+{ x 1+ x! } : right
+{ x y x! y! } : reflect
+2 x! 5 y!
+```
+
+show up show right show up show reflect show produces
+
+```
+x=2 y=5 x*y=10
+x=2 y=6 x*y=12
+x=3 y=6 x*y=18
+x=3 y=7 x*y=21
+x=7 y=3 x*y=21
+```
+
+### 2.15 Tuples and arrays
+
+Fift also supports _Tuples_, i.e., immutable ordered collections of arbitrary values of stack value types (cf. 2.1). When a _Tuple_ t consists of values `x1, ..., xn` (in that order), we write `t = (x1, . . . , xn)`. The number `n` is called the length of _Tuple_ `t`; it is also denoted by `|t|`. Tuples of length two are also called _pairs_, tuples of length three are _triples_.
+
+|  | <span style="color:transparent">XXXXXXXXXXXXXXXX</span> |  |
+| :--- | :--- | :------------------------    |
+| **`tuple`** | _`(x1 . . . xn n – t)`_ | creates new Tuple `t := (x1, . . . , xn)` from `n ≥ 0` topmost stack values. |
+| **`pair`** | _`(x y – t)`_ | creates new pair `t = (x, y)`. Equivalent to 2 tuple. |
+| **`triple`** | _`(x y z – t)`_ | creates new triple `t = (x, y, z)`. Equivalent to 3 tuple. |
+| **`|`** | _`( – t)`_ | creates an empty Tuple `t = ()`. Equivalent to 0 tuple. |
+| **`,`** | _`(t x – t 0 )`_ | appends `x` to the end of Tuple `t`, and returns the resulting Tuple `t 0`. |
+| **`.dump`** | _`(x – )`_ | dumps the topmost stack entry in the same way as `.s` dumps all stack elements. |
+
+For instance, both
+
+```
+| 2 , 3 , 9 , .dump
+```
+
+and
+
+```
+2 3 9 triple .dump
+```
+
+construct and print triple (2, 3, 9):
+
+```
+[ 2 3 9 ] ok
+```
+
+Notice that the components of a _Tuple_ are not necessarily of the same type, and that a component of a _Tuple_ can also be a _Tuple_:
+
+```
+1 2 3 triple 4 5 6 triple 7 8 9 triple triple constant Matrix
+Matrix .dump cr
+| 1 "one" pair , 2 "two" pair , 3 "three" pair , .dump
+```
+
+produces
+
+```
+[ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 9 ] ]
+[ [ 1 "one" ] [ 2 "two" ] [ 3 "three" ] ] ok
+```
+
+Once a _Tuple_ has been constructed, we can extract any of its components, or completely unpack the _Tuple_ into the stack:
+
+|  | <span style="color:transparent">XXXXXXXXXXXXXXXX</span> |  |
+| :--- | :--- | :------------------------    |
+| **`untuple`** | _`(t n – x1 . . . xn)`_ | returns all components of a _Tuple_ `t = (x1, . . . , xn)`, but only if its length is equal to `n`. Otherwise throws an exception. |
+| **`unpair`** | _`(t – x y)`_ | unpacks a pair `t = (x, y)`. Equivalent to 2 untuple. |
+| **`untriple`** | _`(t – x y z)`_ | unpacks a triple `t = (x, y, z)`. Equivalent to 3 untuple. |
+| **`explode`** | _`(t – x1 . . . xn n)`_ | unpacks a _Tuple_ `t = (x1, . . . , xn)` of unknown length `n`, and returns that length. |
+| **`count`** | _`(t – n)`_ | returns the length `n = |t|` of _Tuple_ `t`. |
+| **`tuple?`** | _`(t – ?)`_ | checks whether `t` is a _Tuple_, and returns `−1` or `0` accordingly. |
+| **`[]`** | _`(t i – x)`_ | returns the `(i + 1)-st` component `ti+1` of _Tuple_ `t`, where `0 ≤ i < |t|`. |
+| **`first`** | _`(t – x)`_ | returns the first component of `a` _Tuple_. Equivalent to 0 []. |
+| **`second`** | _`(t – x)`_ | returns the second component of `a` _Tuple_. Equivalent to 1 []. |
+| **`third`** | _`(t – x)`_ | returns the third component of `a` _Tuple_. Equivalent to 2 []. |
+
 For instance, we can access individual elements and rows of a matrix:
-1 2 3 triple 4 5 6 triple 7 8 9 triple triple constant Matrix Matrix .dump cr Matrix 1 [] 2 [] . cr Matrix third .dump cr produces [ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 9 ] ]
-6 [ 7 8 9 ]
-Notice that Tuples are somewhat similar to arrays of other programming languages, but are immutable: we cannot change one individual component of a Tuple. If we still want to create something like an array, we need a Tuple of Box es (cf. 2.14):
-- allot (n – t), creates a Tuple that consists of n new empty Box es.
-Equivalent to | { hole , } rot times.
+
+```
+1 2 3 triple 4 5 6 triple 7 8 9 triple triple constant Matrix
+Matrix .dump cr
+Matrix 1 [] 2 [] . cr
+Matrix third .dump cr
+```
+
+produces
+
+```
+[ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 9 ] ]
+6
+[ 7 8 9 ]
+```
+
+Notice that _Tuples_ are somewhat similar to arrays of other programming languages, but are immutable: we cannot change one individual component of a _Tuple_. If we still want to create something like an array, we need a _Tuple_ of _Box_'es (cf. 2.14):
+
+|  | <span style="color:transparent">XXXXX</span> |  |
+| :--- | :--- | :------------------------    |
+| **`allot`** | _`(n – t)`_ | creates a _Tuple_ that consists of `n` new empty _Box_'es.<br>Equivalent to `\| { hole , } rot times`. |
+
 For instance,
-10 allot constant A | 3 box , 1 box , 4 box , 1 box , 5 box , 9 box , constant B { over @ over @ swap rot ! swap ! } : swap-values-of { B swap [] } : B[]
-{ B[] swap B[] swap-values-of } : swap-B { B[] @ . } : .B[]
-0 1 swap-B 1 3 swap-B 0 2 swap-B 0 .B[] 1 .B[] 2 .B[] 3 .B[]
-24 2.16. Lists creates an uninitialized array A of length 10, an initialized array B of length 6,
-and then interchanges some elements of B and prints the first four elements of the resulting B:
-4 1 1 3 ok 2.16 Lists Lisp-style lists can also be represented in Fift. First of all, two special words are introduced to manipulate values of type Null, used to represent the empty list (not to be confused with the empty Tuple):
+
+```
+10 allot constant A
+| 3 box , 1 box , 4 box , 1 box , 5 box , 9 box , constant B
+{ over @ over @ swap rot ! swap ! } : swap-values-of
+{ B swap [] } : B[]
+{ B[] swap B[] swap-values-of } : swap-B
+{ B[] @ . } : .B[]
+0 1 swap-B 1 3 swap-B 0 2 swap-B
+0 .B[] 1 .B[] 2 .B[] 3 .B[]
+```
+
+creates an uninitialized array `A` of length `10`, an initialized array `B` of length `6`, and then interchanges some elements of `B` and prints the first four elements of the resulting `B`:
+
+```
+4 1 1 3 ok
+```
+
+### 2.16 Lists
+
+Lisp-style lists can also be represented in Fift. First of all, two special words are introduced to manipulate values of type _Null_, used to represent the empty list (not to be confused with the empty _Tuple_):
+
 - null ( – ⊥), pushes the only value ⊥ of type Null, which is also used to represent an empty list.
 - null? (x – ?), checks whether x is a Null. Can also be used to check whether a list is empty.
 After that, cons and uncons are defined as aliases for pair and unpair:
