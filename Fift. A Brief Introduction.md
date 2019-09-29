@@ -691,42 +691,94 @@ creates an uninitialized array `A` of length `10`, an initialized array `B` of l
 
 Lisp-style lists can also be represented in Fift. First of all, two special words are introduced to manipulate values of type _Null_, used to represent the empty list (not to be confused with the empty _Tuple_):
 
-- null ( – ⊥), pushes the only value ⊥ of type Null, which is also used to represent an empty list.
-- null? (x – ?), checks whether x is a Null. Can also be used to check whether a list is empty.
+|  | <span style="color:transparent">xxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`null`** | _`( – ⊥)`_ | pushes the only value ⊥ of type Null, which is also used to represent an empty list. |
+| **`null?`** | _`(x – ?)`_ | checks whether x is a Null. Can also be used to check whether a list is empty. |
+
 After that, cons and uncons are defined as aliases for pair and unpair:
-- cons (h t – l), constructs a list from its head (first element) h and its tail (the list consisting of all remaining elements) t. Equivalent to pair.
-- uncons (l – h t), decomposes a non-empty list into its head and its tail.
-Equivalent to unpair.
-- car (l – h), returns the head of a list. Equivalent to first.
-- cdr (l – t), returns the tail of a list. Equivalent to second.
-- cadr (l – h 0 ), returns the second element of a list. Equivalent to cdr car.
-- list (x1 . . . xn n – l), constructs a list l of length n with elements x1,
-. . . , xn, in that order. Equivalent to null ’ cons rot times.
-- .l (l – ), prints a Lisp-style list l.
+
+|  | <span style="color:transparent">xxxxxxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`cons`** | _`(h t – l)`_ | constructs a list from its head (first element) h and its tail (the list consisting of all remaining elements) t. Equivalent to pair. |
+| **`uncons`** | _`(l – h t)`_ | decomposes a non-empty list into its head and its tail. Equivalent to unpair. |
+| **`car`** | _`(l – h)`_ | returns the head of a list. Equivalent to first. |
+| **`cdr`** | _`(l – t)`_ | returns the tail of a list. Equivalent to second. |
+| **`cadr`** | _`(l – h 0 )`_ | returns the second element of a list. Equivalent to cdr car. |
+| **`list`** | _`(x1 . . . xn n – l)`_ | constructs a list l of length n with elements `x1, . . . , xn`, in that order. Equivalent to null ’ cons rot times. |
+| **`.l`** | _`(l – )`_ | prints a Lisp-style list l. |
+
 For instance,
-25 2.17. Atoms 2 3 9 3 tuple .dump cr 2 3 9 3 list dup .dump space dup .l cr "test" swap cons .l cr produces [ 2 3 9 ]
+
+```
+2 3 9 3 tuple .dump cr
+2 3 9 3 list dup .dump space dup .l cr
+"test" swap cons .l cr
+```
+
+produces
+
+```
+[ 2 3 9 ]
 [ 2 [ 3 [ 9 (null) ] ] ] (2 3 9)
 ("test" 2 3 9)
+```
+
 Notice that the three-element list (2 3 9) is distinct from the triple (2, 3, 9).
-2.17 Atoms An Atom is a simple entity uniquely identified by its name. Atoms can be used to represent identifiers, labels, operation names, tags, and stack markers.
-Fift offers the following words to manipulate Atoms:
-- (atom) (S x – a −1 or 0), returns the only Atom a with the name given by String S. If there is no such Atom yet, either creates it (if Integer x is non-zero) or returns a single zero to indicate failure (if x is zero).
-- atom (S – a), returns the only Atom a with the name S, creating such an atom if necessary. Equivalent to true (atom) drop.
-- ‘hword i ( – a), introduces an Atom literal, equal to the only Atom with the name equal to hwordi. Equivalent to "hword i" atom.
-- anon ( – a), creates a new unique anonymous Atom.
-- atom? (u – ?), checks whether u is an Atom.
-- eq? (u v – ?), checks whether u and v are equal Integer s, Atoms, or Nulls. If they are not equal, or if they are of different types, or not of one of the types listed, returns zero.
+
+### 2.17 Atoms
+
+An _Atom_ is a simple entity uniquely identified by its name. _Atom_'s can be used to represent identifiers, labels, operation names, tags, and stack markers.
+Fift offers the following words to manipulate _Atom_'s:
+
+| <span style="color:transparent">xxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`(atom)`** | _`(S x – a −1 or 0)`_ | returns the only _Atom_ a with the name given by String S. If there is no such _Atom_ yet, either creates it (if Integer x is non-zero) or returns a single zero to indicate failure (if x is zero). |
+| **`atom`** | _`(S – a)`_ | returns the only _Atom_ a with the name S, creating such an atom if necessary. Equivalent to true (atom) drop. |
+| **`‘hword i`** | _`( – a)`_ | introduces an _Atom_ literal, equal to the only _Atom_ with the name equal to hwordi. Equivalent to "hword i" atom. |
+| **`anon`** | _`( – a)`_ | creates a new unique anonymous Atom. |
+| **`atom?`** | _`(u – ?)`_ | checks whether u is an Atom. |
+| **`eq?`** | _`(u v – ?)`_ | checks whether u and v are equal Integer s, _Atom_'s, or Nulls. If they are not equal, or if they are of different types, or not of one of the types listed, returns zero. |
+
 For instance,
-‘+ 2 ‘* 3 4 3 list 3 list .l creates and prints the list 26 2.18. Command line arguments in script mode (+ 2 (* 3 4))
-which is the Lisp-style representation of arithmetical expression 2 + 3 · 4. An interpreter for such expressions might use eq? to check the operation sign (cf. 3.5 for an explanation of recursive functions in Fift):
-variable ’eval { ’eval @ execute } : eval { dup tuple? {
-uncons uncons uncons null? not abort"three-element list expected"
-swap eval swap eval rot dup ‘+ eq? { drop + } {
-dup ‘- eq? { drop - } {
-‘* eq? not abort"unknown operation" *
-} cond } cond } if } ’eval !
-‘+ 2 ‘* 3 4 3 list 3 list dup .l cr eval . cr prints (+ 2 (* 3 4))
-14 If we load Lisp.fif to enable Lisp-style list syntax, we can enter "Lisp.fif" include ( ‘+ 2 ( ‘* 3 4 ) ) dup .l cr eval . cr with the same result as before. The word (, defined in Lisp.fif, uses an anonymous Atom created by anon to mark the current stack position, and then ) builds a list from several top stack entries, scanning the stack until the anonymous Atom marker is found:
+
+```
+‘+ 2 ‘* 3 4 3 list 3 list .l
+```
+
+creates and prints the list
+
+```
+(+ 2 (* 3 4))
+```
+
+which is the Lisp-style representation of arithmetical expression `2 + 3 · 4`. An interpreter for such expressions might use `eq?` to check the operation sign (cf. 3.5 for an explanation of recursive functions in Fift):
+
+```
+variable ’eval
+{ ’eval @ execute } : eval
+{ dup tuple? {
+    uncons uncons uncons
+    null? not abort"three-element list expected"
+    swap eval swap eval rot
+    dup ‘+ eq? { drop + } {
+      dup ‘- eq? { drop - } {
+        ‘* eq? not abort"unknown operation" *
+      } cond
+    } cond
+  } if
+} ’eval !
+‘+ 2 ‘* 3 4 3 list 3 list dup .l cr eval . cr
+```
+
+prints
+
+```
+(+ 2 (* 3 4))
+14
+```
+
+If we load Lisp.fif to enable Lisp-style list syntax, we can enter "Lisp.fif" include ( ‘+ 2 ( ‘* 3 4 ) ) dup .l cr eval . cr with the same result as before. The word (, defined in Lisp.fif, uses an anonymous _Atom_ created by anon to mark the current stack position, and then ) builds a list from several top stack entries, scanning the stack until the anonymous _Atom_ marker is found:
 variable ’)
 { ") without (" abort } ’) !
 { ’) @ execute } : )
@@ -1261,7 +1313,7 @@ If S is not a valid UTF-8 string, the return value is undefined and may be also 
 - (’) hword-namei ( – e), similar to ’, but returns the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked, cf. 4.6. May be used to recover the current values of constants inside word definitions and other blocks by using the phrase (’) hword-namei execute.
 - (-trailing) (S x – S 0 ), removes from String S all trailing characters with UTF-8 codepoint x.
 76 Appendix A. List of Fift words - (.) (x – S), returns the String with the decimal representation of Integer x. Equivalent to dup abs <# #s rot sign #> nip.
-- (atom) (S x – a −1 or 0), returns the only Atom a with the name given by String S, cf. 2.17. If there is no such Atom yet, either creates it (if Integer x is non-zero) or returns a single zero to indicate failure (if x is zero).
+- (atom) (S x – a −1 or 0), returns the only _Atom_ a with the name given by String S, cf. 2.17. If there is no such _Atom_ yet, either creates it (if Integer x is non-zero) or returns a single zero to indicate failure (if x is zero).
 - (b.) (x – S), returns the String with the binary representation of Integer x.
 - (compile) (l x1 . . . xn n e – l 0 ), extends WordList l so that it would push 0 ≤ n ≤ 255 values x1, . . . , xn into the stack and execute the execution token e when invoked, where 0 ≤ n ≤ 255 is an Integer,
 cf. 4.7. If e is equal to the special value ’nop, the last step is omitted.
@@ -1409,14 +1461,14 @@ cf. 5.6. Each byte is represented by exactly two uppercase hexadecimal digits.
 hword-namei execute.
 86 Appendix A. List of Fift words - ] (x1 . . . xn n – ), closes an internal interpreter session opened by [
 and invokes (compile) or (execute) afterwards depending on whether state is greater than zero. For instance, { [ 2 3 + 1 ] * } is equivalent to { 5 * }.
-- ‘hword i ( – a), introduces an Atom literal, equal to the only Atom with the name equal to hwordi, cf. 2.17. Equivalent to "hword i" atom.
+- ‘hword i ( – a), introduces an _Atom_ literal, equal to the only _Atom_ with the name equal to hwordi, cf. 2.17. Equivalent to "hword i" atom.
 - abort (S – ), throws an exception with an error message taken from String S, cf. 3.6.
 - abort"hmessagei" (x – ), throws an exception with the error message hmessagei if the Integer x is non-zero, cf. 3.6.
 - abs (x – |x|), computes the absolute value |x| = max(x, −x) of Integer x. Equivalent to dup negate max.
 - allot (n – t), creates a new array, i.e., a Tuple that consists of n new empty Box es, cf. 2.15. Equivalent to | { hole , } rot times.
 - and (x y – x&y), computes the bitwise AND of two Integer s, cf. 2.4.
 - anon ( – a), creates a new unique anonymous Atom, cf. 2.17.
-- atom (S – a), returns the only Atom a with the name S, creating such an atom if necessary, cf. 2.17. Equivalent to true (atom) drop.
+- atom (S – a), returns the only _Atom_ a with the name S, creating such an atom if necessary, cf. 2.17. Equivalent to true (atom) drop.
 - atom? (u – ?), checks whether u is an Atom, cf. 2.17.
 - b+ (b b0 – b 00), concatenates two Builders b and b 0 , cf. 5.2.
 - b. (x – ), prints the binary representation of an Integer x, followed by a single space. Equivalent to b._ space.
