@@ -153,7 +153,7 @@ The word `bye` terminates the Fift interpreter with a zero exit code. If a non-z
 
 When Fift encounters a word that is absent from the dictionary, but which can be interpreted as an integer constant (or “literal”), its value is pushed into the stack (as explained in 2.8 in more detail). Apart from that, several integer arithmetic primitives are defined:
 
-| xxxxxxxxxxxx | xxxxxxxxxxxxxxxxxxxxxxxx | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx |
+| <span style="color:transparent">xxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span> |
 | :--- | :--- | :------------------------    |
 | **`+`** | _`(x y – x + y)`_ | replaces two _Integer_'s `x` and `y` passed at the top of the stack with their sum `x + y`. All deeper stack elements remain intact. If either `x` or `y` is not an _Integer_, or if the sum does not fit into a signed 257-bit _Integer_, an exception is thrown. |
 | **`-`** | _`(x y – x − y)`_ | computes the difference `x − y` of two _Integer_'s `x` and `y`. Notice that the first argument `x` is the second entry from the top of the stack, while the second argument `y` is taken from the top of the stack. |
@@ -198,7 +198,7 @@ Stack manipulation words rearrange one or several values near the top of the sta
 
 > Notice that Fift word names are case-sensitive, so one cannot type DUP instead of dup.
 
-| xxxxxx | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx |
+| <span style="color:transparent">xxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span> |
 | :--- | :--- | :------------------------    |
 | **`dup`** | _`(x – x x)`_ | duplicates the top-of-stack entry. If the stack is empty, throws an exception. |
 | **`drop`** | _`(x – )`_ | removes the top-of-stack entry. |
@@ -395,7 +395,7 @@ String literals are introduced by means of the prefix word `"`, which scans the 
 
 The following words can be used to manipulate strings:
 
-| xxxxxxxxxxxxx | xxxxxxxxxxxxxxxxxxxxxxx | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx |
+| <span style="color:transparent">xxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span> |
 | :--- | :--- | :------------------------    |
 | **`"hstringi"`** | _`( – S)`_ | pushes a String literal into the stack. |
 | **`."hstringi"`** | _`( – )`_ | prints a constant string into the standard output. |
@@ -416,46 +416,96 @@ For instance, ."*", "*" type, 42 emit, and char * emit are four different ways t
 
 ### 2.11 Boolean expressions, or flags
 
-Fift does not have a separate value type for representing boolean values.
-Instead, any non-zero Integer can be used to represent truth (with −1 being the standard representation), while a zero Integer represents falsehood.
-Comparison primitives normally return −1 to indicate success and 0 otherwise.
+Fift does not have a separate value type for representing boolean values. Instead, any non-zero Integer can be used to represent truth (with `−1` being the standard representation), while a zero _Integer_ represents falsehood.
+Comparison primitives normally return `−1` to indicate success and `0` otherwise.
 Constants true and false can be used to push these special integers into the stack:
-- true ( – −1), pushes −1 into the stack.
-- false ( – 0), pushes 0 into the stack.
+
+|  |  |  |
+| :--- | :--- | :------------------------    |
+| **`true`** | _`( – −1)`_ | pushes −1 into the stack. |
+| **`false`** | _`( – 0)`_ | pushes 0 into the stack. |
+| **`0<>`** | _`(x – x 6= 0)`_ | pushes −1 if Integer x is non-zero, 0 otherwise. |
+
 If boolean values are standard (either 0 or −1), they can be manipulated by means of bitwise logical operations and, or, xor, not (listed in 2.4).
 Otherwise, they must first be reduced to the standard form using 0<>:
-- 0<> (x – x 6= 0), pushes −1 if Integer x is non-zero, 0 otherwise.
-2.12 Integer comparison operations Several integer comparison operations can be used to obtain boolean values:
-- < (x y – ?), checks whether x < y (i.e., pushes −1 if x < y, 0 otherwise).
-- >, =, <>, <=, >= (x y – ?), compare x and y and push −1 or 0 depending on the result of the comparison.
-- 0< (x – ?), checks whether x < 0 (i.e., pushes −1 if x is negative, 0 otherwise). Equivalent to 0 <.
-- 0>, 0=, 0<>, 0<=, 0>= (x – ?), compare x against zero.
-- cmp (x y – z), pushes 1 if x > y, −1 if x < y, and 0 if x = y.
-18 2.14. Named and unnamed variables - sgn (x – y), pushes 1 if x > 0, −1 if x < 0, and 0 if x = 0. Equivalent to 0 cmp.
+
+### 2.12 Integer comparison operations
+
+Several integer comparison operations can be used to obtain boolean values:
+
+| <span style="color:transparent">XXXXXXXXXXXXXXXXXXX</span> | <span style="color:transparent">XXXXXXXXX</span> |  |
+| :--- | :--- | :------------------------    |
+| **`<`** | _`(x y – ?)`_ | checks whether x < y (i.e., pushes `−1` if `x < y`, `0` otherwise). |
+| **`>, =, <>, <=, >=`** | _`(x y – ?)`_ | compare x and y and push `−1` or `0` depending on the result of the comparison. |
+| **`0<`** | _`(x – ?)`_ | checks whether `x < 0` (i.e., pushes `−1` if `x` is negative, `0` otherwise). Equivalent to `0 <`. |
+| **`0>, 0=, 0<>, 0<=, 0>=`** | _`(x – ?)`_ | compare x against zero. |
+| **`cmp`** | _`(x y – z)`_ | pushes `1` if `x > y`, `−1` if `x < y`, and `0` if `x = y`. |
+| **`sgn`** | _`(x – y)`_ | pushes `1` if `x > 0`, `−1` if `x < 0`, and `0 `if `x = 0`. Equivalent to `0` cmp. |
+
 Example:
+
+```
 2 3 < .
-prints “-1 ok”, because 2 is less than 3.
+```
+
+prints `“-1 ok”`, because `2` is less than `3`.
+
 A more convoluted example:
+
+```
 { "true " "false " rot 0= 1+ pick type 2drop } : ?.
 2 3 < ?. 2 3 = ?. 2 3 > ?.
-prints “true false false ok”.
-2.13 String comparison operations Strings can be lexicographically compared by means of the following words:
-- $= (S S0 – ?), returns −1 if strings S and S 0 are equal, 0 otherwise.
-- $cmp (S S0 – x), returns 0 if strings S and S 0 are equal, −1 if S is lexicographically less than S 0 , and 1 if S is lexicographically greater than S 0 .
-2.14 Named and unnamed variables In addition to constants introduced in 2.7, Fift supports variables, which are a more efficient way to represent changeable values. For instance, the last two code fragments of 2.7 could have been written with the aid of variables instead of constants as follows:
-variable x variable y { dup x ! dup * y ! } : setxy 3 setxy x @ . y @ . x @ y @ + .
+```
+
+prints `“true false false ok”`.
+
+### 2.13 String comparison operations
+
+Strings can be lexicographically compared by means of the following words:
+
+| <span style="color:transparent">XXXX</span> | <span style="color:transparent">XXXXXXXXX</span> |  |
+| :--- | :--- | :------------------------    |
+| **`$=`** | _`(S S0 – ?)`_ | returns `−1` if strings `S` and `S 0` are equal, `0` otherwise. |
+| **`$cmp`** | _`(S S0 – x)`_ | returns `0` if strings `S` and `S 0` are equal, `−1` if `S` is lexicographically less than `S 0`, and `1` if `S` is lexicographically greater than `S 0`. |
+
+### 2.14 Named and unnamed variables
+
+In addition to constants introduced in 2.7, Fift supports variables, which are a more efficient way to represent changeable values. For instance, the last two code fragments of 2.7 could have been written with the aid of variables instead of constants as follows:
+
+```
+variable x variable y
+{ dup x ! dup * y ! } : setxy
+3 setxy x @ . y @ . x @ y @ + .
 7 setxy x @ . y @ . x @ y @ + .
-{ ."( " x @ . .", " y @ . .") " } : showxy 3 setxy showxy producing the same output as before:
-19 2.14. Named and unnamed variables 3 9 12 ok 7 49 56 ok ( 3 , 9 ) ok The phrase variable x creates a new Box, i.e., a memory location that can be used to store exactly one value of any Fift-supported type, and defines x as a constant equal to this Box :
-- variable ( – ), scans a blank-delimited word name S from the remainder of the input, allocates an empty Box, and defines a new ordinary word S as a constant, which will push the new Box when invoked.
-Equivalent to hole constant.
-- hole ( – p), creates a new Box p that does not hold any value. Equivalent to null box.
-- box (x – p), creates a new Box containing specified value x. Equivalent to hole tuck !.
-The value currently stored in a Box may be fetched by means of word @
-(pronounced “fetch”), and modified by means of word ! (pronounced “store”):
-- @ (p – x), fetches the value currently stored in Box p.
-- ! (x p – ), stores new value x into Box p.
+{ ."( " x @ . .", " y @ . .") " } : showxy
+3 setxy showxy
+```
+
+producing the same output as before:
+
+```
+3 9 12 ok
+7 49 56 ok
+( 3 , 9 ) ok
+```
+
+The phrase variable `x` creates a new _Box_, i.e., a memory location that can be used to store exactly one value of any Fift-supported type, and defines `x` as a constant equal to this _Box_:
+
+|  | <span style="color:transparent">XXXXXXX</span> |  |
+| :--- | :--- | :------------------------    |
+| **`variable`** | _`( – )`_ | scans a blank-delimited word name S from the remainder of the input, allocates an empty Box, and defines a new ordinary word S as a constant, which will push the new Box when invoked. Equivalent to `hole constant`. |
+| **`hole`** | _`( – p)`_ | creates a new Box p that does not hold any value. Equivalent to `null box`. |
+| **`box`** | _`(x – p)`_ | creates a new Box containing specified value x. Equivalent to `hole tuck !`. |
+
+The value currently stored in a _Box_ may be fetched by means of word `@` (pronounced “fetch”), and modified by means of word `!` (pronounced “store”):
+
+|  |  |  |
+| :--- | :--- | :------------------------    |
+| **`@`** | _`(p – x)`_ | fetches the value currently stored in _Box_ `p`. |
+| **`!`** | _`(x p – )`_ | stores new value x into Box p. |
+
 Several auxiliary words exist that can modify the current value in a more sophisticated fashion:
+
 - +! (x p – ), increases the integer value stored in Box p by Integer x.
 Equivalent to tuck @ + swap !.
 - 1+! (p – ), increases the integer value stored in Box p by one. Equivalent to 1 swap +!.
