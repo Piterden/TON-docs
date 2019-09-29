@@ -179,13 +179,13 @@ In addition, the word `"."` may be used to print the decimal representation of a
 
 The above primitives can be employed to use the Fift interpreter in interactive mode as a simple calculator for arithmetic expressions represented in reverse Polish notation (with operation symbols after the operands). For instance,
 
-```
+```sh
 7 4 - .
 ```
 
 computes `7 − 4 = 3` and prints `“3 ok”`, and
 
-```
+```sh
 2 3 4 * + .
 2 3 + 4 * .
 ```
@@ -222,14 +222,14 @@ For instance, `“5 dup * .”` will compute `5 · 5 = 25` and print `“25 ok�
 
 One can use the word “.s” — which prints the contents of the entire stack, starting from the deepest elements, without removing the elements printed from the stack—to inspect the contents of the stack at any time, and to check the effect of any stack manipulation words. For instance,
 
-```
+```sh
 1 2 3 4 .s
 rot .s
 ```
 
 prints
 
-```
+```sh
 1 2 3 4
 ok
 1 3 4 2
@@ -242,19 +242,19 @@ When Fift does not know how to print a stack value of an unknown type, it instea
 
 In its simplest form, defining new Fift words is very easy and can be done with the aid of three special words: `“{”`, `“}”`, and `“:”`. One simply opens the definition with `{` (necessarily followed by a space), then lists all the words that constitute the new definition, then closes the definition with `}` (also followed by a space), and finally assigns the resulting definition (represented by a _WordDef_ value in the stack) to a new word by writing `: <new-word-name>`. For instance,
 
-```
+```sh
 { dup * } : square
 ```
 
 defines a new word `square`, which executes `dup` and `*` when invoked. In this way, typing `5 square` becomes equivalent to typing `5 dup *`, and produces the same result `(25)`:
 
-```
+```sh
 5 square .
 ```
 
 prints `“25 ok”`. One can also use the new word as a part of new definitions:
 
-```
+```sh
 { dup square square * } : **5
 3 **5 .
 ```
@@ -267,13 +267,13 @@ If the word indicated after `“:”` is already defined, it is tacitly redefine
 
 One can define _(named) constants_ — i.e., words that push a predefined value when invoked—by using the defining word constant instead of the defining word “:” (colon). For instance,
 
-```
+```sh
 1000000000 constant Gram
 ```
 
 defines a constant `Gram` equal to _Integer_ `10^9`. In other words, `1000000000` will be pushed into the stack whenever `Gram` is invoked:
 
-```
+```sh
 Gram 2 * .
 ```
 
@@ -281,7 +281,7 @@ prints `“2000000000 ok”`.
 
 Of course, one can use the result of a computation to initialize the value of a constant:
 
-```
+```sh
 Gram 1000 / constant mGram
 mGram .
 ```
@@ -290,7 +290,7 @@ prints `“1000000 ok”`.
 
 The value of a constant does not necessarily have to be an Integer. For instance, one can define a string constant in the same way:
 
-```
+```sh
 "Hello, world!" constant hello
 hello type cr
 ```
@@ -301,14 +301,14 @@ If a constant is redefined, all existing definitions of other words will continu
 One can also store two values into one “double” constant by using the
 defining word `2constant`. For instance:
 
-```
+```sh
 355 113 2constant pifrac
 ```
 
 defines a new word `pifrac`, which will push `355` and `113` (in that order) when invoked. The two components of a double constant can be of different types.
 If one wants to create a constant with a fixed name within a block or a colon definition, one should use `=: ` and `2=: ` instead of `constant` and `2constant`:
 
-```
+```sh
 { dup =: x dup * =: y } : setxy
 3 setxy x . y . x y + .
 7 setxy x . y . x y + .
@@ -316,14 +316,14 @@ If one wants to create a constant with a fixed name within a block or a colon de
 
 produces
 
-```
+```sh
 3 9 12 ok
 7 49 56 ok
 ```
 
 If one wants to recover the execution-time value of such a “constant”, one can prefix the name of the constant with the word `@’`:
 
-```
+```sh
 { ."( " @’ x . .", " @’ y . .") " } : showxy
 3 setxy showxy
 ```
@@ -343,7 +343,7 @@ Apart from that, Fift offers some support for decimal and common fractions. If a
 
 Such a representation of fractions is especially convenient for using them with the scaling primitive */ and its variants, thus converting common and decimal fractions into a suitable fixed-point representation. For instance, if we want to represent fractional amounts of Grams by integer amounts of nanograms, we can define some helper words
 
-```
+```sh
 1000000000 constant Gram
 { Gram * } : Gram*
 { Gram swap */r } : Gram*/
@@ -353,7 +353,7 @@ and then write `2.39 Gram*/` or `17/12 Gram*/` instead of integer literals `2390
 
 If one needs to use such Gram literals often, one can introduce a new active prefix word GR$ as follows:
 
-```
+```sh
 { bl word (number) ?dup 0= abort"not a valid Gram amount"
   1- { Gram swap */r } { Gram * } cond
   1 ’nop
@@ -362,7 +362,7 @@ If one needs to use such Gram literals often, one can introduce a new active pre
 
 makes GR$3, `GR$2.39`, and `GR$17/12` equivalent to integer literals `3000000000`, `2390000000`, and `1416666667`, respectively. Such values can be printed in similar form by means of the following words:
 
-```
+```sh
 { dup abs <# ’ # 9 times char . hold #s rot sign #>
   nip -trailing0 } : (.GR)
 { (.GR) ."GR$" type space } : .GR
@@ -373,7 +373,7 @@ produces `GR$-17.239 ok`. The above definitions make use of tricks explained in 
 
 We can also manipulate fractions by themselves by defining suitable _“rational arithmetic words”_:
 
-```
+```sh
 // a b c d -- (a*d-b*c) b*d
 { -rot over * 2swap tuck * rot - -rot * } : R-
 // a b c d -- a*c b*d
@@ -444,7 +444,7 @@ Several integer comparison operations can be used to obtain boolean values:
 
 Example:
 
-```
+```sh
 2 3 < .
 ```
 
@@ -452,7 +452,7 @@ prints `“-1 ok”`, because `2` is less than `3`.
 
 A more convoluted example:
 
-```
+```sh
 { "true " "false " rot 0= 1+ pick type 2drop } : ?.
 2 3 < ?. 2 3 = ?. 2 3 > ?.
 ```
@@ -472,7 +472,7 @@ Strings can be lexicographically compared by means of the following words:
 
 In addition to constants introduced in 2.7, Fift supports variables, which are a more efficient way to represent changeable values. For instance, the last two code fragments of 2.7 could have been written with the aid of variables instead of constants as follows:
 
-```
+```sh
 variable x variable y
 { dup x ! dup * y ! } : setxy
 3 setxy x @ . y @ . x @ y @ + .
@@ -483,7 +483,7 @@ variable x variable y
 
 producing the same output as before:
 
-```
+```sh
 3 9 12 ok
 7 49 56 ok
 ( 3 , 9 ) ok
@@ -514,7 +514,7 @@ Several auxiliary words exist that can modify the current value in a more sophis
 
 In this way we can implement a simple counter:
 
-```
+```sh
 variable counter
 { counter 0! } : reset-counter
 { counter @ 1+ dup counter ! } : next-counter
@@ -524,7 +524,7 @@ reset-counter next-counter .
 
 produces
 
-```
+```sh
 1 2 3 ok
 1 ok
 ```
@@ -532,14 +532,14 @@ produces
 After these definitions are in place, we can even forget the definition of `counter` by means of the phrase `forget counter`. Then the only way to access the value of this variable is by means of `reset-counter` and `next-counter`.
 Variables are usually created by `variable` with no value, or rather with a _Null_ value. If one wishes to create initialized variables, one can use the phrase `box constant`:
 
-```
+```sh
 17 box constant x
 x 1+! x @ .
 ```
 
 prints `“18 ok”`. One can even define a special defining word for initialized variables, if they are needed often:
 
-```
+```sh
 { box constant } : init-variable
 17 init-variable x
 "test" init-variable y
@@ -550,7 +550,7 @@ prints `“18 test ok”`.
 
 The variables have so far only one disadvantage compared to the constants: one has to access their current values by means of an auxiliary word @. Of course, one can mitigate this by defining a “getter” and a “setter” word for a variable, and use these words to write better-looking code:
 
-```
+```sh
 variable x-box
 { x-box @ } : x
 { x-box ! } : x!
@@ -563,7 +563,7 @@ prints `“( 3 , 30 ) ( 5 , 56 ) ok”`, which are the points `(x, f(x))` on the
 
 Again, if we want to define “getters” for all our variables, we can first define a defining word as explained in 4.8, and use this word to define both a getter and a setter at the same time:
 
-```
+```sh
 { hole dup 1 ’ @ does create 1 ’ ! does create } : variable-set
 variable-set x x!
 variable-set y y!
@@ -576,7 +576,7 @@ variable-set y y!
 
 show up show right show up show reflect show produces
 
-```
+```sh
 x=2 y=5 x*y=10
 x=2 y=6 x*y=12
 x=3 y=6 x*y=18
@@ -599,25 +599,25 @@ Fift also supports _Tuples_, i.e., immutable ordered collections of arbitrary va
 
 For instance, both
 
-```
+```sh
 | 2 , 3 , 9 , .dump
 ```
 
 and
 
-```
+```sh
 2 3 9 triple .dump
 ```
 
 construct and print triple (2, 3, 9):
 
-```
+```sh
 [ 2 3 9 ] ok
 ```
 
 Notice that the components of a _Tuple_ are not necessarily of the same type, and that a component of a _Tuple_ can also be a _Tuple_:
 
-```
+```sh
 1 2 3 triple 4 5 6 triple 7 8 9 triple triple constant Matrix
 Matrix .dump cr
 | 1 "one" pair , 2 "two" pair , 3 "three" pair , .dump
@@ -625,7 +625,7 @@ Matrix .dump cr
 
 produces
 
-```
+```sh
 [ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 9 ] ]
 [ [ 1 "one" ] [ 2 "two" ] [ 3 "three" ] ] ok
 ```
@@ -647,7 +647,7 @@ Once a _Tuple_ has been constructed, we can extract any of its components, or co
 
 For instance, we can access individual elements and rows of a matrix:
 
-```
+```sh
 1 2 3 triple 4 5 6 triple 7 8 9 triple triple constant Matrix
 Matrix .dump cr
 Matrix 1 [] 2 [] . cr
@@ -656,7 +656,7 @@ Matrix third .dump cr
 
 produces
 
-```
+```sh
 [ [ 1 2 3 ] [ 4 5 6 ] [ 7 8 9 ] ]
 6
 [ 7 8 9 ]
@@ -670,7 +670,7 @@ Notice that _Tuples_ are somewhat similar to arrays of other programming languag
 
 For instance,
 
-```
+```sh
 10 allot constant A
 | 3 box , 1 box , 4 box , 1 box , 5 box , 9 box , constant B
 { over @ over @ swap rot ! swap ! } : swap-values-of
@@ -683,7 +683,7 @@ For instance,
 
 creates an uninitialized array `A` of length `10`, an initialized array `B` of length `6`, and then interchanges some elements of `B` and prints the first four elements of the resulting `B`:
 
-```
+```sh
 4 1 1 3 ok
 ```
 
@@ -710,7 +710,7 @@ After that, cons and uncons are defined as aliases for pair and unpair:
 
 For instance,
 
-```
+```sh
 2 3 9 3 tuple .dump cr
 2 3 9 3 list dup .dump space dup .l cr
 "test" swap cons .l cr
@@ -718,7 +718,7 @@ For instance,
 
 produces
 
-```
+```sh
 [ 2 3 9 ]
 [ 2 [ 3 [ 9 (null) ] ] ] (2 3 9)
 ("test" 2 3 9)
@@ -742,19 +742,19 @@ Fift offers the following words to manipulate _Atom_'s:
 
 For instance,
 
-```
+```sh
 ‘+ 2 ‘* 3 4 3 list 3 list .l
 ```
 
 creates and prints the list
 
-```
+```sh
 (+ 2 (* 3 4))
 ```
 
 which is the Lisp-style representation of arithmetical expression `2 + 3 · 4`. An interpreter for such expressions might use `eq?` to check the operation sign (cf. 3.5 for an explanation of recursive functions in Fift):
 
-```
+```sh
 variable ’eval
 { ’eval @ execute } : eval
 { dup tuple? {
@@ -773,38 +773,113 @@ variable ’eval
 
 prints
 
-```
+```sh
 (+ 2 (* 3 4))
 14
 ```
 
-If we load Lisp.fif to enable Lisp-style list syntax, we can enter "Lisp.fif" include ( ‘+ 2 ( ‘* 3 4 ) ) dup .l cr eval . cr with the same result as before. The word (, defined in Lisp.fif, uses an anonymous _Atom_ created by anon to mark the current stack position, and then ) builds a list from several top stack entries, scanning the stack until the anonymous _Atom_ marker is found:
+If we load Lisp.fif to enable Lisp-style list syntax, we can enter
+
+```sh
+"Lisp.fif" include
+( ‘+ 2 ( ‘* 3 4 ) ) dup .l cr eval . cr
+```
+
+with the same result as before. The word `(`, defined in `Lisp.fif`, uses an anonymous _Atom_ created by `anon` to mark the current stack position, and then ) builds a list from several top stack entries, scanning the stack until the anonymous _Atom_ marker is found:
+
+```sh
 variable ’)
 { ") without (" abort } ’) !
 { ’) @ execute } : )
-{ null { -rot 2dup eq? not } { swap rot cons } while 2drop } : list-until-marker { anon dup ’) @ 2 { ’) ! list-until-marker } does ’) ! } : (
-27 Chapter 3. Blocks, loops, and conditionals 2.18 Command line arguments in script mode The Fift interpreter can be invoked in script mode by passing -s as a command line option. In this mode, all further command line arguments are not scanned for Fift startup command line options. Rather, the next argument after -s is used as the filename of the Fift source file, and all further command line arguments are passed to the Fift program by means of special words $n and $#:
-- $# ( – x), pushes the total number of command-line arguments passed to the Fift program.
-- $n ( – S), pushes the n-th command-line argument as a String S. For instance, $0 pushes the name of the script being executed, $1 the first command line argument, and so on.
-- $() (x – S), pushes the x-th command-line argument similarly to $n,
-but with Integer x taken from the stack.
-Additionally, if the very first line of a Fift source file begins with the two characters “#!”, this line is ignored. In this way simple Fift scripts can be written in a *ix system. For instance, if #!/usr/bin/fift -s { ."usage: " $0 type ."  " cr ."Computes the product of two integers." cr 1 halt } : usage { ’ usage if } : ?usage $# 2 <> ?usage $1 (number) 1- ?usage $2 (number) 1- ?usage
-* . cr is saved into a file cmdline.fif in the current directory, and its execution bit is set (e.g., by chmod 755 cmdline.fif), then it can be invoked from the shell or any other program, provided the Fift interpreter is installed as /usr/bin/fift, and its standard library Fift.fif is installed as /usr/lib/fift/Fift.fif:
-$ ./cmdline.fif 12 -5 prints -60 when invoked from a *ix shell such as the Bourne–again shell (Bash).
-28 3.2. Conditional execution of blocks 3 Blocks, loops, and conditionals Similarly to the arithmetic operations, the execution flow in Fift is controlled by stack-based primitives. This leads to an inversion typical of reverse Polish notation and stack-based arithmetic: one first pushes a block representing a conditional branch or the body of a loop into the stack, and then invokes a conditional or iterated execution primitive. In this respect, Fift is more similar to PostScript than to Forth.
-3.1 Defining and executing blocks A block is normally defined using the special words “{” and “}”. Roughly speaking, all words listed between { and } constitute the body of a new block,
-which is pushed into the stack as a value of type WordDef. A block may be stored as a definition of a new Fift word by means of the defining word “:”
-as explained in 2.6, or executed by means of the word execute:
+{ null { -rot 2dup eq? not } { swap rot cons } while 2drop
+} : list-until-marker
+{ anon dup ’) @ 2 { ’) ! list-until-marker } does ’) ! } : (
+```
+
+### 2.18 Command line arguments in script mode
+
+The Fift interpreter can be invoked in script mode by passing `-s` as a command line option. In this mode, all further command line arguments are not scanned for Fift startup command line options. Rather, the next argument after `-s` is used as the filename of the Fift source file, and all further command line arguments are passed to the Fift program by means of special words `$n` and `$#`:
+
+|  | <span style="color:transparent">xxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`$#`** | _`( – x)`_ | pushes the total number of command-line arguments passed to the Fift program. |
+| **`$n`** | _`( – S)`_ | pushes the n-th command-line argument as a String S. For instance, $0 pushes the name of the script being executed, $1 the first command line argument, and so on. |
+| **`$()`** | _`(x – S)`_ | pushes the x-th command-line argument similarly to $n, but with Integer x taken from the stack. |
+
+Additionally, if the very first line of a Fift source file begins with the two characters `“#!”`, this line is ignored. In this way simple Fift scripts can be written in a *ix system. For instance, if
+
+```sh
+#!/usr/bin/fift -s
+{ ."usage: " $0 type ."  " cr
+  ."Computes the product of two integers." cr 1 halt } : usage
+{ ’ usage if } : ?usage
+$# 2 <> ?usage
+$1 (number) 1- ?usage
+$2 (number) 1- ?usage
+* . cr
+```
+
+is saved into a file `cmdline.fif` in the current directory, and its execution bit is set (e.g., by `chmod 755 cmdline.fif`), then it can be invoked from the shell or any other program, provided the Fift interpreter is installed as `/usr/bin/fift`, and its standard library `Fift.fif` is installed as `/usr/lib/fift/Fift.fif`:
+
+```sh
+$ ./cmdline.fif 12 -5
+```
+
+prints
+
+```sh
+-60
+```
+
+when invoked from a *ix shell such as the Bourne–again shell (Bash).
+
+## 3 Blocks, loops, and conditionals
+
+Similarly to the arithmetic operations, the execution flow in Fift is controlled by stack-based primitives. This leads to an inversion typical of reverse Polish notation and stack-based arithmetic: one first pushes a block representing a conditional branch or the body of a loop into the stack, and then invokes a conditional or iterated execution primitive. In this respect, Fift is more similar to PostScript than to Forth.
+
+### 3.1 Defining and executing blocks
+
+A block is normally defined using the special words `“{”` and `“}”`. Roughly speaking, all words listed between `{` and `}` constitute the body of a new block, which is pushed into the stack as a value of type _WordDef_. A block may be stored as a definition of a new Fift word by means of the defining word `“:”` as explained in 2.6, or executed by means of the word execute:
+
+```sh
 17 { 2 * } execute .
-prints “34 ok”, being essentially equivalent to “17 2 * .”. A slightly more convoluted example:
+```
+
+prints `“34 ok”`, being essentially equivalent to `“17 2 * .”`. A slightly more convoluted example:
+
+```sh
 { 2 * } 17 over execute swap execute .
-applies “anonymous function” x 7→ 2x twice to 17, and prints the result 2 · (2 · 17) = 68. In this way a block is an execution token, which can be duplicated, stored into a constant, used to define a new word, or executed.
-The word ’ recovers the current definition of a word. Namely, the construct ’ hword-namei pushes the execution token equivalent to the current definition of the word hword-namei. For instance,
-’ dup execute is equivalent to dup, and ’ dup : duplicate defines duplicate as a synonym for (the current definition of) dup.
+```
+
+applies “anonymous function” `x 7→ 2x` twice to `17`, and prints the result `2 · (2 · 17) = 68`. In this way a block is an execution token, which can be duplicated, stored into a constant, used to define a new word, or executed.
+
+The word `’` recovers the current definition of a word. Namely, the construct `’ <word-name>` pushes the execution token equivalent to the current definition of the word hword-namei. For instance,
+
+```sh
+’ dup execute
+```
+
+is equivalent to `dup`, and
+
+```sh
+’ dup : duplicate
+```
+
+defines duplicate as a synonym for (the current definition of) `dup`.
+
 Alternatively, we can duplicate a block to define two new words with the same definition:
+
+```sh
 { dup * }
-dup : square : **2 defines both square and **2 to be equivalent to dup *.
-29 3.3. Simple loops 3.2 Conditional execution of blocks Conditional execution of blocks is achieved using the words if, ifnot, and cond:
+dup : square : **2
+```
+
+defines both square and `**2` to be equivalent to `dup *`.
+
+### 3.2 Conditional execution of blocks
+
+Conditional execution of blocks is achieved using the words `if`, `ifnot`, and `cond`:
+
 - if (x e – ), executes e (which must be an execution token, i.e., a WordDef ),5 but only if Integer x is non-zero.
 - ifnot (x e – ), executes execution token e, but only if Integer x is zero.
 - cond (x e e0 – ), if Integer x is non-zero, executes e, otherwise executes e 0 .
