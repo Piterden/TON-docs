@@ -593,7 +593,7 @@ Fift also supports _Tuples_, i.e., immutable ordered collections of arbitrary va
 | **`tuple`** | _`(x1 . . . xn n – t)`_ | creates new Tuple `t := (x1, . . . , xn)` from `n ≥ 0` topmost stack values. |
 | **`pair`** | _`(x y – t)`_ | creates new pair `t = (x, y)`. Equivalent to 2 tuple. |
 | **`triple`** | _`(x y z – t)`_ | creates new triple `t = (x, y, z)`. Equivalent to 3 tuple. |
-| **`|`** | _`( – t)`_ | creates an empty Tuple `t = ()`. Equivalent to 0 tuple. |
+| **`\|`** | _`( – t)`_ | creates an empty Tuple `t = ()`. Equivalent to 0 tuple. |
 | **`,`** | _`(t x – t 0 )`_ | appends `x` to the end of Tuple `t`, and returns the resulting Tuple `t 0`. |
 | **`.dump`** | _`(x – )`_ | dumps the topmost stack entry in the same way as `.s` dumps all stack elements. |
 
@@ -640,10 +640,10 @@ Once a _Tuple_ has been constructed, we can extract any of its components, or co
 | **`explode`** | _`(t – x1 . . . xn n)`_ | unpacks a _Tuple_ `t = (x1, . . . , xn)` of unknown length `n`, and returns that length. |
 | **`count`** | _`(t – n)`_ | returns the length `n = |t|` of _Tuple_ `t`. |
 | **`tuple?`** | _`(t – ?)`_ | checks whether `t` is a _Tuple_, and returns `−1` or `0` accordingly. |
-| **`[]`** | _`(t i – x)`_ | returns the `(i + 1)-st` component `ti+1` of _Tuple_ `t`, where `0 ≤ i < |t|`. |
-| **`first`** | _`(t – x)`_ | returns the first component of `a` _Tuple_. Equivalent to 0 []. |
-| **`second`** | _`(t – x)`_ | returns the second component of `a` _Tuple_. Equivalent to 1 []. |
-| **`third`** | _`(t – x)`_ | returns the third component of `a` _Tuple_. Equivalent to 2 []. |
+| **`[]`** | _`(t i – x)`_ | returns the `(i + 1)-st` component `ti+1` of _Tuple_ `t`, where `0 ≤ i < \|t\|`. |
+| **`first`** | _`(t – x)`_ | returns the first component of `a` _Tuple_. Equivalent to `0 []`. |
+| **`second`** | _`(t – x)`_ | returns the second component of `a` _Tuple_. Equivalent to `1 []`. |
+| **`third`** | _`(t – x)`_ | returns the third component of `a` _Tuple_. Equivalent to `2 []`. |
 
 For instance, we can access individual elements and rows of a matrix:
 
