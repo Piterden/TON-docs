@@ -880,45 +880,113 @@ defines both square and `**2` to be equivalent to `dup *`.
 
 Conditional execution of blocks is achieved using the words `if`, `ifnot`, and `cond`:
 
-- if (x e – ), executes e (which must be an execution token, i.e., a WordDef ),5 but only if Integer x is non-zero.
-- ifnot (x e – ), executes execution token e, but only if Integer x is zero.
-- cond (x e e0 – ), if Integer x is non-zero, executes e, otherwise executes e 0 .
-For instance, the last example in 2.12 can be more conveniently rewritten as { { ."true " } { ."false " } cond } : ?.
+|  | <span style="color:transparent">xxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`if`** | _`(x e – )`_ | executes `e` (which must be an execution token, i.e., a _WordDef_),^5 but only if _Integer_ x is non-zero. |
+| **`ifnot`** | _`(x e – )`_ | executes execution token `e`, but only if _Integer_ `x` is zero. |
+| **`cond`** | _`(x e e0 – )`_ | if _Integer_ `x` is non-zero, executes `e`, otherwise executes `e'`. |
+
+For instance, the last example in 2.12 can be more conveniently rewritten as
+
+```sh
+{ { ."true " } { ."false " } cond } : ?.
 2 3 < ?. 2 3 = ?. 2 3 > ?.
-still resulting in “true false false ok”.
+```
+
+still resulting in `“true false false ok”`.
+
 Notice that blocks can be arbitrarily nested, as already shown in the previous example. One can write, for example,
-{ ?dup { 0<
-{ ."negative " }
-{ ."positive " }
-cond }
-{ ."zero " }
-cond } : chksign -17 chksign to obtain “negative ok”, because −17 is negative.
-5A WordDef is more general than a WordList. For instance, the definition of the primitive + is a WordDef, but not a WordList, because + is not defined in terms of other Fift words.
-30 3.4. Loops with an exit condition 3.3 Simple loops The simplest loops are implemented by times:
-- times (e n – ), executes e exactly n times, if n ≥ 0. If n is negative,
-throws an exception.
+
+```sh
+{ ?dup
+  { 0<
+    { ."negative " }
+    { ."positive " }
+    cond
+  }
+  { ."zero " }
+  cond
+} : chksign
+-17 chksign
+```
+
+to obtain `“negative ok”`, because `−17` is negative.
+
+> A _WordDef_ is more general than a _WordList_. For instance, the definition of the primitive `+` is a _WordDef_, but not a _WordList_, because `+` is not defined in terms of other Fift words.
+
+### 3.3 Simple loops
+
+The simplest loops are implemented by times:
+
+|  | <span style="color:transparent">xxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`times`** | _`(e n – )`_ | executes `e` exactly `n` times, if `n ≥ 0`. If `n` is negative, throws an exception. |
+
 For instance,
+
+```sh
 1 { 10 * } 70 times .
-computes and prints 1070 .
+```
+
+computes and prints `10^70`.
+
 We can use this kind of loop to implement a simple factorial function:
-{ 0 1 rot { swap 1+ tuck * } swap times nip } : fact 5 fact .
-prints “120 ok”, because 5! = 1 · 2 · 3 · 4 · 5 = 120.
+
+```sh
+{ 0 1 rot { swap 1+ tuck * } swap times nip } : fact
+5 fact .
+```
+
+prints `“120 ok”`, because `5! = 1 · 2 · 3 · 4 · 5 = 120`.
+
 This loop can be modified to compute Fibonacci numbers instead:
-{ 0 1 rot { tuck + } swap times nip } : fibo 6 fibo .
+
+```sh
+{ 0 1 rot { tuck + } swap times nip } : fibo
+6 fibo .
+```
+
 computes the sixth Fibonacci number F6 = 13.
-3.4 Loops with an exit condition More sophisticated loops can be created with the aid of until and while:
-- until (e – ), executes e, then removes the top-of-stack integer and checks whether it is zero. If it is, then begins a new iteration of the loop by executing e. Otherwise exits the loop.
-- while (e e0 – ), executes e, then removes and checks the top-of-stack integer. If it is zero, exits the loop. Otherwise executes e 0 , then begins a new loop iteration by executing e and checking the exit condition afterwards.
+
+### 3.4 Loops with an exit condition
+
+More sophisticated loops can be created with the aid of until and while:
+
+|  | <span style="color:transparent">xxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`until`** | _`(e – )`_ | executes `e`, then removes the top-of-stack integer and checks whether it is zero. If it is, then begins a new iteration of the loop by executing `e`. Otherwise exits the loop. |
+| **`while`** | _`(e e0 – )`_ | executes `e`, then removes and checks the top-of-stack integer. If it is zero, exits the loop. Otherwise executes `e'` , then begins a new loop iteration by executing `e` and checking the exit condition afterwards. |
+
 For instance, we can compute the first two Fibonacci numbers greater than 1000:
-{ 1 0 rot { -rot over + swap rot 2dup >= } until drop } : fib-gtr 1000 fib-gtr . .
-31 3.5. Recursion prints “1597 2584 ok”.
-We can use this word to compute the first 70 decimal digits of the golden ratio φ = (1 + √
-5)/2 ≈ 1.61803:
+
+```sh
+{ 1 0 rot { -rot over + swap rot 2dup >= } until drop } : fib-gtr
+1000 fib-gtr . .
+```
+
+prints `“1597 2584 ok”`.
+
+We can use this word to compute the first 70 decimal digits of the golden ratio `φ = (1 + √5) / 2 ≈ 1.61803`:
+
+```sh
 1 { 10 * } 70 times dup fib-gtr */ .
-prints “161803 . . . 2604 ok”.
-3.5 Recursion Notice that, whenever a word is mentioned inside a { ...} block, the current (compile-time) definition is included in the WordList being created. In this way we can refer to the previous definition of a word while defining a new version of it:
-{ + . } : print-sum { ."number " . } : .
-{ 1+ . } : print-next 2 . 3 . 2 3 print-sum 7 print-next produces “number 2 number 3 5 number 8 ok”. Notice that print-sum continues to use the original definition of “.”, but print-next already uses the modified “.”.
+```
+
+prints `“161803 . . . 2604 ok”`.
+
+### 3.5 Recursion
+
+Notice that, whenever a word is mentioned inside `a { ...}` block, the current (compile-time) definition is included in the _WordList_ being created. In this way we can refer to the previous definition of a word while defining a new version of it:
+
+```sh
+{ + . } : print-sum
+{ ."number " . } : .
+{ 1+ . } : print-next
+2 . 3 . 2 3 print-sum 7 print-next
+```
+
+produces `“number 2 number 3 5 number 8 ok”`. Notice that `print-sum` continues to use the original definition of `“.”`, but `print-next` already uses the modified `“.”`.
+
 This feature may be convenient on some occasions, but it prevents us from introducing recursive definitions in the most straightforward fashion.
 For instance, the classical recursive definition of the factorial { ?dup { dup 1- fact * } { 1 } cond } : fact will fail to compile, because fact happens to be an undefined word when the definition is compiled.
 A simple way around this obstacle is to use the word @’ (cf. 4.6) that looks up the current definition of the next word during the execution time and then executes it, similarly to what we already did in 2.7:
