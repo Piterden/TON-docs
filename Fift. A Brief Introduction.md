@@ -987,75 +987,217 @@ Notice that, whenever a word is mentioned inside `a { ...}` block, the current (
 
 produces `“number 2 number 3 5 number 8 ok”`. Notice that `print-sum` continues to use the original definition of `“.”`, but `print-next` already uses the modified `“.”`.
 
-This feature may be convenient on some occasions, but it prevents us from introducing recursive definitions in the most straightforward fashion.
-For instance, the classical recursive definition of the factorial { ?dup { dup 1- fact * } { 1 } cond } : fact will fail to compile, because fact happens to be an undefined word when the definition is compiled.
-A simple way around this obstacle is to use the word @’ (cf. 4.6) that looks up the current definition of the next word during the execution time and then executes it, similarly to what we already did in 2.7:
-{ ?dup { dup 1- @’ fact * } { 1 } cond } : fact 5 fact .
-produces “120 ok”, as expected.
-However, this solution is rather inefficient, because it uses a dictionary lookup each time fact is recursively executed. We can avoid this dictionary lookup by using variables (cf. 2.14 and 2.7):
-32 3.5. Recursion variable ’fact { ’fact @ execute } : fact { ?dup { dup 1- fact * } { 1 } cond } ’fact !
+This feature may be convenient on some occasions, but it prevents us from introducing recursive definitions in the most straightforward fashion. For instance, the classical recursive definition of the factorial
+
+```sh
+{ ?dup { dup 1- fact * } { 1 } cond } : fact
+```
+
+will fail to compile, because `fact` happens to be an undefined word when the definition is compiled.
+
+A simple way around this obstacle is to use the word `@’` (cf. 4.6) that looks up the current definition of the next word during the execution time and then executes it, similarly to what we already did in 2.7:
+
+```sh
+{ ?dup { dup 1- @’ fact * } { 1 } cond } : fact
 5 fact .
-This somewhat longer definition of the factorial avoids dictionary lookups at execution time by introducing a special variable ’fact to hold the final definition of the factorial.6 Then fact is defined to execute whatever WordDef is currently stored in ’fact, and once the body of the recursive definition of the factorial is constructed, it is stored into this variable by means of the phrase ’fact !, which replaces the more customary phrase : fact.
-We could rewrite the above definition by using special “getter” and “setter”
-words for vector variable ’fact as we did for variables in 2.14:
-variable ’fact { ’fact @ execute } : fact { ’fact ! } : :fact forget ’fact { ?dup { dup 1- fact * } { 1 } cond } :fact 5 fact .
-If we need to introduce a lot of recursive and mutually-recursive definitions,
-we might first introduce a custom defining word (cf. 4.8) for simultaneously defining both the “getter” and the “setter” words for anonymous vector variables, similarly to what we did in 2.14:
-{ hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set vector-set fact :fact { ?dup { dup 1- fact * } { 1 } cond } :fact 5 fact .
-The first three lines of this fragment define fact and :fact essentially in the same way they had been defined in the first four lines of the previous fragment.
-If we wish to make fact unchangeable in the future, we can add a forget :fact line once the definition of the factorial is complete:
-6Variables that hold a WordDef to be executed later are called vector variables. The process of replacing fact with ’fact @ execute, where ’fact is a vector variable, is called vectorization.
-33 3.5. Recursion { hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set vector-set fact :fact { ?dup { dup 1- fact * } { 1 } cond } :fact forget :fact 5 fact .
-Alternatively, we can modify the definition of vector-set in such a way that :fact would forget itself once it is invoked:
-{ hole dup 1 { @ execute } does create bl word tuck 2 { (forget) ! } does swap 0 (create)
-} : vector-set-once vector-set-once fact :fact { ?dup { dup 1- fact * } { 1 } cond } :fact 5 fact .
+```
+
+produces `“120 ok”`, as expected.
+
+However, this solution is rather inefficient, because it uses a dictionary lookup each time fact is recursively executed. We can avoid this dictionary lookup by using variables (cf. 2.14 and 2.7):
+
+```sh
+variable ’fact
+{ ’fact @ execute } : fact
+{ ?dup { dup 1- fact * } { 1 } cond } ’fact !
+5 fact .
+```
+
+This somewhat longer definition of the factorial avoids dictionary lookups at execution time by introducing a special variable `’fact` to hold the final definition of the factorial.**\*** Then fact is defined to execute whatever _WordDef_ is currently stored in `’fact`, and once the body of the recursive definition of the factorial is constructed, it is stored into this variable by means of the phrase `’fact !`, which replaces the more customary phrase `: fact`.
+
+> **\*** Variables that hold a WordDef to be executed later are called vector variables. The process of replacing fact with ’fact @ execute, where ’fact is a vector variable, is called vectorization.
+
+We could rewrite the above definition by using special “getter” and “setter” words for vector variable ’fact as we did for variables in 2.14:
+
+```sh
+variable ’fact
+{ ’fact @ execute } : fact
+{ ’fact ! } : :fact
+forget ’fact
+{ ?dup { dup 1- fact * } { 1 } cond } :fact
+5 fact .
+```
+
+If we need to introduce a lot of recursive and mutually-recursive definitions, we might first introduce a custom defining word (cf. 4.8) for simultaneously defining both the “getter” and the “setter” words for anonymous vector variables, similarly to what we did in 2.14:
+
+```sh
+{ hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set
+vector-set fact :fact
+{ ?dup { dup 1- fact * } { 1 } cond } :fact
+5 fact .
+```
+
+The first three lines of this fragment define `fact` and `:fact` essentially in the same way they had been defined in the first four lines of the previous fragment.
+
+If we wish to make `fact` unchangeable in the future, we can add a forget `:fact` line once the definition of the factorial is complete:
+
+```sh
+{ hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set
+vector-set fact :fact
+{ ?dup { dup 1- fact * } { 1 } cond } :fact
+forget :fact
+5 fact .
+```
+
+Alternatively, we can modify the definition of `vector-set` in such a way that `:fact` would forget itself once it is invoked:
+
+```sh
+{ hole dup 1 { @ execute } does create
+  bl word tuck 2 { (forget) ! } does swap 0 (create)
+} : vector-set-once
+vector-set-once fact :fact
+{ ?dup { dup 1- fact * } { 1 } cond } :fact
+5 fact .
+```
+
 However, some vector variables must be modified more than once, for instance, to modify the behavior of the comparison word less in a merge sort algorithm:
-{ hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set vector-set sort :sort vector-set merge :merge vector-set less :less { null null rot { dup null? not }
-{ uncons swap rot cons -rot } while drop } : split { dup null? { drop } {
-over null? { nip } {
-over car over car less ’ swap if uncons rot merge cons } cond } cond } :merge { dup null? {
-dup cdr null? {
-34 3.6. Throwing exceptions split sort swap sort merge } ifnot } ifnot } :sort forget :merge forget :sort // set ‘less‘ to compare numbers, sort a list of numbers ’ < :less 3 1 4 1 5 9 2 6 5 9 list dup .l cr sort .l cr // set ‘less‘ to compare strings, sort a list of strings { $cmp 0< } :less "once" "upon" "a" "time" "there" "lived" "a" "kitten" 8 list dup .l cr sort .l cr producing the following output:
+
+```sh
+{ hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set
+vector-set sort :sort
+vector-set merge :merge
+vector-set less :less
+{ null null rot
+  { dup null? not }
+  { uncons swap rot cons -rot } while drop
+} : split
+{ dup null? { drop } {
+    over null? { nip } {
+      over car over car less ’ swap if
+      uncons rot merge cons
+    } cond
+  } cond
+} :merge
+{ dup null? {
+    dup cdr null? {
+      split sort swap sort merge
+    } ifnot
+  } ifnot
+} :sort
+forget :merge
+forget :sort
+// set ‘less‘ to compare numbers, sort a list of numbers
+’ < :less
+3 1 4 1 5 9 2 6 5 9 list
+dup .l cr sort .l cr
+// set ‘less‘ to compare strings, sort a list of strings
+{ $cmp 0< } :less
+"once" "upon" "a" "time" "there" "lived" "a" "kitten" 8 list
+dup .l cr sort .l cr
+```
+
+producing the following output:
+
+```sh
 (3 1 4 1 5 9 2 6 5)
 (1 1 2 3 4 5 5 6 9)
 ("once" "upon" "a" "time" "there" "lived" "a" "kitten")
 ("a" "a" "kitten" "lived" "once" "there" "time" "upon")
-3.6 Throwing exceptions Two built-in words are used to throw exceptions:
-- abort (S – ), throws an exception with an error message taken from String S.
-- abort"hmessagei" (x – ), throws an exception with the error message hmessagei if x is a non-zero integer.
-The exception thrown by these words is represented by the C++ exception fift::IntError with its value equal to the specified string. It is normally handled within the Fift interpreter itself by aborting all execution up to the top level and printing a message with the name of the source file being interpreted, the line number, the currently interpreted word, and the specified error message. For instance:
+```
+
+### 3.6 Throwing exceptions
+
+Two built-in words are used to throw exceptions:
+
+| <span style="color:transparent">xxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`abort`** | _`(S – )`_ | throws an exception with an error message taken from _String_ `S`. |
+| **`abort"<message>"`** | _`(x – )`_ | throws an exception with the error message hmessagei if `x` is a non-zero integer. |
+
+The exception thrown by these words is represented by the C++ exception `fift::IntError` with its value equal to the specified string. It is normally handled within the Fift interpreter itself by aborting all execution up to the top level and printing a message with the name of the source file being interpreted, the line number, the currently interpreted word, and the specified error message. For instance:
+
+```sh
 { dup 0= abort"Division by zero" / } : safe/
 5 0 safe/ .
-35 4.1. The state of the Fift interpreter prints “safe/: Division by zero”, without the usual “ok”. The stack is cleared in the process.
-Incidentally, when the Fift interpreter encounters an unknown word that cannot be parsed as an integer literal, an exception with the message “-?” is thrown, with the effect indicated above, including the stack being cleared.
-4 Dictionary, interpreter, and compiler In this chapter we present several specific Fift words for dictionary manipulation and compiler control. The “compiler” is the part of the Fift interpreter that builds lists of word references (represented by WordList stack values)
-from word names; it is activated by the primitive “{” employed for defining blocks as explained in 2.6 and 3.1.
-Most of the information included in this chapter is rather sophisticated and may be skipped during a first reading. However, the techniques described here are heavily employed by the Fift assembler, used to compile TVM code.
-Therefore, this section is indispensable if one wishes to understand the current implementation of the Fift assembler.
-4.1 The state of the Fift interpreter The state of the Fift interpreter is controlled by an internal integer variable called state, currently unavailable from Fift itself. When state is zero,
-all words parsed from the input (i.e., the Fift source file or the standard input in the interactive mode) are looked up in the dictionary and immediately executed afterwards. When state is positive, the words found in the dictionary are not executed. Instead, they (or rather the references to their current definitions) are compiled, i.e., added to the end of the WordList being constructed.
-Typically, state equals the number of the currently open blocks. For instance, after interpreting “{ 0= { ."zero"” the state variable will be equal to two, because there are two nested blocks. The WordList being constructed is kept at the top of the stack.
-The primitive “{” simply pushes a new empty WordList into the stack,
-and increases state by one. The primitive “}” throws an exception if state is already zero; otherwise it decreases state by one, and leaves the resulting 36 4.3. Compiling literals WordList in the stack, representing the block just constructed.7 After that,
-if the resulting value of state is non-zero, the new block is compiled as a literal (unnamed constant) into the encompassing block.
-4.2 Active and ordinary words All dictionary words have a special flag indicating whether they are active words or ordinary words. By default, all words are ordinary. In particular,
-all words defined with the aid of “:” and constant are ordinary.
-When the Fift interpreter finds a word definition in the dictionary, it checks whether it is an ordinary word. If it is, then the current word definition is either executed (if state is zero) or “compiled” (if state is greater than zero) as explained in 4.1.
-On the other hand, if the word is active, then it is always executed, even if state is positive. An active word is expected to leave some values x1 . . . xn n e in the stack, where n ≥ 0 is an integer, x1 . . . xn are n values of arbitrary types, and e is an execution token (a value of type WordDef ). After that,
-the interpreter performs different actions depending on state: if state is zero, then n is discarded and e is executed, as if a nip execute phrase were found. If state is non-zero, then this collection is “compiled” in the current WordList (located immediately below x1 in the stack) in the same way as if the (compile) primitive were invoked. This compilation amounts to adding some code to the end of the current WordList that would push x1, . . . , xn into the stack when invoked, and then adding a reference to e (representing a delayed execution of e). If e is equal to the special value ’nop, representing an execution token that does nothing when executed, then this last step is omitted.
-4.3 Compiling literals When the Fift interpreter encounters a word that is absent from the dictionary, it invokes the primitive (number) to attempt to parse it as an integer or fractional literal. If this attempt succeeds, then the special value ’nop is pushed, and the interpretation proceeds in the same way as if an active word 7The word } also transforms this WordList into a WordDef, which has a different type tag and therefore is a different Fift value, even if the same underlying C++ object is used by the C++ implementation.
-37 4.5. Defining words and dictionary manipulation were encountered. In other words, if state is zero, then the literal is simply left in the stack; otherwise, (compile) is invoked to modify the current WordList so that it would push the literal when executed.
-4.4 Defining new active words New active words are defined similarly to new ordinary words, but using “::”
-instead of “:”. For instance,
-{ bl word 1 ’ type } :: say defines the active word say, which scans the next blank-separated word after itself and compiles it as a literal along with a reference to the current definition of type into the current WordList (if state is non-zero, i.e., if the Fift interpreter is compiling a block). When invoked, this addition to the block will push the stored string into the stack and execute type, thus printing the next word after say. On the other hand, if state is zero, then these two actions are performed by the Fift interpreter immediately. In this way,
+```
+
+prints `“safe/: Division by zero”`, without the usual `“ok”`. The stack is cleared in the process.
+
+Incidentally, when the Fift interpreter encounters an unknown word that cannot be parsed as an integer literal, an exception with the message `“-?”` is thrown, with the effect indicated above, including the stack being cleared.
+
+## 4 Dictionary, interpreter, and compiler
+
+In this chapter we present several specific Fift words for dictionary manipulation and compiler control. The “compiler” is the part of the Fift interpreter that builds lists of word references (represented by _WordList_ stack values) from word names; it is activated by the primitive “{” employed for defining blocks as explained in 2.6 and 3.1.
+
+Most of the information included in this chapter is rather sophisticated and may be skipped during a first reading. However, the techniques described here are heavily employed by the Fift assembler, used to compile TVM code. Therefore, this section is indispensable if one wishes to understand the current implementation of the Fift assembler.
+
+### 4.1 The state of the Fift interpreter
+
+The state of the Fift interpreter is controlled by an internal integer variable called `state`, currently unavailable from Fift itself. When `state` is zero, all words parsed from the input (i.e., the Fift source file or the standard input in the interactive mode) are looked up in the dictionary and immediately executed afterwards. When `state` is positive, the words found in the dictionary are not executed. Instead, they (or rather the references to their current definitions) are compiled, i.e., added to the end of the WordList being constructed.
+
+Typically, `state` equals the number of the currently open blocks. For instance, after interpreting “{ 0= { ."zero"” the `state` variable will be equal to two, because there are two nested blocks. The WordList being constructed is kept at the top of the stack.
+
+The primitive “{” simply pushes a new empty WordList into the stack, and increases `state` by one. The primitive “}” throws an exception if `state` is already zero; otherwise it decreases `state` by one, and leaves the resulting _WordList_ in the stack, representing the block just constructed.**\*** After that, if the resulting value of `state` is non-zero, the new block is compiled as a literal (unnamed constant) into the encompassing block.
+
+> **\*** The word } also transforms this WordList into a WordDef, which has a different type tag and therefore is a different Fift value, even if the same underlying C++ object is used by the C++ implementation.
+
+### 4.2 Active and ordinary words
+
+All dictionary words have a special flag indicating whether they are active words or ordinary words. By default, all words are ordinary. In particular, all words defined with the aid of `“:”` and constant are ordinary.
+
+When the Fift interpreter finds a word definition in the dictionary, it checks whether it is an ordinary word. If it is, then the current word definition is either executed (if `state` is zero) or “compiled” (if `state` is greater than zero) as explained in 4.1.
+
+On the other hand, if the word is active, then it is always executed, even if `state` is positive. An active word is expected to leave some values `x1 . . . xn n e` in the stack, where `n ≥ 0` is an integer, `x1 . . . xn` are `n` values of arbitrary types, and `e` is an execution token (a value of type _WordDef_). After that, the interpreter performs different actions depending on `state`: if `state` is zero, then n is discarded and e is executed, as if a nip execute phrase were found. If `state` is non-zero, then this collection is “compiled” in the current WordList (located immediately below x1 in the stack) in the same way as if the (compile) primitive were invoked. This compilation amounts to adding some code to the end of the current WordList that would push x1, . . . , xn into the stack when invoked, and then adding a reference to e (representing a delayed execution of e). If e is equal to the special value ’nop, representing an execution token that does nothing when executed, then this last step is omitted.
+
+### 4.3 Compiling literals
+
+When the Fift interpreter encounters a word that is absent from the dictionary, it invokes the primitive (number) to attempt to parse it as an integer or fractional literal. If this attempt succeeds, then the special value ’nop is pushed, and the interpretation proceeds in the same way as if an active word were encountered. In other words, if state is zero, then the literal is simply left in the stack; otherwise, (compile) is invoked to modify the current WordList so that it would push the literal when executed.
+
+### 5.4 Defining new active words
+
+New active words are defined similarly to new ordinary words, but using “::” instead of “:”. For instance,
+
+```sh
+{ bl word 1 ’ type } :: say
+```
+
+defines the active word `say`, which scans the next blank-separated word after itself and compiles it as a literal along with a reference to the current definition of type into the current WordList (if state is non-zero, i.e., if the Fift interpreter is compiling a block). When invoked, this addition to the block will push the stored string into the stack and execute type, thus printing the next word after say. On the other hand, if state is zero, then these two actions are performed by the Fift interpreter immediately. In this way,
+
+```sh
 1 2 say hello + .
-will print “hello3 ok”, while { 2 say hello + . } : test 1 test 4 test will print “hello3 hello6 ok”.
-Of course, a block may be used to represent the required action instead of ’ type. For instance, if we want a version of say that prints a space after the stored word, we can write { bl word 1 { type space } } :: say { 2 say hello + . } : test 1 test 4 test to obtain “hello 3 hello 6 ok”.
-Incidentally, the words " (introducing a string literal) and ." (printing a string literal) can be defined as follows:
+```
+
+will print `“hello3 ok”`, while
+
+```sh
+{ 2 say hello + . } : test
+1 test 4 test
+```
+
+will print `“hello3 hello6 ok”`.
+
+Of course, a block may be used to represent the required action instead of ’ type. For instance, if we want a version of say that prints a space after the stored word, we can write
+
+```sh
+{ bl word 1 { type space } } :: say
+{ 2 say hello + . } : test
+1 test 4 test
+```
+
+to obtain `“hello 3 hello 6 ok”`.
+
+Incidentally, the words `"` (introducing a string literal) and `."` (printing a string literal) can be defined as follows:
+
+```sh
 { char " word 1 ’nop } ::_ "
 { char " word 1 ’ type } ::_ ."
-The new defining word “::_” defines an active prefix word, i.e., an active word that does not require a space afterwards.
-38 4.5. Defining words and dictionary manipulation 4.5 Defining words and dictionary manipulation Defining words are words that define new words in the Fift dictionary. For instance, “:”, “::_”, and constant are defining words. All of these defining words might have been defined using the primitive (create); in fact, the user can introduce custom defining words if so desired. Let us list some defining words and dictionary manipulation words:
+```
+
+The new defining word `“::_”` defines an active prefix word, i.e., an active word that does not require a space afterwards.
+
+### 4.5 Defining words and dictionary manipulation
+
+Defining words are words that define new words in the Fift dictionary. For instance, “:”, “::_”, and constant are defining words. All of these defining words might have been defined using the primitive (create); in fact, the user can introduce custom defining words if so desired. Let us list some defining words and dictionary manipulation words:
 - create hword-namei (e – ), defines a new ordinary word with the name equal to the next word scanned from the input, using WordDef e as its definition. If the word already exists, it is tacitly redefined.
 - (create) (e S x – ), creates a new word with the name equal to String S and definition equal to WordDef e, using flags passed in Integer 0 ≤ x ≤ 3. If bit +1 is set in x, creates an active word; if bit +2 is set in x, creates a prefix word.
 - : hword-namei (e – ), defines a new ordinary word hword-namei in the dictionary using WordDef e as its definition. If the specified word is already present in the dictionary, it is tacitly redefined.
