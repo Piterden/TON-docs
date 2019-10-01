@@ -1457,58 +1457,84 @@ There are few words that operate on _Cell_'s directly. The most important of the
 
 ### 5.5 Bag-of-cells operations
 
-A _bag of cells_ is a collection of one or more cells along with all their descendants. It can usually be serialized into a sequence of bytes (represented by a Bytes value in Fift) and then saved into a file or transferred by network.
-Afterwards, it can be deserialized to recover the original cells. The TON Blockchain systematically represents different data structures (including the TON Blockchain blocks) as a tree of cells according to a certain TL-B scheme (cf. [5], where this scheme is explained in detail), and then these trees of cells are routinely imported into bags of cells and serialized into binary files.
+A _bag of cells_ is a collection of one or more cells along with all their descendants. It can usually be serialized into a sequence of bytes (represented by a Bytes value in Fift) and then saved into a file or transferred by network. Afterwards, it can be deserialized to recover the original cells. The TON Blockchain systematically represents different data structures (including the TON Blockchain blocks) as a tree of cells according to a certain TL-B scheme (cf. [5], where this scheme is explained in detail), and then these trees of cells are routinely imported into bags of cells and serialized into binary files.
+
 Fift words for manipulating bags of cells include:
-49 5.6. Binary file I/O and Bytes manipulation - B>boc (B – c), deserializes a “standard” _bag of cells_ (i.e., a _bag of cells_ with exactly one root cell) represented by Bytes B, and returns the root _Cell_ c.
-- boc+>B (c x – B), creates and serializes a “standard” _bag of cells_, containing one root _Cell_ c along with all its descendants. An Integer parameter 0 ≤ x ≤ 31 is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:
-– +1 enables bag-of-cells index creation (useful for lazy deserialization of large bags of cells).
-– +2 includes the CRC32-C of all data into the serialization (useful for checking data integrity).
-– +4 explicitly stores the hash of the root cell into the serialization (so that it can be quickly recovered afterwards without a complete deserialization).
-– +8 stores hashes of some intermediate (non-leaf) cells (useful for lazy deserialization of large bags of cells).
-– +16 stores cell cache bits to control caching of deserialized cells.
-Typical values of x are x = 0 or x = 2 for very small bags of cells (e.g.,
-TON Blockchain external messages) and x = 31 for large bags of cells (e.g., TON Blockchain blocks).
-- boc>B (c – B), serializes a small “standard” _bag of cells_ with root _Cell_ c and all its descendants. Equivalent to 0 boc+>B.
+
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`B>boc`** | _`(B – c)`_ | deserializes a “standard” _bag of cells_ (i.e., a _bag of cells_ with exactly one root cell) represented by _Bytes_ `B`, and returns the root _Cell_ `c`. |
+| **`boc+>B`** | _`(c x – B)`_ | creates and serializes a “standard” _bag of cells_, containing one root _Cell_ `c` along with all its descendants. An _Integer_ parameter `0 ≤ x ≤ 31` is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:<br><br>  – **`+1`** enables bag-of-cells index creation (useful for lazy deserialization of large bags of cells).<br>  – **`+2`** includes the CRC32-C of all data into the serialization (useful for checking data integrity).<br>  – **`+4`** explicitly stores the hash of the root cell into the serialization (so that it can be quickly recovered afterwards without a complete deserialization).<br>  – **`+8`** stores hashes of some intermediate (non-leaf) cells (useful for lazy deserialization of large bags of cells).<br>  – **`+16`** stores cell cache bits to control caching of deserialized cells.<br><br>Typical values of `x` are `x = 0` or `x = 2` for very small bags of cells (e.g., TON Blockchain external messages) and `x = 31` for large bags of cells (e.g., TON Blockchain blocks). |
+| **`boc>B`** | _`(c – B)`_ | serializes a small “standard” _bag of cells_ with root _Cell_ `c` and all its descendants. Equivalent to `0 boc+>B`. |
+
 For instance, the cell created in 5.2 with a value of TL-B Test type may be serialized as follows:
-{  } : mkTest 17239 -1000000001 mkTest boc>B Bx.
-outputs “B5EE9C7201040101000000000900000E4A4357C46535FF ok”. Here Bx. is the word that prints the hexadecimal representation of a Bytes value.
-50 5.6. Binary file I/O and Bytes manipulation 5.6 Binary file I/O and Bytes manipulation The following words can be used to manipulate values of type Bytes (arbitrary byte sequences) and to read them from or write them into binary files:
-- B{hhex-digitsi} ( – B), pushes a Bytes literal containing data represented by an even number of hexadecimal digits.
-- Bx. (B – ), prints the hexadecimal representation of a Bytes value.
-Each byte is represented by exactly two uppercase hexadecimal digits.
-- file>B (S – B), reads the (binary) file with the name specified in String S and returns its contents as a Bytes value. If the file does not exist, an exception is thrown.
-- B>file (B S – ), creates a new (binary) file with the name specified in String S and writes data from Bytes B into the new file. If the specified file already exists, it is overwritten.
-- file-exists? (S – ?), checks whether the file with the name specified in String S exists.
+
+```sh
+{ <b x{4A} s, rot 16 u, swap 32 i, b> } : mkTest
+17239 -1000000001 mkTest boc>B Bx.
+```
+
+outputs `“B5EE9C7201040101000000000900000E4A4357C46535FF ok”`. Here `Bx.` is the word that prints the hexadecimal representation of a _Bytes_ value.
+
+### 5.6 Binary file I/O and Bytes manipulation
+
+The following words can be used to manipulate values of type _Bytes_ (arbitrary byte sequences) and to read them from or write them into binary files:
+
+| <span style="color:transparent">xxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`B{hhex-digitsi}`** | _`( – B)`_ | pushes a _Bytes_ literal containing data represented by an even number of hexadecimal digits. |
+| **`Bx.`** | _`(B – )`_ | prints the hexadecimal representation of a _Bytes_ value. Each byte is represented by exactly two uppercase hexadecimal digits. |
+| **`file>B`** | _`(S – B)`_ | reads the (binary) file with the name specified in String S and returns its contents as a _Bytes_ value. If the file does not exist, an exception is thrown. |
+| **`B>file`** | _`(B S – )`_ | creates a new (binary) file with the name specified in String S and writes data from _Bytes_ B into the new file. If the specified file already exists, it is overwritten. |
+| **`file-exists?`** | _`(S – ?)`_ | checks whether the file with the name specified in String S exists. |
+
 For instance, the _bag of cells_ created in the example in 5.5 can be saved to disk as sample.boc as follows:
-{  } : mkTest 17239 -1000000001 mkTest boc>B "sample.boc" B>file It can be loaded and deserialized afterwards (even in another Fift session)
-by means of file>B and B>boc:
-{  abort"constructor tag mismatch"
-16 u@+ 32 i@+ s> } : unpackTest "sample.boc" file>B B>boc unpackTest swap . .
-prints “17239 -1000000001 ok”.
-Additionally, there are several words for directly packing (serializing) data into Bytes values, and unpacking (deserializing) them afterwards. They can be combined with B>file and file>B to save data directly into binary files,
-and load them afterwards.
-51 6.1. Ed25519 cryptography - Blen (B – x), returns the length of a Bytes value B in bytes.
-- Bhash (B – B0 ), computes the sha256 hash of a Bytes value. The hash is returned as a 32-byte Bytes value.
-- B= (B B0 – ?), checks whether two Bytes sequences are equal.
-- Bcmp (B B0 – x), lexicographically compares two Bytes sequences, and returns −1, 0, or 1, depending on the comparison result.
-- B>i@ (B x – y), deserializes the first x/8 bytes of a Bytes value B as a signed big-endian x-bit Integer y.
-- B>i@+ (B x – B0 y), deserializes the first x/8 bytes of B as a signed bigendian x-bit Integer y similarly to B>i@, but also returns the remaining bytes of B.
-- B>u@, B>u@+, variants of B>i@ and B>i@+ deserializing unsigned integers.
-- B>Li@, B>Li@+, B>Lu@, B>Lu@+, little-endian variants of B>i@, B>i@+,
-B>u@, B>u@+.
-- B| (B x – B0 B00), cuts the first x bytes from a Bytes value B, and returns both the first x bytes (B0 ) and the remainder (B00) as new Bytes values.
-- i>B (x y – B), stores a signed big-endian y-bit Integer x into a Bytes value B consisting of exactly y/8 bytes. Integer y must be a multiple of eight in the range 0 . . . 256.
-- u>B (x y – B), stores an unsigned big-endian y-bit Integer x into a Bytes value B consisting of exactly y/8 bytes, similarly to i>B.
-- Li>B, Lu>B, little-endian variants of i>B and u>B.
-- B+ (B0 B00 – B), concatenates two Bytes sequences.
-6 TON-specific operations This chapter describes the TON-specific Fift words, with the exception of the words used for _Cell_ manipulation, already discussed in the previous chapter.
-52 6.2. Smart-contract address parser 6.1 Ed25519 cryptography Fift offers an interface to the same Ed25519 elliptic curve cryptography used by TVM, described in Appendix A of [5]:
-- now ( – x), returns the current Unixtime as an Integer.
+
+```sh
+{ <b x{4A} s, rot 16 u, swap 32 i, b> } : mkTest
+17239 -1000000001 mkTest boc>B "sample.boc" B>file
+```
+
+It can be loaded and deserialized afterwards (even in another Fift session) by means of `file>B` and `B>boc`:
+
+```sh
+{ <s 8 u@+ swap 0x4a <> abort"constructor tag mismatch" 16 u@+ 32 i@+ s> } : unpackTest
+"sample.boc" file>B B>boc unpackTest swap . .
+```
+
+prints `“17239 -1000000001 ok”`.
+
+Additionally, there are several words for directly packing (serializing) data into _Bytes_ values, and unpacking (deserializing) them afterwards. They can be combined with `B>file` and `file>B` to save data directly into binary files, and load them afterwards.
+
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxcccxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`Blen`** | _`(B – x)`_ | returns the length of a _Bytes_ value `B` in bytes. |
+| **`Bhash`** | _`(B – B0 )`_ | computes the sha256 hash of a _Bytes_ value. The hash is returned as a 32-byte _Bytes_ value. |
+| **`B=`** | _`(B B0 – ?)`_ | checks whether two _Bytes_ sequences are equal. |
+| **`Bcmp`** | _`(B B0 – x)`_ | lexicographically compares two _Bytes_ sequences, and returns `−1`, `0`, or `1`, depending on the comparison result. |
+| **`B>i@`** | _`(B x – y)`_ | deserializes the first `x/8` bytes of a _Bytes_ value B as a signed big-endian x-bit _Integer_ y. |
+| **`B>i@+`** | _`(B x – B0 y)`_ | deserializes the first `x/8` bytes of B as a signed bigendian x-bit _Integer_ y similarly to B>i@, but also returns the remaining bytes of B. |
+| **`B>u@`**, **`B>u@+`** | | variants of `B>i@` and `B>i@+` deserializing unsigned integers. |
+| **`B>Li@`**, **`B>Li@+`**, **`B>Lu`**, **`B>Lu@+`** | | little-endian variants of `B>i@`, `B>i@+`, `B>u@`, `B>u@+`. |
+| **`B|`** | _`(B x – B0 B00)`_ | cuts the first x bytes from a _Bytes_ value B, and returns both the first x bytes (B0 ) and the remainder (B00) as new _Bytes_ values. |
+| **`i>B`** | _`(x y – B)`_ | stores a signed big-endian y-bit _Integer_ `x` into a _Bytes_ value `B` consisting of exactly `y/8` bytes. _Integer_ y must be a multiple of eight in the range `0 . . . 256`. |
+| **`u>B`** | _`(x y – B)`_ | stores an unsigned big-endian y-bit _Integer_ x into a _Bytes_ value B consisting of exactly y/8 bytes, similarly to `i>B`. |
+| **`Li>B, Lu>B`** | | little-endian variants of `i>B` and `u>B`. |
+| **`B+`** | _`(B0 B00 – B)`_ | concatenates two _Bytes_ sequences. |
+
+## 6 TON-specific operations
+
+This chapter describes the TON-specific Fift words, with the exception of the words used for _Cell_ manipulation, already discussed in the previous chapter.
+
+### 6.1 Ed25519 cryptography
+
+Fift offers an interface to the same Ed25519 elliptic curve cryptography used by TVM, described in Appendix A of [5]:
+
+- now ( – x), returns the current Unixtime as an _Integer_.
 - newkeypair ( – B B0 ), generates a new Ed25519 private/public key pair, and returns both the private key B and the public key B0 as 32-
-byte Bytes values. The quality of the keys is good enough for testing purposes. Real applications must feed enough entropy into OpenSSL PRNG before generating Ed25519 keypairs.
-- priv>pub (B – B0 ), computes the public key corresponding to a private Ed25519 key. Both the public key B0 and the private key B are represented by 32-byte Bytes values.
-- ed25519_sign (B B0 – B00), signs data B with the Ed25519 private key B0 (a 32-byte Bytes value) and returns the signature as a 64-byte Bytes value B00 .
+byte _Bytes_ values. The quality of the keys is good enough for testing purposes. Real applications must feed enough entropy into OpenSSL PRNG before generating Ed25519 keypairs.
+- priv>pub (B – B0 ), computes the public key corresponding to a private Ed25519 key. Both the public key B0 and the private key B are represented by 32-byte _Bytes_ values.
+- ed25519_sign (B B0 – B00), signs data B with the Ed25519 private key B0 (a 32-byte _Bytes_ value) and returns the signature as a 64-byte _Bytes_ value B00 .
 - ed25519_sign_uint (x B0 – B00), converts a big-endian unsigned 256-
 bit integer x into a 32-byte sequence and signs it using the Ed25519 private key B0 similarly to ed25519_sign. Equivalent to swap 256 u>B swap ed25519_sign. The integer x to be signed is typically computed as the hash of some data.
 - ed25519_chksign (B B0 B00 – ?), checks whether B0 is a valid Ed25519 signature of data B with the public key B00 .
