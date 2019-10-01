@@ -1346,79 +1346,122 @@ The resulting _Builder_ may be inspected by means of the non-destructive stack d
 { <b x{4A} s, rot 16 u, swap 32 i, .s b>  } : mkTest
 17239 -1000000001 mkTest
 <s csr.
-
+```
 outputs
 
+```
 BC{000e4a4357c46535ff}
  ok
 x{4A4357C46535FF}
  ok
+```
 
-One can observe that `.s` dumps the internal representation of a _Builder_, with two tag bytes at the beginning (usually equal to the number of cell references already stored in the _Builder_, and to twice the number of complete bytes
-stored in the _Builder_, increased by one if an incomplete byte is present). On the other hand, `csr.` dumps a _Slice_ (constructed from a Cell by <s, cf. 5.3)
-in a form similar to that used by x{ to define _Slice_ literals (cf. 5.1).
-Incidentally, the word mkTest shown above (without the .s in its definition) corresponds to the TL-B constructor
+One can observe that `.s` dumps the internal representation of a _Builder_, with two tag bytes at the beginning (usually equal to the number of cell references already stored in the _Builder_, and to twice the number of complete bytes stored in the _Builder_, increased by one if an incomplete byte is present). On the other hand, `csr.` dumps a _Slice_ (constructed from a Cell by `<s`, cf. 5.3) in a form similar to that used by x{ to define _Slice_ literals (cf. 5.1).
+
+Incidentally, the word `mkTest` shown above (without the `.s` in its definition) corresponds to the TL-B constructor
+
+```sh
 test#4a first:uint16 second:int32 = Test;
-and may be used to serialize values of this TL-B type.
-5.3 Slice primitives
-The following words can be used to manipulate values o
+```
 
- (s – ), throws an exception if _Slice_ s is non-empty. It usually marks the end of the deserialization of a cell, checking whether there are any unprocessed data bits or references left.
-- i@ (s x – y), fetches a signed big-endian x-bit integer from the first x bits of _Slice_ s. If s contains less than x data bits, an exception is thrown.
-- i@+ (s x – y s0 ), fetches a signed big-endian x-bit integer from the first x bits of _Slice_ s similarly to i@, but returns the remainder of s as well.
-- i@? (s x – y −1 or 0), fetches a signed integer from a _Slice_ similarly to i@, but pushes integer −1 afterwards on success. If there are less than x bits left in s, pushes integer 0 to indicate failure.
-- i@?+ (s x – y s0 −1 or s 0), fetches a signed integer from _Slice_ s and computes the remainder of this _Slice_ similarly to i@+, but pushes −1 afterwards to indicate success. On failure, pushes the unchanged _Slice_ s and 0 to indicate failure.
-- u@, u@+, u@?, u@?+, counterparts of i@, i@+, i@?, i@?+ for deserializing unsigned integers.
-46 5.3. _Slice_ primitives - B@ (s x – B), fetches first x bytes (i.e., 8x bits) from _Slice_ s, and returns them as a Bytes value B. If there are not enough data bits in s, throws an exception.
-- B@+ (s x – B s0 ), similar to B@, but returns the remainder of _Slice_ s as well.
-- B@? (s x – B −1 or 0), similar to B@, but uses a flag to indicate failure instead of throwing an exception.
-- B@?+ (s x – B s0 −1 or s 0), similar to B@+, but uses a flag to indicate failure instead of throwing an exception.
-- $@, $@+, $@?, $@?+, counterparts of B@, B@+, B@?, B@?+, returning the result as a (UTF-8) String instead of a Bytes value. These primitives do not check whether the byte sequence read is a valid UTF-8 string.
-- ref@ (s – c), fetches the first reference from _Slice_ s and returns the _Cell_ c referred to. If there are no references left, throws an exception.
-- ref@+ (s – s 0 c), similar to ref@, but returns the remainder of s as well.
-- ref@? (s – c −1 or 0), similar to ref@, but uses a flag to indicate failure instead of throwing an exception.
-- ref@?+ (s – s 0 c −1 or s 0), similar to ref@+, but uses a flag to indicate failure instead of throwing an exception.
-- empty? (s – ?), checks whether a _Slice_ is empty (i.e., has no data bits and no references left), and returns −1 or 0 accordingly.
-- remaining (s – x y), returns both the number of data bits x and the number of cell references y remaining in _Slice_ s.
-- sbits (s – x), returns the number of data bits x remaining in _Slice_ s.
-- srefs (s – x), returns the number of cell references x remaining in _Slice_ s.
-- sbitrefs (s – x y), returns both the number of data bits x and the number of cell references y remaining in _Slice_ s. Equivalent to remaining.
-47 5.3. _Slice_ primitives - $>s (S – s), transforms String S into a _Slice_. Equivalent to  c (s – c), creates a _Cell_ c directly from a _Slice_ s. Equivalent to .
-- csr. (s – ), recursively prints a _Slice_ s. On the first line, the data bits of s are displayed in hexadecimal form embedded into an x{...}
-construct similar to the one used for _Slice_ literals (cf. 5.1). On the next lines, the cells referred to by s are printed with larger indentation.
-For instance, values of the TL-B type Test discussed in 5.2 test#4a first:uint16 second:int32 = Test;
+and may be used to serialize values of this TL-B type.
+
+### 5.3 Slice primitives
+
+The following words can be used to manipulate values of the type Slice, which represents a read-only view of a portion of a Cell. In this way data previously stored into a Cell may be deserialized, by first transforming a Cell into a Slice, and then extracting the required data from this Slice step-by-step.
+
+| <span style="color:transparent">xxxxxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxx`** | _`xxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`<s`** | _`(c – s)`_ | transforms a Cell c into a Slice s containing the same data. It usually marks the start of the deserialization of a cell. |
+| **`s>`** | _`(s – )`_ | throws an exception if _Slice_ s is non-empty. It usually marks the end of the deserialization of a cell, checking whether there are any unprocessed data bits or references left. |
+| **`i@`** | _`(s x – y)`_ | fetches a signed big-endian x-bit integer from the first x bits of _Slice_ s. If s contains less than x data bits, an exception is thrown. |
+| **`i@+`** | _`(s x – y s0 )`_ | fetches a signed big-endian x-bit integer from the first x bits of _Slice_ s similarly to i@, but returns the remainder of s as well. |
+| **`i@?`** | _`(s x – y −1 or 0)`_ | fetches a signed integer from a _Slice_ similarly to i@, but pushes integer −1 afterwards on success. If there are less than x bits left in s, pushes integer 0 to indicate failure. |
+| **`i@?+`** | _`(s x – y s0 −1 or s 0)`_ | fetches a signed integer from _Slice_ s and computes the remainder of this _Slice_ similarly to i@+, but pushes −1 afterwards to indicate success. On failure, pushes the unchanged _Slice_ s and 0 to indicate failure. |
+| **`u@, u@+, u@?, u@?+,`** | | counterparts of i@, i@+, i@?, i@?+ for deserializing unsigned integers. |
+| **`B@`** | _`(s x – B)`_ | fetches first x bytes (i.e., 8x bits) from _Slice_ s, and returns them as a Bytes value B. If there are not enough data bits in s, throws an exception. |
+| **`B@+`** | _`(s x – B s0 )`_ | similar to B@, but returns the remainder of _Slice_ s as well. |
+| **`B@?`** | _`(s x – B −1 or 0)`_ | similar to B@, but uses a flag to indicate failure instead of throwing an exception. |
+| **`B@?+`** | _`(s x – B s0 −1 or s 0)`_ | similar to B@+, but uses a flag to indicate failure instead of throwing an exception. |
+| **`$@, $@+, $@?, $@?+`** |  | counterparts of B@, B@+, B@?, B@?+, returning the result as a (UTF-8) _String_ instead of a Bytes value. These primitives do not check whether the byte sequence read is a valid UTF-8 string. |
+| **`ref@`** | _`(s – c)`_ | fetches the first reference from _Slice_ s and returns the _Cell_ c referred to. If there are no references left, throws an exception. |
+| **`ref@+`** | _`(s – s 0 c)`_ | similar to ref@, but returns the remainder of s as well. |
+| **`ref@?`** | _`(s – c −1 or 0)`_ | similar to ref@, but uses a flag to indicate failure instead of throwing an exception. |
+| **`ref@?+`** | _`(s – s 0 c −1 or s 0)`_ | similar to ref@+, but uses a flag to indicate failure instead of throwing an exception. |
+| **`empty?`** | _`(s – ?)`_ | checks whether a _Slice_ is empty (i.e., has no data bits and no references left)`_ | and returns −1 or 0 accordingly. |
+| **`remaining`** | _`(s – x y)`_ | returns both the number of data bits x and the number of cell references y remaining in _Slice_ s. |
+| **`sbits`** | _`(s – x)`_ | returns the number of data bits x remaining in _Slice_ s. |
+| **`srefs`** | _`(s – x)`_ | returns the number of cell references x remaining in _Slice_ s. |
+| **`sbitrefs`** | _`(s – x y)`_ | returns both the number of data bits x and the number of cell references y remaining in _Slice_ s. Equivalent to remaining. |
+| **`$>s`** | _`(S – s)`_ | transforms _String_ S into a _Slice_. Equivalent to  c (s – c), creates a _Cell_ c directly from a _Slice_ s. Equivalent to . |
+| **`csr.`** | _`(s – )`_ | recursively prints a _Slice_ s. On the first line, the data bits of s are displayed in hexadecimal form embedded into an x{...} construct similar to the one used for _Slice_ literals (cf. 5.1). On the next lines, the cells referred to by s are printed with larger indentation. |
+
+For instance, values of the TL-B type Test discussed in 5.2
+
+```sh
+test#4a first:uint16 second:int32 = Test;
+```
+
 may be deserialized as follows:
-{  abort"constructor tag mismatch"
-16 u@+ 32 i@+ s> } : unpackTest x{4A4357C46535FF} s>c unpackTest swap . .
-prints “17239 -1000000001 ok” as expected.
+
+```sh
+{ <s 8 u@+ swap 0x4a <> abort"constructor tag mismatch"
+     16 u@+ 32 i@+ s> } : unpackTest
+x{4A4357C46535FF} s>c unpackTest swap . .
+```
+
+prints `“17239 -1000000001 ok”` as expected.
+
 Of course, if one needs to check constructor tags often, a helper word can be defined for this purpose:
+
+```sh
 { dup remaining abort"references in constructor tag"
-tuck u@ -rot u@+ -rot <> abort"constructor tag mismatch"
+  tuck u@ -rot u@+ -rot <> abort"constructor tag mismatch"
 } : tag?
-{  } : unpackTest x{4A4357C46535FF} s>c unpackTest swap . .
+{ <s x{4a} tag? 16 u@+ 32 i@+ s> } : unpackTest
+x{4A4357C46535FF} s>c unpackTest swap . .
+```
+
 We can do even better with the aid of active prefix words (cf. 4.2 and 4.4):
+
+```sh
 { dup remaining abort"references in constructor tag"
-dup 256 > abort"constructor tag too long"
-tuck u@ 2 { -rot u@+ -rot <> abort"constructor tag mismatch" }
+  dup 256 > abort"constructor tag too long"
+  tuck u@ 2 { -rot u@+ -rot <> abort"constructor tag mismatch" }
 } : (tagchk)
 { [compile] x{ 2drop (tagchk) } ::_ ?x{
 { [compile] b{ 2drop (tagchk) } ::_ ?b{
-{  } : unpackTest x{4A4357C46535FF} s>c unpackTest swap . .
-48 5.5. Bag-of-cells operations A shorter but less efficient solution would be to reuse the previously defined tag?:
+{ <s ?x{4a} 16 u@+ 32 i@+ s> } : unpackTest
+x{4A4357C46535FF} s>c unpackTest swap . .
+```
+
+A shorter but less efficient solution would be to reuse the previously defined `tag?`:
+
+```sh
 { [compile] x{ drop ’ tag? } ::_ ?x{
 { [compile] b{ drop ’ tag? } ::_ ?b{
 x{11EF55AA} ?x{11E} dup csr.
 ?b{110} csr.
-first outputs “x{F55AA}”, and then throws an exception with the message “constructor tag mismatch”.
-5.4 _Cell_ hash operations There are few words that operate on _Cell_'s directly. The most important of them computes the (sha256-based) representation hash of a given cell (cf. [4,
-3.1]), which can be roughly described as the sha256 hash of the cell’s data bits concatenated with recursively computed hashes of the cells referred to by this cell:
-- hash (c – B), computes the sha256-based representation hash of _Cell_ c (cf. [4, 3.1]), which unambiguously defines c and all its descendants (provided there are no collisions for sha256). The result is returned as a Bytes value consisting of exactly 32 bytes.
-- shash (s – B), computes the sha256-based representation hash of a _Slice_ by first transforming it into a cell. Equivalent to s>c hash.
-5.5 Bag-of-cells operations A bag of cells is a collection of one or more cells along with all their descendants. It can usually be serialized into a sequence of bytes (represented by a Bytes value in Fift) and then saved into a file or transferred by network.
+```
+
+first outputs `“x{F55AA}”`, and then throws an exception with the message “constructor tag mismatch”.
+
+### 5.4 Cell hash operations
+
+There are few words that operate on _Cell_'s directly. The most important of them computes the (sha256-based) representation hash of a given cell (cf. [4, 3.1]), which can be roughly described as the sha256 hash of the cell’s data bits concatenated with recursively computed hashes of the cells referred to by this cell:
+
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`hash`** | _`(c – B)`_ | computes the sha256-based representation hash of _Cell_ c (cf. [4, 3.1]), which unambiguously defines c and all its descendants (provided there are no collisions for sha256). The result is returned as a Bytes value consisting of exactly 32 bytes. |
+| **`shash`** | _`(s – B)`_ | computes the sha256-based representation hash of a _Slice_ by first transforming it into a cell. Equivalent to s>c hash. |
+
+### 5.5 Bag-of-cells operations
+
+A _bag of cells_ is a collection of one or more cells along with all their descendants. It can usually be serialized into a sequence of bytes (represented by a Bytes value in Fift) and then saved into a file or transferred by network.
 Afterwards, it can be deserialized to recover the original cells. The TON Blockchain systematically represents different data structures (including the TON Blockchain blocks) as a tree of cells according to a certain TL-B scheme (cf. [5], where this scheme is explained in detail), and then these trees of cells are routinely imported into bags of cells and serialized into binary files.
 Fift words for manipulating bags of cells include:
-49 5.6. Binary file I/O and Bytes manipulation - B>boc (B – c), deserializes a “standard” bag of cells (i.e., a bag of cells with exactly one root cell) represented by Bytes B, and returns the root _Cell_ c.
-- boc+>B (c x – B), creates and serializes a “standard” bag of cells, containing one root _Cell_ c along with all its descendants. An Integer parameter 0 ≤ x ≤ 31 is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:
+49 5.6. Binary file I/O and Bytes manipulation - B>boc (B – c), deserializes a “standard” _bag of cells_ (i.e., a _bag of cells_ with exactly one root cell) represented by Bytes B, and returns the root _Cell_ c.
+- boc+>B (c x – B), creates and serializes a “standard” _bag of cells_, containing one root _Cell_ c along with all its descendants. An Integer parameter 0 ≤ x ≤ 31 is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:
 – +1 enables bag-of-cells index creation (useful for lazy deserialization of large bags of cells).
 – +2 includes the CRC32-C of all data into the serialization (useful for checking data integrity).
 – +4 explicitly stores the hash of the root cell into the serialization (so that it can be quickly recovered afterwards without a complete deserialization).
@@ -1426,7 +1469,7 @@ Fift words for manipulating bags of cells include:
 – +16 stores cell cache bits to control caching of deserialized cells.
 Typical values of x are x = 0 or x = 2 for very small bags of cells (e.g.,
 TON Blockchain external messages) and x = 31 for large bags of cells (e.g., TON Blockchain blocks).
-- boc>B (c – B), serializes a small “standard” bag of cells with root _Cell_ c and all its descendants. Equivalent to 0 boc+>B.
+- boc>B (c – B), serializes a small “standard” _bag of cells_ with root _Cell_ c and all its descendants. Equivalent to 0 boc+>B.
 For instance, the cell created in 5.2 with a value of TL-B Test type may be serialized as follows:
 {  } : mkTest 17239 -1000000001 mkTest boc>B Bx.
 outputs “B5EE9C7201040101000000000900000E4A4357C46535FF ok”. Here Bx. is the word that prints the hexadecimal representation of a Bytes value.
@@ -1437,7 +1480,7 @@ Each byte is represented by exactly two uppercase hexadecimal digits.
 - file>B (S – B), reads the (binary) file with the name specified in String S and returns its contents as a Bytes value. If the file does not exist, an exception is thrown.
 - B>file (B S – ), creates a new (binary) file with the name specified in String S and writes data from Bytes B into the new file. If the specified file already exists, it is overwritten.
 - file-exists? (S – ?), checks whether the file with the name specified in String S exists.
-For instance, the bag of cells created in the example in 5.5 can be saved to disk as sample.boc as follows:
+For instance, the _bag of cells_ created in the example in 5.5 can be saved to disk as sample.boc as follows:
 {  } : mkTest 17239 -1000000001 mkTest boc>B "sample.boc" B>file It can be loaded and deserialized afterwards (even in another Fift session)
 by means of file>B and B>boc:
 {  abort"constructor tag mismatch"
@@ -1810,7 +1853,7 @@ cf. 2.5. Otherwise leaves it intact.
 84 Appendix A. List of Fift words - B>Li@+ (B x – B0 y), deserializes the first x/8 bytes of B as a signed little-endian x-bit Integer y similarly to B>Li@, but also returns the remaining bytes of B, cf. 5.6.
 - B>Lu@ (B x – y), deserializes the first x/8 bytes of a Bytes value B as an unsigned little-endian x-bit Integer y, cf. 5.6.
 - B>Lu@+ (B x – B0 y), deserializes the first x/8 bytes of B as an unsigned little-endian x-bit Integer y similarly to B>Lu@, but also returns the remaining bytes of B, cf. 5.6.
-- B>boc (B – c), deserializes a “standard” bag of cells (i.e., a bag of cells with exactly one root cell) represented by Bytes B, and returns the root Cell c, cf. 5.5.
+- B>boc (B – c), deserializes a “standard” _bag of cells_ (i.e., a _bag of cells_ with exactly one root cell) represented by Bytes B, and returns the root Cell c, cf. 5.5.
 - B>file (B S – ), creates a new (binary) file with the name specified in String S and writes data from Bytes B into the new file, cf. 5.6. If the specified file already exists, it is overwritten.
 - B>i@ (B x – y), deserializes the first x/8 bytes of a Bytes value B as a signed big-endian x-bit Integer y, cf. 5.6.
 - B>i@+ (B x – B0 y), deserializes the first x/8 bytes of B as a signed bigendian x-bit Integer y similarly to B>i@, but also returns the remaining bytes of B, cf. 5.6.
@@ -1857,7 +1900,7 @@ and invokes (compile) or (execute) afterwards depending on whether state is grea
 - bbits (b – x), returns the number of data bits already stored in _Builder_ b.
 The result x is an Integer in the range 0 . . . 1023, cf. 5.2.
 - bl ( – x), pushes the Unicode codepoint of a space, i.e., 32, cf. 2.10.
-- boc+>B (c x – B), creates and serializes a “standard” bag of cells, containing one root Cell c along with all its descendants, cf. 5.5. An Integer parameter 0 ≤ x ≤ 31 is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:
+- boc+>B (c x – B), creates and serializes a “standard” _bag of cells_, containing one root Cell c along with all its descendants, cf. 5.5. An Integer parameter 0 ≤ x ≤ 31 is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:
 – +1 enables bag-of-cells index creation (useful for lazy deserialization of large bags of cells).
 – +2 includes the CRC32-C of all data into the serialization (useful for checking data integrity).
 88 Appendix A. List of Fift words – +4 explicitly stores the hash of the root cell into the serialization (so that it can be quickly recovered afterwards without a complete deserialization).
@@ -1865,7 +1908,7 @@ The result x is an Integer in the range 0 . . . 1023, cf. 5.2.
 – +16 stores cell cache bits to control caching of deserialized cells.
 Typical values of x are x = 0 or x = 2 for very small bags of cells (e.g.,
 TON Blockchain external messages) and x = 31 for large bags of cells (e.g., TON Blockchain blocks).
-- boc>B (c – B), serializes a small “standard” bag of cells with root Cell c and all its descendants, cf. 5.5. Equivalent to 0 boc+>B.
+- boc>B (c – B), serializes a small “standard” _bag of cells_ with root Cell c and all its descendants, cf. 5.5. Equivalent to 0 boc+>B.
 - box (x – p), creates a new Box containing specified value x, cf. 2.14.
 Equivalent to hole tuck !.
 - brefs (b – x), returns the number of references already stored in _Builder_ b, cf. 5.2. The result x is an Integer in the range 0 . . . 4.
