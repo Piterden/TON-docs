@@ -853,7 +853,7 @@ prints `“34 ok”`, being essentially equivalent to `“17 2 * .”`. A slight
 
 applies “anonymous function” `x 7→ 2x` twice to `17`, and prints the result `2 · (2 · 17) = 68`. In this way a block is an execution token, which can be duplicated, stored into a constant, used to define a new word, or executed.
 
-The word `’` recovers the current definition of a word. Namely, the construct `’ <word-name>` pushes the execution token equivalent to the current definition of the word hword-namei. For instance,
+The word `’` recovers the current definition of a word. Namely, the construct `’ <word-name>` pushes the execution token equivalent to the current definition of the word <word-name>. For instance,
 
 ```sh
 ’ dup execute
@@ -1197,48 +1197,65 @@ The new defining word `“::_”` defines an active prefix word, i.e., an active
 
 ### 4.5 Defining words and dictionary manipulation
 
-Defining words are words that define new words in the Fift dictionary. For instance, “:”, “::_”, and constant are defining words. All of these defining words might have been defined using the primitive (create); in fact, the user can introduce custom defining words if so desired. Let us list some defining words and dictionary manipulation words:
-- create hword-namei (e – ), defines a new ordinary word with the name equal to the next word scanned from the input, using WordDef e as its definition. If the word already exists, it is tacitly redefined.
-- (create) (e S x – ), creates a new word with the name equal to String S and definition equal to WordDef e, using flags passed in Integer 0 ≤ x ≤ 3. If bit +1 is set in x, creates an active word; if bit +2 is set in x, creates a prefix word.
-- : hword-namei (e – ), defines a new ordinary word hword-namei in the dictionary using WordDef e as its definition. If the specified word is already present in the dictionary, it is tacitly redefined.
-- forget hword-namei ( – ), forgets (removes from the dictionary) the definition of the specified word.
-- (forget) (S – ), forgets the word with the name specified in String S.
-If the word is not found, throws an exception.
-- :_ hword-namei (e – ), defines a new ordinary prefix word hword-namei,
-meaning that a blank or an end-of-line character is not required by the Fift input parser after the word name. In all other respects it is similar to “:”.
-- :: hword-namei (e – ), defines a new active word hword-namei in the dictionary using WordDef e as its definition. If the specified word is already present in the dictionary, it is tacitly redefined.
-- ::_ hword-namei (e – ), defines a new active prefix word hword-namei,
-meaning that a blank or an end-of-line character is not required by the Fift input parser after the word name. In all other respects it is similar to “::”.
-39 4.6. Dictionary lookup - constant hword-namei (x – ), defines a new ordinary word hword-namei that would push the given value x when invoked.
-- 2constant hword-namei (x y – ), defines a new ordinary word named hword-namei that would push the given values x and y (in that order)
-when invoked.
-- =: hword-namei (x – ), defines a new ordinary word hword-namei that would push the given value x when invoked, similarly to constant, but works inside blocks and colon definitions.
-- 2=: hword-namei (x y – ), defines a new ordinary word hword-namei that would push the given values x and y (in that order) when invoked,
-similarly to 2constant, but works inside blocks and colon definitions.
+_Defining words_ are words that define new words in the Fift dictionary. For instance, `“:”`, `“::_”`, and constant are defining words. All of these defining words might have been defined using the primitive (create); in fact, the user can introduce custom defining words if so desired. Let us list some defining words and dictionary manipulation words:
+
+| <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`create <word-name>`** | _`(e – )`_ | defines a new ordinary word with the name equal to the next word scanned from the input, using WordDef e as its definition. If the word already exists, it is tacitly redefined. |
+| **`(create)`** | _`(e S x – )`_ | creates a new word with the name equal to String S and definition equal to WordDef e, using flags passed in Integer 0 ≤ x ≤ 3. If bit +1 is set in x, creates an active word; if bit +2 is set in x, creates a prefix word. |
+| **`: <word-name>`** | _`(e – )`_ | defines a new ordinary word <word-name> in the dictionary using WordDef e as its definition. If the specified word is already present in the dictionary, it is tacitly redefined. |
+| **`forget <word-name>`** | _`( – )`_ | forgets (removes from the dictionary) the definition of the specified word. |
+| **`(forget)`** | _`(S – )`_ | forgets the word with the name specified in String S. If the word is not found, throws an exception. |
+| **`:_ <word-name>`** | _`(e – )`_ | defines a new ordinary prefix word <word-name>, meaning that a blank or an end-of-line character is not required by the Fift input parser after the word name. In all other respects it is similar to “:”. |
+| **`:: <word-name>`** | _`(e – )`_ | defines a new active word <word-name> in the dictionary using WordDef e as its definition. If the specified word is already present in the dictionary, it is tacitly redefined. |
+| **`::_ <word-name>`** | _`(e – )`_ | defines a new active prefix word <word-name>, meaning that a blank or an end-of-line character is not required by the Fift input parser after the word name. In all other respects it is similar to “::”. |
+| **`constant <word-name>`** | _`(x – )`_ | defines a new ordinary word <word-name> that would push the given value x when invoked. |
+| **`2constant <word-name>`** | _`(x y – )`_ | defines a new ordinary word named <word-name> that would push the given values x and y (in that order) when invoked. |
+| **`=: <word-name>`** | _`(x – )`_ | defines a new ordinary word <word-name> that would push the given value x when invoked, similarly to constant, but works inside blocks and colon definitions. |
+| **`2=: <word-name>`** | _`(x y – )`_ | defines a new ordinary word <word-name> that would push the given values x and y (in that order) when invoked, similarly to 2constant, but works inside blocks and colon definitions. |
+
 Notice that most of the above words might have been defined in terms of (create):
+
+```sh
 { bl word 1 2 ’ (create) } "::" 1 (create)
 { bl word 0 2 ’ (create) } :: :
-{ bl word 2 2 ’ (create) } :: :_ { bl word 3 2 ’ (create) } :: ::_ { bl word 0 (create) } : create { bl word (forget) } : forget 4.6 Dictionary lookup The following words can be used to look up words in the dictionary:
-- ’ hword-namei ( – e), pushes the definition of the word hword-namei,
-recovered at the compile time. If the indicated word is not found,
-throws an exception. Notice that ’ hword-namei execute is always equivalent to hword-namei for ordinary words, but not for active words.
-- nop ( – ), does nothing.
-- ’nop ( – e), pushes the default definition of nop—an execution token that does nothing when executed.
-- find (S – e −1 or e 1 or 0), looks up String S in the dictionary and returns its definition as a WordDef e if found, followed by −1 for ordinary words or 1 for active words. Otherwise pushes 0.
-40 4.7. Creating and manipulating word lists - (’) hword-namei ( – e), similar to ’, but returns the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked. May be used to recover current values of constants inside word definitions and other blocks by using the phrase (’)
-hword-namei execute.
-- @’ hword-namei ( – e), similar to (’), but recovers the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked, and then executes this definition. May be used to recover current values of constants inside word definitions and other blocks by using the phrase @’ hword-namei, equivalent to (’)
-hword-namei execute, cf. 2.7.
-- [compile] hword-namei ( – ), compiles hword-namei as if it were an ordinary word, even if it is active. Essentially equivalent to ’ hword-namei execute.
-- words ( – ), prints the names of all words currently defined in the dictionary.
-4.7 Creating and manipulating word lists In the Fift stack, lists of references to word definitions and literals, to be used as blocks or word definitions, are represented by the values of the type WordList. Some words for manipulating WordLists include:
-- { ( – l), an active word that increases internal variable state by one and pushes a new empty WordList into the stack.
-- } (l – e), an active word that transforms a WordList l into a WordDef (an execution token) e, thus making all further modifications of l impossible, and decreases internal variable state by one and pushes the integer 1, followed by a ’nop. The net effect is to transform the constructed WordList into an execution token and push this execution token into the stack, either immediately or during the execution of an outer block.
-- ({) ( – l), pushes an empty WordList into the stack.
-- (}) (l – e), transforms a WordList into an execution token, making all further modifications impossible.
-41 4.8. Custom defining words - (compile) (l x1 . . . xn n e – l 0 ), extends WordList l so that it would push 0 ≤ n ≤ 255 values x1, . . . , xn into the stack and execute the execution token e when invoked, where 0 ≤ n ≤ 255 is an Integer. If e is equal to the special value ’nop, the last step is omitted.
-- does (x1 . . . xn n e – e 0 ), creates a new execution token e 0 that would push n values x1, . . . , xn into the stack and then execute e. It is roughly equivalent to a combination of ({), (compile), and (}).
-4.8 Custom defining words The word does is actually defined in terms of simpler words:
+{ bl word 2 2 ’ (create) } :: :_
+{ bl word 3 2 ’ (create) } :: ::_
+{ bl word 0 (create) } : create
+{ bl word (forget) } : forget
+```
+
+### 4.6 Dictionary lookup
+
+The following words can be used to look up words in the dictionary:
+
+| <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`’ <word-name>`** | _`( – e)`_ | pushes the definition of the word <word-name>, recovered at the compile time. If the indicated word is not found, throws an exception. Notice that `’ <word-name>` execute is always equivalent to <word-name> for ordinary words, but not for active words. |
+| **`nop`** | _`( – )`_ | does nothing. |
+| **`’nop`** | _`( – e)`_ | pushes the default definition of `nop` — an execution token that does nothing when executed. |
+| **`find`** | _`(S – e −1 or e 1 or 0)`_ | looks up _String_ `S` in the dictionary and returns its definition as a _WordDef_ `e` if found, followed by `−1` for ordinary words or `1` for active words. Otherwise pushes `0`. |
+| **`(’) <word-name>`** | _`( – e)`_ | similar to `’`, but returns the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked. May be used to recover current values of constants inside word definitions and other blocks by using the phrase `(’) <word-name> execute`. |
+| **`@’ <word-name>`** | _`( – e)`_ | similar to `(’)`, but recovers the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked, and then executes this definition. May be used to recover current values of constants inside word definitions and other blocks by using the phrase `@’ <word-name>`, equivalent to `(’) <word-name> execute`, cf. 2.7. |
+| **`[compile] <word-name>`** | _`( – )`_ | compiles <word-name> as if it were an ordinary word, even if it is active. Essentially equivalent to `’ <word-name> execute`. |
+| **`words`** | _`( – )`_ | prints the names of all words currently defined in the dictionary. |
+
+### 4.7 Creating and manipulating word lists
+
+In the Fift stack, lists of references to word definitions and literals, to be used as blocks or word definitions, are represented by the values of the type _WordList_. Some words for manipulating _WordList_'s include:
+
+| <span style="color:transparent">xxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`{`** | _`( – l)`_ | an active word that increases internal variable state by one and pushes a new empty _WordList_ into the stack. |
+| **`}`** | _`(l – e)`_ | an active word that transforms a _WordList_ l into a _WordDef_ (an execution token) e, thus making all further modifications of l impossible, and decreases internal variable state by one and pushes the integer 1, followed by a ’nop. The net effect is to transform the constructed _WordList_ into an execution token and push this execution token into the stack, either immediately or during the execution of an outer block. |
+| **`({)`** | _`( – l)`_ | pushes an empty _WordList_ into the stack. |
+| **`(})`** | _`(l – e)`_ | transforms a _WordList_ into an execution token, making all further modifications impossible. |
+| **`(compile)`** | _`(l x1 . . . xn n e – l 0 )`_ | extends _WordList_ l so that it would push 0 ≤ n ≤ 255 values x1, . . . , xn into the stack and execute the execution token e when invoked, where 0 ≤ n ≤ 255 is an Integer. If e is equal to the special value ’nop, the last step is omitted. |
+| **`does`** | _`(x1 . . . xn n e – e 0 )`_ | creates a new execution token e 0 that would push n values x1, . . . , xn into the stack and then execute e. It is roughly equivalent to a combination of ({), (compile), and (}). |
+
+### 4.8 Custom defining words
+
+The word does is actually defined in terms of simpler words:
 { swap ({) over 2+ -roll swap (compile) (}) } : does It is especially useful for defining custom defining words. For instance,
 constant and 2constant may be defined with the aid of does and create:
 { 1 ’nop does create } : constant { 2 ’nop does create } : 2constant Of course, non-trivial actions may be performed by the words defined by means of such custom defining words. For instance,
@@ -1593,9 +1610,9 @@ cf. 2.13. Equivalent to $cmp 0=.
 - $reverse (S – S 0 ), reverses the order of UTF-8 characters in String S.
 If S is not a valid UTF-8 string, the return value is undefined and may be also invalid.
 - %1<< (x y – z), computes z := x mod 2y = x&(2y − 1) for two Integer s x and 0 ≤ y ≤ 256.
-- ’ hword-namei ( – e), returns the execution token equal to the current (compile-time) definition of hword-namei, cf. 3.1. If the specified word is not found, throws an exception.
+- ’ <word-name> ( – e), returns the execution token equal to the current (compile-time) definition of <word-name>, cf. 3.1. If the specified word is not found, throws an exception.
 - ’nop ( – e), pushes the default definition of nop—an execution token that does nothing when executed, cf. 4.6.
-- (’) hword-namei ( – e), similar to ’, but returns the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked, cf. 4.6. May be used to recover the current values of constants inside word definitions and other blocks by using the phrase (’) hword-namei execute.
+- (’) <word-name> ( – e), similar to ’, but returns the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked, cf. 4.6. May be used to recover the current values of constants inside word definitions and other blocks by using the phrase (’) <word-name> execute.
 - (-trailing) (S x – S 0 ), removes from String S all trailing characters with UTF-8 codepoint x.
 76 Appendix A. List of Fift words - (.) (x – S), returns the String with the decimal representation of Integer x. Equivalent to dup abs <# #s rot sign #> nip.
 - (atom) (S x – a −1 or 0), returns the only _Atom_ a with the name given by String S, cf. 2.17. If there is no such _Atom_ yet, either creates it (if Integer x is non-zero) or returns a single zero to indicate failure (if x is zero).
@@ -1687,7 +1704,7 @@ Equivalent to 1 swap +!.
 - 2+ (x – x + 2), computes x + 2. Equivalent to 2 +.
 - 2- (x – x − 2), computes x − 2. Equivalent to 2 -.
 - 2/ (x – bx/2c), computes bx/2c. Equivalent to 2 / or to 1 >>.
-- 2=: hword-namei (x y – ), an active variant of 2constant: defines a new ordinary word hword-namei that would push the given values x and y when invoked, cf. 2.7.
+- 2=: <word-name> (x y – ), an active variant of 2constant: defines a new ordinary word <word-name> that would push the given values x and y when invoked, cf. 2.7.
 - 2constant (x y – ), scans a blank-delimited word name S from the remainder of the input, and defines a new ordinary word S as a double constant, which will push the given values x and y (of arbitrary types)
 when invoked, cf. 4.5.
 - 2drop (x y – ), removes the two topmost stack entries, cf. 2.5. Equivalent to drop drop.
@@ -1695,10 +1712,10 @@ when invoked, cf. 4.5.
 cf. 2.5. Equivalent to over over.
 - 2over (x y z w – x y z w x y), duplicates the second topmost pair of stack entries.
 - 2swap (a b c d – c d a b), interchanges the two topmost pairs of stack entries, cf. 2.5.
-- : hword-namei (e – ), defines a new ordinary word hword-namei in the dictionary using WordDef e as its definition, cf. 4.5. If the specified word is already present in the dictionary, it is tacitly redefined.
-- :: hword-namei (e – ), defines a new active word hword-namei in the dictionary using WordDef e as its definition, cf. 4.5. If the specified word is already present in the dictionary, it is tacitly redefined.
-- ::_ hword-namei (e – ), defines a new active prefix word hword-namei in the dictionary using WordDef e as its definition, cf. 4.5. If the specified word is already present in the dictionary, it is tacitly redefined.
-82 Appendix A. List of Fift words - :_ hword-namei (e – ), defines a new ordinary prefix word hword-namei in the dictionary using WordDef e as its definition, cf. 4.5. If the specified word is already present in the dictionary, it is tacitly redefined.
+- : <word-name> (e – ), defines a new ordinary word <word-name> in the dictionary using WordDef e as its definition, cf. 4.5. If the specified word is already present in the dictionary, it is tacitly redefined.
+- :: <word-name> (e – ), defines a new active word <word-name> in the dictionary using WordDef e as its definition, cf. 4.5. If the specified word is already present in the dictionary, it is tacitly redefined.
+- ::_ <word-name> (e – ), defines a new active prefix word <word-name> in the dictionary using WordDef e as its definition, cf. 4.5. If the specified word is already present in the dictionary, it is tacitly redefined.
+82 Appendix A. List of Fift words - :_ <word-name> (e – ), defines a new ordinary prefix word <word-name> in the dictionary using WordDef e as its definition, cf. 4.5. If the specified word is already present in the dictionary, it is tacitly redefined.
 - < (x y – ?), checks whether x < y (i.e., pushes −1 if Integer x is less than Integer y, 0 otherwise), cf. 2.12.
 - <# ( – S), pushes an empty String. Typically used for starting the conversion of an Integer into its human-readable representation, decimal or in another base. Equivalent to "".
 - << (x y – x · 2 y ), computes an arithmetic left shift of binary number x by y ≥ 0 positions, yielding x · 2 y , cf. 2.4.
@@ -1711,8 +1728,8 @@ cf. 2.5. Equivalent to over over.
 - ?dup (x – x x or 0), duplicates an Integer x, but only if it is non-zero,
 cf. 2.5. Otherwise leaves it intact.
 - @ (p – x), fetches the value currently stored in Box p, cf. 2.14.
-- @’ hword-namei ( – e), recovers the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked, and then executes this definition, cf. 2.7 and 4.6. May be used to recover current values of constants inside word definitions and other blocks by using the phrase @’ hword-namei, equivalent to (’)
-hword-namei execute.
+- @’ <word-name> ( – e), recovers the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked, and then executes this definition, cf. 2.7 and 4.6. May be used to recover current values of constants inside word definitions and other blocks by using the phrase @’ <word-name>, equivalent to (’)
+<word-name> execute.
 - B+ (B0 B00 – B), concatenates two Bytes values, cf. 5.6.
 - B, (b B – b 0 ), appends Bytes B to Builder b, cf. 5.2. If there is no room in b for B, throws an exception.
 - B= (B B0 – ?), checks whether two Bytes sequences are equal, and returns −1 or 0 depending on the comparison outcome, cf. 5.6.
@@ -1742,8 +1759,8 @@ cf. 5.6. Each byte is represented by exactly two uppercase hexadecimal digits.
 - Lu>B (x y – B), stores an unsigned little-endian y-bit Integer x into a Bytes value B consisting of exactly y/8 bytes. Integer y must be a multiple of eight in the range 0 . . . 256, cf. 5.6.
 - [ ( – ), opens an internal interpreter session even if state is greater than zero, i.e., all subsequent words are executed immediately instead of being compiled.
 - [] (t i – x), returns the (i + 1)-st component ti+1 of Tuple t, where 0 ≤ i < |t|, cf. 2.15.
-- [compile] hword-namei ( – ), compiles hword-namei as if it were an ordinary word, even if it is active, cf. 4.6. Essentially equivalent to ’
-hword-namei execute.
+- [compile] <word-name> ( – ), compiles <word-name> as if it were an ordinary word, even if it is active, cf. 4.6. Essentially equivalent to ’
+<word-name> execute.
 86 Appendix A. List of Fift words - ] (x1 . . . xn n – ), closes an internal interpreter session opened by [
 and invokes (compile) or (execute) afterwards depending on whether state is greater than zero. For instance, { [ 2 3 + 1 ] * } is equivalent to { 5 * }.
 - ‘hword i ( – a), introduces an _Atom_ literal, equal to the only _Atom_ with the name equal to hwordi, cf. 2.17. Equivalent to "hword i" atom.
@@ -1806,7 +1823,7 @@ cf. 4.5. If the word already exists, it is tacitly redefined.
 90 Appendix A. List of Fift words - csr. (s – ), recursively prints a Slice s, cf. 5.3. On the first line,
 the data bits of s are displayed in hexadecimal form embedded into an x{...} construct similar to the one used for Slice literals (cf. 5.1).
 On the next lines, the cells referred to by s are printed with larger indentation.
-- def? hword-name i ( – ?), checks whether the word hword-namei is defined at execution time, and returns −1 or 0 accordingly.
+- def? hword-name i ( – ?), checks whether the word <word-name> is defined at execution time, and returns −1 or 0 accordingly.
 - depth ( – n), returns the current depth (the total number of entries)
 of the Fift stack as an Integer n ≥ 0.
 - dictmap (s n e – s 0 ), applies execution token e (i.e., an anonymous function) to each of the key-value pairs stored in a dictionary s with n-bit keys, cf. 6.3. The execution token is executed once for each keyvalue pair, with a Builder b and a Slice v (containing the value) pushed into the stack before executing e. After the execution e must leave in the stack either a modified Builder b 0 (containing all data from b along with the new value v 0 ) and −1, or 0 indicating failure. In the latter case, the corresponding key is omitted from the new dictionary.
@@ -1963,7 +1980,7 @@ If the key is found, returns the corresponding value as a Slice v and −1. Othe
 - ufits (x y – ?), checks whether Integer x is an unsigned y-bit integer (i.e., whether 0 ≤ x < 2 y for 0 ≤ y ≤ 1023), and returns −1 or 0 accordingly.
 - uncons (l – h t), decomposes a non-empty list into its head and its tail,
 cf. 2.16. Equivalent to unpair.
-- undef? hword-name i ( – ?), checks whether the word hword-namei is undefined at execution time, and returns −1 or 0 accordingly.
+- undef? hword-name i ( – ?), checks whether the word <word-name> is undefined at execution time, and returns −1 or 0 accordingly.
 - unpair (t – x y), unpacks a pair t = (x, y), cf. 2.15. Equivalent to 2 untuple.
 - unsingle (t – x), unpacks a singleton t = (x). Equivalent to 1 untuple.
 - until (e – ), an until loop, cf. 3.4: executes WordDef e, then removes the top-of-stack integer and checks whether it is zero. If it is, then begins a new iteration of the loop by executing e. Otherwise exits the loop.
