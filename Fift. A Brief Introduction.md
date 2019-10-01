@@ -706,13 +706,13 @@ After that, cons and uncons are defined as aliases for pair and unpair:
 | **`cdr`** | _`(l – t)`_ | returns the tail of a list. Equivalent to second. |
 | **`cadr`** | _`(l – h 0 )`_ | returns the second element of a list. Equivalent to cdr car. |
 | **`list`** | _`(x1 . . . xn n – l)`_ | constructs a list l of length n with elements `x1, . . . , xn`, in that order. Equivalent to null ’ cons rot times. |
-| **`.l`** | _`(l – )`_ | prints a Lisp-style list l. |
+| `**`.`l`** | _`(l – )`_ | prin`ts a` Lisp-style list l. |
 
 For instance,
 
 ```sh
 2 3 9 3 tuple .dump cr
-2 3 9 3 list dup .dump space dup .l cr
+`2 3 `9 3 list dup .dump space dup .l cr
 "test" swap cons .l cr
 ```
 
@@ -720,16 +720,16 @@ produces
 
 ```sh
 [ 2 3 9 ]
-[ 2 [ 3 [ 9 (null) ] ] ] (2 3 9)
+[ 2 [ 3 [ 9 (`null`) ] ] ] (2 3 9)
 ("test" 2 3 9)
 ```
 
-Notice that the three-element list (2 3 9) is distinct from the triple (2, 3, 9).
+Notice that the three-element` lis`t (2 3 9) is distinct from the triple (2, 3, 9).
 
 ### 2.17 Atoms
 
-An _Atom_ is a simple entity uniquely identified by its name. _Atom_'s can be used to represent identifiers, labels, operation names, tags, and stack markers.
-Fift offers the following words to manipulate _Atom_'s:
+An _Atom_ is `a si`mple entity unique`ly i`dentified by its name. _Atom_'s can be used to represent identifiers, labels, operation names, tags, and stack markers.
+Fift offers the following words `to m`anipulate _Atom_'s:
 
 | <span style="color:transparent">xxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxx</span> |  |
 | :--- | :--- | :------------------------    |
@@ -759,7 +759,7 @@ variable ’eval
 { ’eval @ execute } : eval
 { dup tuple? {
     uncons uncons uncons
-    null? not abort"three-element list expected"
+    null? not abort"three-element list` exp`ected"
     swap eval swap eval rot
     dup ‘+ eq? { drop + } {
       dup ‘- eq? { drop - } {
@@ -778,7 +778,7 @@ prints
 14
 ```
 
-If we load Lisp.fif to enable Lisp-style list syntax, we can enter
+If` we `load Lisp.fif to enable Lisp-style list syntax, we can enter
 
 ```sh
 "Lisp.fif" include
@@ -798,12 +798,12 @@ variable ’)
 
 ### 2.18 Command line arguments in script mode
 
-The Fift interpreter can be invoked in script mode by passing `-s` as a command line option. In this mode, all further command line arguments are not scanned for Fift startup command line options. Rather, the next argument after `-s` is used as the filename of the Fift source file, and all further command line arguments are passed to the Fift program by means of special words `$n` and `$#`:
+The Fift interpreter can be invoked in script mode by passing `-s` as a command line option. In this mode, all further command line arguments are not scanned for Fift startup command line options. Rather, the next argument after `-s` is used as the filename of the Fift source file`, an`d all further command line arguments are passed to the Fift program by means of special words `$n` and `$#`:
 
 |  | <span style="color:transparent">xxxxxxxx</span> |  |
 | :--- | :--- | :------------------------    |
 | **`$#`** | _`( – x)`_ | pushes the total number of command-line arguments passed to the Fift program. |
-| **`$n`** | _`( – S)`_ | pushes the n-th command-line argument as a String S. For instance, $0 pushes the name of the script being executed, $1 the first command line argument, and so on. |
+| **`$n`** | _`( – S)`_ | pushes the n-th command-line argument as a String S. For instance, $0 pushes the name of the script being executed, $1 the first c`omma`nd line argument, and so on. |
 | **`$()`** | _`(x – S)`_ | pushes the x-th command-line argument similarly to $n, but with Integer x taken from the stack. |
 
 Additionally, if the very first line of a Fift source file begins with the two characters `“#!”`, this line is ignored. In this way simple Fift scripts can be written in a *ix system. For instance, if
@@ -815,18 +815,18 @@ Additionally, if the very first line of a Fift source file begins with the two c
 { ’ usage if } : ?usage
 $# 2 <> ?usage
 $1 (number) 1- ?usage
-$2 (number) 1- ?usage
+$2 (number)` 1- `?usage
 * . cr
 ```
 
-is saved into a file `cmdline.fif` in the current directory, and its execution bit is set (e.g., by `chmod 755 cmdline.fif`), then it can be invoked from the shell or any other program, provided the Fift interpreter is installed as `/usr/bin/fift`, and its standard library `Fift.fif` is installed as `/usr/lib/fift/Fift.fif`:
+is saved into a file `cmd`line`.fif` in the current directory, and its execution bit is set (e.g., by `chmod 755 cmdline.fif`), then it can be invoked from the shell or any other program, provided the Fift interpreter is installed as `/usr/bin/fift`, and its standard library `Fift.fif` is installed as `/usr/lib/fift/Fift.fif`:
 
 ```sh
 $ ./cmdline.fif 12 -5
 ```
 
-prints
-
+pri`nts
+`
 ```sh
 -60
 ```
@@ -859,7 +859,7 @@ The word `’` recovers the current definition of a word. Namely, the construct 
 ’ dup execute
 ```
 
-is equivalent to `dup`, and
+is equivalent to `dup``, an`d
 
 ```sh
 ’ dup : duplicate
@@ -895,7 +895,7 @@ For instance, the last example in 2.12 can be more conveniently rewritten as
 
 still resulting in `“true false false ok”`.
 
-Notice that blocks can be arbitrarily nested, as already shown in the previous example. One can write, for example,
+Notice that blocks can be arb`itra`rily nested, as already shown in the previous example. One can write, for example,
 
 ```sh
 { ?dup
@@ -950,7 +950,7 @@ computes the sixth Fibonacci number F6 = 13.
 
 ### 3.4 Loops with an exit condition
 
-More sophisticated loops can be created with the aid of until and while:
+More sophisticated loops can `be c`reated with the aid of until and while:
 
 |  | <span style="color:transparent">xxxxxxxxxxx</span> |  |
 | :--- | :--- | :------------------------    |
@@ -998,7 +998,7 @@ will fail to compile, because `fact` happens to be an undefined word when the de
 A simple way around this obstacle is to use the word `@’` (cf. 4.6) that looks up the current definition of the next word during the execution time and then executes it, similarly to what we already did in 2.7:
 
 ```sh
-{ ?dup { dup 1- @’ fact * } { 1 } cond } : fact
+{ ?dup { dup 1- @’ fact * } { 1` } c`ond } : fact
 5 fact .
 ```
 
@@ -1009,26 +1009,26 @@ However, this solution is rather inefficient, because it uses a dictionary looku
 ```sh
 variable ’fact
 { ’fact @ execute } : fact
-{ ?dup { dup 1- fact * } { 1 } cond } ’fact !
-5 fact .
+{ ?dup { dup 1- fact * } { 1 } cond` } ’`fact '!
+5 fact '.
 ```
 
-This somewhat longer definition of the factorial avoids dictionary lookups at execution time by introducing a special variable `’fact` to hold the final definition of the factorial.**\*** Then fact is defined to execute whatever _WordDef_ is currently stored in `’fact`, and once the body of the recursive definition of the factorial is constructed, it is stored into this variable by means of the phrase `’fact !`, which replaces the more customary phrase `: fact`.
+This somewhat longe'r definition of the factorial avoids dictionary lookups at execution time by introducing a special variable `’fact` to hold the final definition of the factorial.**\*** Then fact is defined to execute whatever _WordDef_ is currently stored in `’fact`, and once the body of the recursive definition of the factorial is constructed, it is stored into this variable by means of the phrase `’fact !`, which replaces the more customary phrase `: fact`.
 
 > **\*** Variables that hold a WordDef to be executed later are called vector variables. The process of replacing fact with ’fact @ execute, where ’fact is a vector variable, is called vectorization.
 
-We could rewrite the above definition by using special “getter” and “setter” words for vector variable ’fact as we did for variables in 2.14:
+We could rewrite the above definition by using special “getter” and “setter” words for vecto'r variable ’fact as we did for variables in 2.14:
 
 ```sh
 variable ’fact
 { ’fact @ execute } : fact
-{ ’fact ! } : :fact
+{ ’fact ! } : :fac't
 forget ’fact
-{ ?dup { dup 1- fact * } { 1 } cond } :fact
+{ ?du'p { dup 1- fact '* } { 1 } cond } :fact
 5 fact .
 ```
 
-If we need to introduce a lot of recursive and mutually-recursive definitions, we might first introduce a custom defining word (cf. 4.8) for simultaneously defining both the “getter” and the “setter” words for anonymous vector variables, similarly to what we did in 2.14:
+If we need to introduce a lot of recursive and mutually-recursive definitions, we migh't first introduce a custom defining word (cf. 4.8) for simultaneously defining both the “getter” and the “setter” word's for anonymous vector variables, similarly to what we did in 2.14:
 
 ```sh
 { hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set
@@ -1037,9 +1037,9 @@ vector-set fact :fact
 5 fact .
 ```
 
-The first three lines of this fragment define `fact` and `:fact` essentially in the same way they had been defined in the first four lines of the previous fragment.
+The first three lines of this fragment define `fact` and `:fact` essentially in the same way they had been defined in the first four lines of the previous fra`gmen`t.
 
-If we wish to make `fact` unchangeable in the future, we can add a forget `:fact` line once the definition of the factorial is complete:
+If we wish to make `fact` unc`h`an`ge`able in the future, we can add a forget `:fact` line once the definition of the factorial is complete:
 
 ```sh
 { hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set
@@ -1055,12 +1055,12 @@ Alternatively, we can modify the definition of `vector-set` in such a way that `
 { hole dup 1 { @ execute } does create
   bl word tuck 2 { (forget) ! } does swap 0 (create)
 } : vector-set-once
-vector-set-once fact :fact
+vector-set`-onc`e fact :fact
 { ?dup { dup 1- fact * } { 1 } cond } :fact
 5 fact .
 ```
 
-However, some vector variables must be modified more than once, for instance, to modify the behavior of the comparison word less in a merge sort algorithm:
+However, some vector variables must be modified more than once, for instance, to modif'y the behavior of the comparison word less in a merge sort algorithm:
 
 ```sh
 { hole dup 1 { @ execute } does create 1 ’ ! does create } : vector-set
@@ -1073,7 +1073,7 @@ vector-set less :less
 } : split
 { dup null? { drop } {
     over null? { nip } {
-      over car over car less ’ swap if
+      over car over car less ’ swa'p if
       uncons rot merge cons
     } cond
   } cond
@@ -1102,14 +1102,14 @@ producing the following output:
 (3 1 4 1 5 9 2 6 5)
 (1 1 2 3 4 5 5 6 9)
 ("once" "upon" "a" "time" "there" "lived" "a" "kitten")
-("a" "a" "kitten" "lived" "once" "there" "time" "upon")
+("a" "a" "kitten" "live'd" "once" "there" "time" "upon")
 ```
 
 ### 3.6 Throwing exceptions
 
 Two built-in words are used to throw exceptions:
 
-| <span style="color:transparent">xxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxx</span> |  |
+| <span styl'e="color:transparent">xxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxx</span> |  |
 | :--- | :--- | :------------------------    |
 | **`abort`** | _`(S – )`_ | throws an exception with an error message taken from _String_ `S`. |
 | **`abort"<message>"`** | _`(x – )`_ | throws an exception with the error message hmessagei if `x` is a non-zero integer. |
@@ -1118,20 +1118,20 @@ The exception thrown by these words is represented by the C++ exception `fift::I
 
 ```sh
 { dup 0= abort"Division by zero" / } : safe/
-5 0 safe/ .
+5 0 safe'/ .
 ```
 
-prints `“safe/: Division by zero”`, without the usual `“ok”`. The stack is cleared in the process.
+prints `“saf'e/: Division by zero”`, without the usual `“ok”`. The stack is cleared in the process.
 
 Incidentally, when the Fift interpreter encounters an unknown word that cannot be parsed as an integer literal, an exception with the message `“-?”` is thrown, with the effect indicated above, including the stack being cleared.
 
 ## 4 Dictionary, interpreter, and compiler
 
-In this chapter we present several specific Fift words for dictionary manipulation and compiler control. The “compiler” is the part of the Fift interpreter that builds lists of word references (represented by _WordList_ stack values) from word names; it is activated by the primitive “{” employed for defining blocks as explained in 2.6 and 3.1.
+In this chapter we present several specific Fift word's for dictionary manipulation and compiler control. The “compiler” is the part of the Fift interpreter that builds lists of word references (represented by _WordList_ stack values) from word names; it is activated by the primitive “{” employed for defining blocks as explained in 2.6 and 3.1.
 
 Most of the information included in this chapter is rather sophisticated and may be skipped during a first reading. However, the techniques described here are heavily employed by the Fift assembler, used to compile TVM code. Therefore, this section is indispensable if one wishes to understand the current implementation of the Fift assembler.
 
-### 4.1 The state of the Fift interpreter
+### 4.1 The state of the Fift int`erpr`eter
 
 The state of the Fift interpreter is controlled by an internal integer variable called `state`, currently unavailable from Fift itself. When `state` is zero, all words parsed from the input (i.e., the Fift source file or the standard input in the interactive mode) are looked up in the dictionary and immediately executed afterwards. When `state` is positive, the words found in the dictionary are not executed. Instead, they (or rather the references to their current definitions) are compiled, i.e., added to the end of the WordList being constructed.
 
@@ -1147,7 +1147,7 @@ All dictionary words have a special flag indicating whether they are active word
 
 When the Fift interpreter finds a word definition in the dictionary, it checks whether it is an ordinary word. If it is, then the current word definition is either executed (if `state` is zero) or “compiled” (if `state` is greater than zero) as explained in 4.1.
 
-On the other hand, if the word is active, then it is always executed, even if `state` is positive. An active word is expected to leave some values `x1 . . . xn n e` in the stack, where `n ≥ 0` is an integer, `x1 . . . xn` are `n` values of arbitrary types, and `e` is an execution token (a value of type _WordDef_). After that, the interpreter performs different actions depending on `state`: if `state` is zero, then n is discarded and e is executed, as if a nip execute phrase were found. If `state` is non-zero, then this collection is “compiled” in the current WordList (located immediately below x1 in the stack) in the same way as if the (compile) primitive were invoked. This compilation amounts to adding some code to the end of the current WordList that would push x1, . . . , xn into the stack when invoked, and then adding a reference to e (representing a delayed execution of e). If e is equal to the special value ’nop, representing an execution token that does nothing when executed, then this last step is omitted.
+On the other hand, if the word is active, then it is always executed, even if `state` is positive. An active word is expected to leave some values `x1 . . . xn n e` in the stack, where `n ≥ 0` is an integer, `x1 . . . xn` are `n` values of arbitrary types, and `e` is an execution token (a value of type _WordDef_). After that, the interpreter performs different actions depending on `state`: if `state` is zero, then n is discarded and e is executed, as if a nip execute phrase were found. If `state` is non-zero, then this collection is “compiled” in the current WordList (located immediately below x1 in the stack) in the same way as if the (compile) primitive were invoked. This compilation amounts to adding some code to the end of th'e current WordList that would push x1, . . . , xn into the stack when invoked, and then adding a reference to e (representing a delayed execution of e). If e is equal to the special value ’nop, representing an execution token that does nothing when executed, then this last step is omitted.
 
 ### 4.3 Compiling literals
 
@@ -1176,7 +1176,7 @@ will print `“hello3 ok”`, while
 
 will print `“hello3 hello6 ok”`.
 
-Of course, a block may be used to represent the required action instead of ’ type. For instance, if we want a version of say that prints a space after the stored word, we can write
+Of course, a block may be used to represent the required action instead of ’ typ'e. For instance, if we want a version of say that prints a space after the stored word, we can write
 
 ```sh
 { bl word 1 { type space } } :: say
@@ -1218,7 +1218,7 @@ Notice that most of the above words might have been defined in terms of (create)
 
 ```sh
 { bl word 1 2 ’ (create) } "::" 1 (create)
-{ bl word 0 2 ’ (create) } :: :
+{ bl word 0 2 ’ (create) } :': :'
 { bl word 2 2 ’ (create) } :: :_
 { bl word 3 2 ’ (create) } :: ::_
 { bl word 0 (create) } : create
@@ -1247,72 +1247,145 @@ In the Fift stack, lists of references to word definitions and literals, to be u
 | <span style="color:transparent">xxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxxx</span> |  |
 | :--- | :--- | :------------------------    |
 | **`{`** | _`( – l)`_ | an active word that increases internal variable state by one and pushes a new empty _WordList_ into the stack. |
-| **`}`** | _`(l – e)`_ | an active word that transforms a _WordList_ l into a _WordDef_ (an execution token) e, thus making all further modifications of l impossible, and decreases internal variable state by one and pushes the integer 1, followed by a ’nop. The net effect is to transform the constructed _WordList_ into an execution token and push this execution token into the stack, either immediately or during the execution of an outer block. |
+| **`}`** | _`(l – e)`_ | an active word that transforms a _WordList_ `l` into a _WordDef_ (an execution token) `e`, thus making all further modifications of `l` impossible, and decreases internal variable state by one and pushes the integer `1`, followed by a `’nop`. The net effect is to transform the constructed _WordList_ into an execution token and push this execution token into the stack, either immediately or during the execution of an outer block. |
 | **`({)`** | _`( – l)`_ | pushes an empty _WordList_ into the stack. |
 | **`(})`** | _`(l – e)`_ | transforms a _WordList_ into an execution token, making all further modifications impossible. |
-| **`(compile)`** | _`(l x1 . . . xn n e – l 0 )`_ | extends _WordList_ l so that it would push 0 ≤ n ≤ 255 values x1, . . . , xn into the stack and execute the execution token e when invoked, where 0 ≤ n ≤ 255 is an Integer. If e is equal to the special value ’nop, the last step is omitted. |
-| **`does`** | _`(x1 . . . xn n e – e 0 )`_ | creates a new execution token e 0 that would push n values x1, . . . , xn into the stack and then execute e. It is roughly equivalent to a combination of ({), (compile), and (}). |
+| **`(compile)`** | _`(l x1 . . . xn n e – l 0 )`_ | extends _WordList_ `l` so that it would push `0 ≤ n ≤ 255` values `x1, . . . , xn` into the stack and execute the execution token `e` when invoked, where `0 ≤ n ≤ 255` is an _Integer_. If e is equal to the special value `’nop`, the last step is omitted. |
+| **`does`** | _`(x1 . . . xn n e – e 0 )`_ | creates a new execution token `e 0` that would push `n` values `x1, . . . , xn` into the stack and then execute `e`. It is roughly equivalent to a combination of `({), (compile), and (})`. |
 
 ### 4.8 Custom defining words
 
 The word does is actually defined in terms of simpler words:
-{ swap ({) over 2+ -roll swap (compile) (}) } : does It is especially useful for defining custom defining words. For instance,
-constant and 2constant may be defined with the aid of does and create:
-{ 1 ’nop does create } : constant { 2 ’nop does create } : 2constant Of course, non-trivial actions may be performed by the words defined by means of such custom defining words. For instance,
-{ 1 { type space } does create } : says "hello" says hello "unknown error" says error { hello error } : test test will print “hello unknown error ok”, because hello is defined by means of a custom defining word says to print “hello” whenever invoked, and similarly error prints “unknown error” when invoked. The above definitions are essentially equivalent to { ."hello" } : hello { ."unknown error" } : error However, custom defining words may perform more sophisticated actions when invoked, and preprocess their arguments at compile time. For instance,
-the message can be computed in a non-trivial fashion:
-42 5.1. Slice literals "Hello, " "world!" $+ says hw defines word hw, which prints “Hello, world!” when invoked. The string with this message is computed once at compile time (when says is invoked), not at execution time (when hw is invoked).
-5 Cell manipulation We have discussed the basic Fift primitives not related to TVM or the TON Blockchain so far. Now we will turn to TON-specific words, used to manipulate Cells.
-5.1 Slice literals Recall that a (TVM) Cell consists of at most 1023 data bits and at most four references to other Cells, a Slice is a read-only view of a portion of a Cell, and a Builder is used to create new Cells. Fift has special provisions for defining Slice literals (i.e., unnamed constants), which can also be transformed into Cells if necessary.
-Slice literals are introduced by means of active prefix words x{ and b{:
-- b{hbinary-datai} ( – s), creates a Slice s that contains no references and up to 1023 data bits specified in hbinary-datai, which must be a string consisting only of the characters ‘0’ and ‘1’.
-- x{hhex-datai} ( – s), creates a Slice s that contains no references and up to 1023 data bits specified in hhex-datai. More precisely, each hex digit from hhex-datai is transformed into four binary digits in the usual fashion. After that, if the last character of hhex-datai is an underscore _,
-then all trailing binary zeroes and the binary one immediately preceding them are removed from the resulting binary string (cf. [4, 1.0] for more details).
-In this way, b{00011101} and x{1d} both push the same Slice consisting of eight data bits and no references. Similarly, b{111010} and x{EA_} push the same Slice consisting of six data bits. An empty Slice can be represented as b{} or x{}.
-If one wishes to define constant Slices with some Cell references, the following words might be used:
-43 5.2. Builder primitives - |_ (s s0 – s 00), given two Slices s and s 0 , creates a new Slice s 00, which is obtained from s by appending a new reference to a Cell containing s 0 .
-- |+ (s s0 – s 00), concatenates two Slices s and s 0 . This means that the data bits of the new Slice s 00 are obtained by concatenating the data bits of s and s 0 , and the list of Cell references of s 00 is constructed similarly by concatenating the corresponding lists for s and s 0 .
-5.2 Builder primitives The following words can be used to manipulate Builder s, which can later be used to construct new Cells:
--  (b – c), transforms a Builder b into a new Cell c containing the same data as b.
-- i, (b x y – b 0 ), appends the big-endian binary representation of a signed y-bit integer x to Builder b, where 0 ≤ y ≤ 257. If there is not enough room in b (i.e., if b already contains more than 1023 − y data bits), or if Integer x does not fit into y bits, an exception is thrown.
-- u, (b x y – b 0 ), appends the big-endian binary representation of an unsigned y-bit integer x to Builder b, where 0 ≤ y ≤ 256. If the operation is impossible, an exception is thrown.
-- ref, (b c – b 0 ), appends to Builder b a reference to Cell c. If b already contains four references, an exception is thrown.
-- s, (b s – b 0 ), appends data bits and references taken from Slice s to Builder b.
-- sr, (b s – b 0 ), constructs a new Cell containing all data and references from Slice s, and appends a reference to this cell to Builder b.
-Equivalent to  ref,.
-- $, (b S – b 0 ), appends String S to Builder b. The string is interpreted as a binary string of length 8n, where n is the number of bytes in the UTF-8 representation of S.
-44 5.2. Builder primitives - B, (b B – b 0 ), appends Bytes B to Builder b.
-- b+ (b b0 – b 00), concatenates two Builders b and b 0 .
-- bbits (b – x), returns the number of data bits already stored in Builder b.
-The result x is an Integer in the range 0 . . . 1023.
-- brefs (b – x), returns the number of references already stored in Builder b. The result x is an Integer in the range 0 . . . 4.
-- bbitrefs (b – x y), returns both the number of data bits x and the number of references y already stored in Builder b.
-- brembits (b – x), returns the maximum number of additional data bits that can be stored in Builder b. Equivalent to bbits 1023 swap -.
-- bremrefs (b – x), returns the maximum number of additional cell references that can be stored in Builder b.
-- brembitrefs (b – x y), returns both the maximum number of additional data bits 0 ≤ x ≤ 1023 and the maximum number of additional cell references 0 ≤ y ≤ 4 that can be stored in Builder b.
-The resulting Builder may be inspected by means of the non-destructive stack dump primitive .s, or by the phrase b>  } : mkTest 17239 -1000000001 mkTest  (s – ), throws an exception if Slice s is non-empty. It usually marks the end of the deserialization of a cell, checking whether there are any unprocessed data bits or references left.
-- i@ (s x – y), fetches a signed big-endian x-bit integer from the first x bits of Slice s. If s contains less than x data bits, an exception is thrown.
-- i@+ (s x – y s0 ), fetches a signed big-endian x-bit integer from the first x bits of Slice s similarly to i@, but returns the remainder of s as well.
-- i@? (s x – y −1 or 0), fetches a signed integer from a Slice similarly to i@, but pushes integer −1 afterwards on success. If there are less than x bits left in s, pushes integer 0 to indicate failure.
-- i@?+ (s x – y s0 −1 or s 0), fetches a signed integer from Slice s and computes the remainder of this Slice similarly to i@+, but pushes −1 afterwards to indicate success. On failure, pushes the unchanged Slice s and 0 to indicate failure.
+'
+```sh
+{ swap ({) over 2+ -roll swap (compile) (}) } : does
+```
+
+It is especially useful for defining custom defining words. For instance, `constant` and `2constant` may be defined with the aid of `does` and `create`:
+
+```sh
+{ 1 ’nop does create } : constant
+{ 2 ’nop does create } : 2constant
+```
+
+Of course, non-trivial actions may be performe'd by the words defined by means of such custom defining words. For instance,
+
+```sh
+{ 1 { type space } does create } : says
+"hello" says hello
+"unknown error" says error
+{ hello error } : test
+test
+```
+
+will print `“hello unknown error ok”`, because `hello` is defined by means of a custom defining word says to print `“hello”` whenever invoked, and similarly error prints `“unknown error”` when invoked. The above definitions are essentially equivalent to
+
+```sh
+{ ."hello" } : hello
+{ ."unknown error" } : error
+```
+
+However, custom defining words may perform more sophisticated actions when invoked, and preprocess their arguments at compile time. For instance, the message can be computed in a non-trivial fashion:
+
+```sh
+"Hello, " "world!" $+ says hw
+```
+
+defines word `hw`, which prints `“Hello, world!”` when invoked. The string with this message is computed once at compile time (when `says` is invoked), not at execution time (when `hw` is invoked).
+
+## 5 Cell manipulation
+
+We have discussed the basic Fift primitives not related to TVM or the TON Blockchain so far. Now we will turn to TON-specific words, used to manipulate Cells.
+
+### 5.1 Slice literals
+
+Recall that a (TVM) _Cell_ consists of at most `1023` data bits and at most four references to other _Cell_'s, a _Slice_ is a read-only view of a portion of a _Cell_, and a _Builder_ is used to create new _Cell_'s. Fift has special provisions for defining _Slice_ literals (i.e., unnamed constants), which can also be transformed into _Cell_'s if necessary.
+
+_Slice_ literals are introduced by means of active prefix words `x{` and `b{`:
+
+| <span style="color:transparent">xxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`b{<binary-data>}`** | _`( – s)`_ | creates a _Slice_ s that contains no references and up to 1023 data bits specified in <binary-data>, which must be a string consisting only of the characters ‘0’ and ‘1’. |
+| **`x{<hex-data>}`** | _`( – s)`_ | creates a _Slice_ `s` that contains no references and up to 1023 data bits specified in <hex-data>. More precisely, each hex digit from <hex-data> is transformed into four binary digits in the usual fashion. After that, if the last character of <hex-data> is an underscore _, then all trailing binary zeroes and the binary one immediately preceding them are removed from the resulting binary string (cf. [4, 1.0] for more details). |
+
+In this way, `b{00011101}` and `x{1d}` both push the same _Slice_ consisting of eight data bits and no references. Similarly, `b{111010}` and `x{EA_}` push the same _Slice_ consisting of six data bits. An empty _Slice_ can be represented as `b{}` or `x{}`.
+
+If one wishes to define constant _Slice_'s with some _Cell_ references, the following words might be used:
+
+| <span style="color:transparent">xxx</span> | <span style="color:transparent">xxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`\|_`** | _`(s s0 – s 00)`_ | given two _Slice_'s `s` and `s 0` , creates a new _Slice_ `s 00`, which is obtained from `s` by appending a new reference to a _Cell_ containing `s 0`. |
+| **`\|+`** | _`(s s0 – s 00)`_ | concatenates two _Slice_'s `s` and `s 0` . This means that the data bits of the new _Slice_ `s 00` are obtained by concatenating the data bits of `s` and `s 0`, and the list of _Cell_ references of `s 00` is constructed similarly by concatenating the corresponding lists for `s` and `s 0`. |
+
+### 5.2 Builder primitives
+
+The following words can be used to manipulate _Builder_'s, which can later be used to construct new _Cell_'s:
+
+| <span style="color:transparent">xxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`<b`** | _`( – b)`_ | creates a new empty Builder. |
+| **`b>`** | _`(b – c)`_ | transforms a _Builder_ b into a new _Cell_ c containing the same data as b. |
+| **`i,`** | _`(b x y – b 0 )`_ | appends the big-endian binary representation of a signed y-bit integer x to _Builder_ b, where 0 ≤ y ≤ 257. If there is not enough room in b (i.e., if b already contains more than 1023 − y data bits)`_ | or if Integer x does not fit into y bits, an exception is thrown. |
+| **`u,`** | _`(b x y – b 0 )`_ | appends the big-endian binary representation of an unsigned y-bit integer x to _Builder_ b, where 0 ≤ y ≤ 256. If the operation is impossible, an exception is thrown. |
+| **`ref,`** | _`(b c – b 0 )`_ | appends to _Builder_ b a reference to _Cell_ c. If b already contains four references, an exception is thrown. |
+| **`s,`** | _`(b s – b 0 )`_ | appends data bits and references taken from _Slice_ s to _Builder_ b. |
+| **`sr,`** | _`(b s – b 0 )`_ | constructs a new _Cell_ containing all data and references from _Slice_ s, and appends a reference to this cell to _Builder_ b. Equivalent to  ref,. |
+| **`$,`** | _`(b S – b 0 )`_ | appends String S to _Builder_ b. The string is interpreted as a binary string of length 8n, where n is the number of bytes in the UTF-8 representation of S. |
+| **`B,`** | _`(b B – b 0 )`_ | appends Bytes B to _Builder_ b. |
+| **`b+`** | _`(b b0 – b 00)`_ | concatenates two _Builder_'s b and b 0 . |
+| **`bbits`** | _`(b – x)`_ | returns the number of data bits already stored in _Builder_ b. The result x is an Integer in the range 0 . . . 1023. |
+| **`brefs`** | _`(b – x)`_ | returns the number of references already stored in _Builder_ b. The result x is an Integer in the range 0 . . . 4. |
+| **`bbitrefs`** | _`(b – x y)`_ | returns both the number of data bits x and the number of references y already stored in _Builder_ b. |
+| **`brembits`** | _`(b – x)`_ | returns the maximum number of additional data bits that can be stored in _Builder_ b. Equivalent to bbits 1023 swap -. |
+| **`bremrefs`** | _`(b – x)`_ | returns the maximum number of additional cell references that can be stored in _Builder_ b. |
+| **`brembitrefs`** | _`(b – x y)`_ | returns both the maximum number of additional data bits 0 ≤ x ≤ 1023 and the maximum number of additional cell references 0 ≤ y ≤ 4 that can be stored in _Builder_ b. |
+
+The resulting _Builder_ may be inspected by means of the non-destructive stack dump primitive .s, or by the phrase `b> <s csr.`. For instance:
+
+```sh
+{ <b x{4A} s, rot 16 u, swap 32 i, .s b>  } : mkTest
+17239 -1000000001 mkTest
+<s csr.
+
+outputs
+
+BC{000e4a4357c46535ff}
+ ok
+x{4A4357C46535FF}
+ ok
+
+One can observe that `.s` dumps the internal representation of a _Builder_, with two tag bytes at the beginning (usually equal to the number of cell references already stored in the _Builder_, and to twice the number of complete bytes
+stored in the _Builder_, increased by one if an incomplete byte is present). On the other hand, `csr.` dumps a _Slice_ (constructed from a Cell by <s, cf. 5.3)
+in a form similar to that used by x{ to define _Slice_ literals (cf. 5.1).
+Incidentally, the word mkTest shown above (without the .s in its definition) corresponds to the TL-B constructor
+test#4a first:uint16 second:int32 = Test;
+and may be used to serialize values of this TL-B type.
+5.3 Slice primitives
+The following words can be used to manipulate values o
+
+ (s – ), throws an exception if _Slice_ s is non-empty. It usually marks the end of the deserialization of a cell, checking whether there are any unprocessed data bits or references left.
+- i@ (s x – y), fetches a signed big-endian x-bit integer from the first x bits of _Slice_ s. If s contains less than x data bits, an exception is thrown.
+- i@+ (s x – y s0 ), fetches a signed big-endian x-bit integer from the first x bits of _Slice_ s similarly to i@, but returns the remainder of s as well.
+- i@? (s x – y −1 or 0), fetches a signed integer from a _Slice_ similarly to i@, but pushes integer −1 afterwards on success. If there are less than x bits left in s, pushes integer 0 to indicate failure.
+- i@?+ (s x – y s0 −1 or s 0), fetches a signed integer from _Slice_ s and computes the remainder of this _Slice_ similarly to i@+, but pushes −1 afterwards to indicate success. On failure, pushes the unchanged _Slice_ s and 0 to indicate failure.
 - u@, u@+, u@?, u@?+, counterparts of i@, i@+, i@?, i@?+ for deserializing unsigned integers.
-46 5.3. Slice primitives - B@ (s x – B), fetches first x bytes (i.e., 8x bits) from Slice s, and returns them as a Bytes value B. If there are not enough data bits in s, throws an exception.
-- B@+ (s x – B s0 ), similar to B@, but returns the remainder of Slice s as well.
+46 5.3. _Slice_ primitives - B@ (s x – B), fetches first x bytes (i.e., 8x bits) from _Slice_ s, and returns them as a Bytes value B. If there are not enough data bits in s, throws an exception.
+- B@+ (s x – B s0 ), similar to B@, but returns the remainder of _Slice_ s as well.
 - B@? (s x – B −1 or 0), similar to B@, but uses a flag to indicate failure instead of throwing an exception.
 - B@?+ (s x – B s0 −1 or s 0), similar to B@+, but uses a flag to indicate failure instead of throwing an exception.
 - $@, $@+, $@?, $@?+, counterparts of B@, B@+, B@?, B@?+, returning the result as a (UTF-8) String instead of a Bytes value. These primitives do not check whether the byte sequence read is a valid UTF-8 string.
-- ref@ (s – c), fetches the first reference from Slice s and returns the Cell c referred to. If there are no references left, throws an exception.
+- ref@ (s – c), fetches the first reference from _Slice_ s and returns the _Cell_ c referred to. If there are no references left, throws an exception.
 - ref@+ (s – s 0 c), similar to ref@, but returns the remainder of s as well.
 - ref@? (s – c −1 or 0), similar to ref@, but uses a flag to indicate failure instead of throwing an exception.
 - ref@?+ (s – s 0 c −1 or s 0), similar to ref@+, but uses a flag to indicate failure instead of throwing an exception.
-- empty? (s – ?), checks whether a Slice is empty (i.e., has no data bits and no references left), and returns −1 or 0 accordingly.
-- remaining (s – x y), returns both the number of data bits x and the number of cell references y remaining in Slice s.
-- sbits (s – x), returns the number of data bits x remaining in Slice s.
-- srefs (s – x), returns the number of cell references x remaining in Slice s.
-- sbitrefs (s – x y), returns both the number of data bits x and the number of cell references y remaining in Slice s. Equivalent to remaining.
-47 5.3. Slice primitives - $>s (S – s), transforms String S into a Slice. Equivalent to  c (s – c), creates a Cell c directly from a Slice s. Equivalent to .
-- csr. (s – ), recursively prints a Slice s. On the first line, the data bits of s are displayed in hexadecimal form embedded into an x{...}
-construct similar to the one used for Slice literals (cf. 5.1). On the next lines, the cells referred to by s are printed with larger indentation.
+- empty? (s – ?), checks whether a _Slice_ is empty (i.e., has no data bits and no references left), and returns −1 or 0 accordingly.
+- remaining (s – x y), returns both the number of data bits x and the number of cell references y remaining in _Slice_ s.
+- sbits (s – x), returns the number of data bits x remaining in _Slice_ s.
+- srefs (s – x), returns the number of cell references x remaining in _Slice_ s.
+- sbitrefs (s – x y), returns both the number of data bits x and the number of cell references y remaining in _Slice_ s. Equivalent to remaining.
+47 5.3. _Slice_ primitives - $>s (S – s), transforms String S into a _Slice_. Equivalent to  c (s – c), creates a _Cell_ c directly from a _Slice_ s. Equivalent to .
+- csr. (s – ), recursively prints a _Slice_ s. On the first line, the data bits of s are displayed in hexadecimal form embedded into an x{...}
+construct similar to the one used for _Slice_ literals (cf. 5.1). On the next lines, the cells referred to by s are printed with larger indentation.
 For instance, values of the TL-B type Test discussed in 5.2 test#4a first:uint16 second:int32 = Test;
 may be deserialized as follows:
 {  abort"constructor tag mismatch"
@@ -1337,15 +1410,15 @@ tuck u@ 2 { -rot u@+ -rot <> abort"constructor tag mismatch" }
 x{11EF55AA} ?x{11E} dup csr.
 ?b{110} csr.
 first outputs “x{F55AA}”, and then throws an exception with the message “constructor tag mismatch”.
-5.4 Cell hash operations There are few words that operate on Cells directly. The most important of them computes the (sha256-based) representation hash of a given cell (cf. [4,
+5.4 _Cell_ hash operations There are few words that operate on _Cell_'s directly. The most important of them computes the (sha256-based) representation hash of a given cell (cf. [4,
 3.1]), which can be roughly described as the sha256 hash of the cell’s data bits concatenated with recursively computed hashes of the cells referred to by this cell:
-- hash (c – B), computes the sha256-based representation hash of Cell c (cf. [4, 3.1]), which unambiguously defines c and all its descendants (provided there are no collisions for sha256). The result is returned as a Bytes value consisting of exactly 32 bytes.
-- shash (s – B), computes the sha256-based representation hash of a Slice by first transforming it into a cell. Equivalent to s>c hash.
+- hash (c – B), computes the sha256-based representation hash of _Cell_ c (cf. [4, 3.1]), which unambiguously defines c and all its descendants (provided there are no collisions for sha256). The result is returned as a Bytes value consisting of exactly 32 bytes.
+- shash (s – B), computes the sha256-based representation hash of a _Slice_ by first transforming it into a cell. Equivalent to s>c hash.
 5.5 Bag-of-cells operations A bag of cells is a collection of one or more cells along with all their descendants. It can usually be serialized into a sequence of bytes (represented by a Bytes value in Fift) and then saved into a file or transferred by network.
 Afterwards, it can be deserialized to recover the original cells. The TON Blockchain systematically represents different data structures (including the TON Blockchain blocks) as a tree of cells according to a certain TL-B scheme (cf. [5], where this scheme is explained in detail), and then these trees of cells are routinely imported into bags of cells and serialized into binary files.
 Fift words for manipulating bags of cells include:
-49 5.6. Binary file I/O and Bytes manipulation - B>boc (B – c), deserializes a “standard” bag of cells (i.e., a bag of cells with exactly one root cell) represented by Bytes B, and returns the root Cell c.
-- boc+>B (c x – B), creates and serializes a “standard” bag of cells, containing one root Cell c along with all its descendants. An Integer parameter 0 ≤ x ≤ 31 is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:
+49 5.6. Binary file I/O and Bytes manipulation - B>boc (B – c), deserializes a “standard” bag of cells (i.e., a bag of cells with exactly one root cell) represented by Bytes B, and returns the root _Cell_ c.
+- boc+>B (c x – B), creates and serializes a “standard” bag of cells, containing one root _Cell_ c along with all its descendants. An Integer parameter 0 ≤ x ≤ 31 is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:
 – +1 enables bag-of-cells index creation (useful for lazy deserialization of large bags of cells).
 – +2 includes the CRC32-C of all data into the serialization (useful for checking data integrity).
 – +4 explicitly stores the hash of the root cell into the serialization (so that it can be quickly recovered afterwards without a complete deserialization).
@@ -1353,7 +1426,7 @@ Fift words for manipulating bags of cells include:
 – +16 stores cell cache bits to control caching of deserialized cells.
 Typical values of x are x = 0 or x = 2 for very small bags of cells (e.g.,
 TON Blockchain external messages) and x = 31 for large bags of cells (e.g., TON Blockchain blocks).
-- boc>B (c – B), serializes a small “standard” bag of cells with root Cell c and all its descendants. Equivalent to 0 boc+>B.
+- boc>B (c – B), serializes a small “standard” bag of cells with root _Cell_ c and all its descendants. Equivalent to 0 boc+>B.
 For instance, the cell created in 5.2 with a value of TL-B Test type may be serialized as follows:
 {  } : mkTest 17239 -1000000001 mkTest boc>B Bx.
 outputs “B5EE9C7201040101000000000900000E4A4357C46535FF ok”. Here Bx. is the word that prints the hexadecimal representation of a Bytes value.
@@ -1386,7 +1459,7 @@ B>u@, B>u@+.
 - u>B (x y – B), stores an unsigned big-endian y-bit Integer x into a Bytes value B consisting of exactly y/8 bytes, similarly to i>B.
 - Li>B, Lu>B, little-endian variants of i>B and u>B.
 - B+ (B0 B00 – B), concatenates two Bytes sequences.
-6 TON-specific operations This chapter describes the TON-specific Fift words, with the exception of the words used for Cell manipulation, already discussed in the previous chapter.
+6 TON-specific operations This chapter describes the TON-specific Fift words, with the exception of the words used for _Cell_ manipulation, already discussed in the previous chapter.
 52 6.2. Smart-contract address parser 6.1 Ed25519 cryptography Fift offers an interface to the same Ed25519 elliptic curve cryptography used by TVM, described in Appendix A of [5]:
 - now ( – x), returns the current Unixtime as an Integer.
 - newkeypair ( – B B0 ), generates a new Ed25519 private/public key pair, and returns both the private key B and the public key B0 as 32-
@@ -1406,41 +1479,41 @@ rot . swap x. . cr outputs “-1 538fa7...0f7d 0”, meaning that the specified 
 6.3 Dictionary manipulation Fift has several words for hashmap or (TVM) dictionary manipulation, corresponding to values of TL-B type HashmapE n X as described in [4, 3.3].
 These (TVM) dictionaries are not to be confused with the Fift dictionary,
 which is a completely different thing. A dictionary of TL-B type HashmapE n X is essentially a key-value collection with distinct n-bit keys (where 0 ≤ n ≤ 1023) and values of an arbitrary TL-B type X. Dictionaries are represented by trees of cells (the complete layout may be found in [4, 3.3])
-and stored as values of type Cell or Slice in the Fift stack.
-- dictnew ( – s), pushes a Slice that represents a new empty dictionary.
-- idict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a Slice) with key given by signed big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success. Otherwise the unchanged dictionary s and 0 are returned.
+and stored as values of type _Cell_ or _Slice_ in the Fift stack.
+- dictnew ( – s), pushes a _Slice_ that represents a new empty dictionary.
+- idict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a _Slice_) with key given by signed big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success. Otherwise the unchanged dictionary s and 0 are returned.
 - idict!+ (v x s n – s 0 −1 or s 0), adds a new key-value pair (x, v) into dictionary s similarly to idict!, but fails if the key already exists by returning the unchanged dictionary s and 0.
-54 6.3. Dictionary manipulation - b>idict!, b>idict!+, variants of idict! and idict!+ accepting the new value v in a Builder instead of a Slice.
+54 6.3. Dictionary manipulation - b>idict!, b>idict!+, variants of idict! and idict!+ accepting the new value v in a _Builder_ instead of a _Slice_.
 - udict!, udict!+, b>udict!, b>udict!+, variants of idict!, idict!+,
 b>idict!, b>idict!+, but with an unsigned n-bit integer x used as a key.
-- idict@ (x s n – v −1 or 0), looks up the key represented by signed big-endian n-bit Integer x in the dictionary represented by Slice s. If the key is found, returns the corresponding value as a Slice v and −1.
+- idict@ (x s n – v −1 or 0), looks up the key represented by signed big-endian n-bit Integer x in the dictionary represented by _Slice_ s. If the key is found, returns the corresponding value as a _Slice_ v and −1.
 Otherwise returns 0.
 - udict@ (x s n – v −1 or 0), similar to idict@, but with an unsigned big-endian n-bit Integer x used as a key.
-- dictmap (s n e – s 0 ), applies execution token e (i.e., an anonymous function) to each of the key-value pairs stored in a dictionary s with n-bit keys. The execution token is executed once for each key-value pair, with a Builder b and a Slice v (containing the value) pushed into the stack before executing e. After the execution e must leave in the stack either a modified Builder b 0 (containing all data from b along with the new value v 0 ) and −1, or 0 indicating failure. In the latter case,
+- dictmap (s n e – s 0 ), applies execution token e (i.e., an anonymous function) to each of the key-value pairs stored in a dictionary s with n-bit keys. The execution token is executed once for each key-value pair, with a _Builder_ b and a _Slice_ v (containing the value) pushed into the stack before executing e. After the execution e must leave in the stack either a modified _Builder_ b 0 (containing all data from b along with the new value v 0 ) and −1, or 0 indicating failure. In the latter case,
 the corresponding key is omitted from the new dictionary.
 - dictmerge (s s0 n e – s 00), combines two dictionaries s and s 0 with n-bit keys into one dictionary s 00 with the same keys. If a key is present in only one of the dictionaries s and s 0 , this key and the corresponding value are copied verbatim to the new dictionary s 00. Otherwise the execution token (anonymous function) e is invoked to merge the two values v and v 0 corresponding to the same key k in s and s 0 , respectively.
-Before e is invoked, a Builder b and two Slices v and v 0 representing the two values to be merged are pushed. After the execution e leaves either a modified Builder b 0 (containing the original data from b along with the combined value) and −1, or 0 on failure. In the latter case,
+Before e is invoked, a _Builder_ b and two _Slice_'s v and v 0 representing the two values to be merged are pushed. After the execution e leaves either a modified _Builder_ b 0 (containing the original data from b along with the combined value) and −1, or 0 on failure. In the latter case,
 the corresponding key is omitted from the new dictionary.
 Fift also offers some support for prefix dictionaries:
-- pfxdict! (v k s n – s 0 −1 or s 0), adds key-value pair (k, v), both represented by Slices, into a prefix dictionary s with keys of length at 55 6.4. Invoking TVM from Fift most n. On success, returns the modified dictionary s 0 and −1. On failure, returns the original dictionary s and 0.
+- pfxdict! (v k s n – s 0 −1 or s 0), adds key-value pair (k, v), both represented by _Slice_'s, into a prefix dictionary s with keys of length at 55 6.4. Invoking TVM from Fift most n. On success, returns the modified dictionary s 0 and −1. On failure, returns the original dictionary s and 0.
 - pfxdict!+ (v k s n – s 0 −1 or s 0), adds key-value pair (k, v) into prefix dictionary s similarly to pfxdict!, but fails if the key already exists.
-- pfxdict@ (k s n – v −1 or 0), looks up key k (represented by a Slice)
+- pfxdict@ (k s n – v −1 or 0), looks up key k (represented by a _Slice_)
 in the prefix dictionary s with the length of keys limited by n bits. On success, returns the value found v and −1. On failure, returns 0.
 6.4 Invoking TVM from Fift TVM can be linked with the Fift interpreter. In this case, several Fift primitives become available that can be used to invoke TVM with arguments provided from Fift. The arguments can be prepared in the Fift stack, which is passed in its entirety to the new instance of TVM. The resulting stack and the exit code are passed back to Fift and can be examined afterwards.
-- runvmcode (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from Slice s, thus executing code s in TVM. The original Fift stack (without s) is passed in its entirety as the initial stack of TVM. When TVM terminates, its resulting stack is used as the new Fift stack, with the exit code x pushed at its top. If x is non-zero, indicating that TVM has been terminated by an unhandled exception, the next stack entry from the top contains the parameter of this exception, and x is the exception code. All other entries are removed from the stack in this case.
-- runvmdict (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from Slice s similarly to runvmcode,
-but also initializes the special register c3 with the same value, and pushes a zero into the initial TVM stack before the TVM execution begins. In a typical application Slice s consists of a subroutine selection code that uses the top-of-stack Integer to select the subroutine to be executed, thus enabling the definition and execution of several mutually-recursive subroutines (cf. [4, 4.6] and 7.8). The selector equal to zero corresponds to the main() subroutine in a large TVM program.
-56 6.4. Invoking TVM from Fift - runvm (. . . s c – . . . x c0 ), invokes a new instance of TVM with both the current continuation cc and the special register c3 initialized from Slice s, and pushes a zero into the initial TVM stack similarly to runvmdict, but also initializes special register c4 (the “root of persistent data”, cf. [4, 1.4]) with Cell c. The final value of c4 is returned at the top of the final Fift stack as another Cell c 0 . In this way one can emulate the execution of smart contracts that inspect or modify their persistent storage.
+- runvmcode (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from _Slice_ s, thus executing code s in TVM. The original Fift stack (without s) is passed in its entirety as the initial stack of TVM. When TVM terminates, its resulting stack is used as the new Fift stack, with the exit code x pushed at its top. If x is non-zero, indicating that TVM has been terminated by an unhandled exception, the next stack entry from the top contains the parameter of this exception, and x is the exception code. All other entries are removed from the stack in this case.
+- runvmdict (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from _Slice_ s similarly to runvmcode,
+but also initializes the special register c3 with the same value, and pushes a zero into the initial TVM stack before the TVM execution begins. In a typical application _Slice_ s consists of a subroutine selection code that uses the top-of-stack Integer to select the subroutine to be executed, thus enabling the definition and execution of several mutually-recursive subroutines (cf. [4, 4.6] and 7.8). The selector equal to zero corresponds to the main() subroutine in a large TVM program.
+56 6.4. Invoking TVM from Fift - runvm (. . . s c – . . . x c0 ), invokes a new instance of TVM with both the current continuation cc and the special register c3 initialized from _Slice_ s, and pushes a zero into the initial TVM stack similarly to runvmdict, but also initializes special register c4 (the “root of persistent data”, cf. [4, 1.4]) with _Cell_ c. The final value of c4 is returned at the top of the final Fift stack as another _Cell_ c 0 . In this way one can emulate the execution of smart contracts that inspect or modify their persistent storage.
 - gasrunvmcode (. . . s z – . . . x z0 ), a gas-aware version of runvmcode that accepts an extra Integer argument z (the original gas limit) at the top of the stack, and returns the gas consumed by this TVM run as a new top-of-stack Integer value z 0 .
 - gasrunvmdict (. . . s z – . . . x z0 ), a gas-aware version of runvmdict.
 - gasrunvm (. . . s c z – . . . x c0 z 0 ), a gas-aware version of runvm.
 For example, one can create an instance of TVM running some simple code as follows:
-2 3 9 x{1221} runvmcode .s The TVM stack is initialized by three integers 2, 3, and 9 (in this order; 9 is the topmost entry), and then the Slice x{1221} containing 16 data bits and no references is transformed into a TVM continuation and executed.
+2 3 9 x{1221} runvmcode .s The TVM stack is initialized by three integers 2, 3, and 9 (in this order; 9 is the topmost entry), and then the _Slice_ x{1221} containing 16 data bits and no references is transformed into a TVM continuation and executed.
 By consulting Appendix A of [4], we see that x{12} is the code of the TVM instruction XCHG s1, s2, and that x{21} is the code of the TVM instruction OVER (not to be confused with the Fift primitive over, which incidentally has the same effect on the stack). The result of the above execution is:
 execute XCHG s1,s2 execute OVER execute implicit RET 3 2 9 2 0 ok Here 0 is the exit code (indicating successful TVM termination), and 3 2 9 2 is the final TVM stack state.
 If an unhandled exception is generated during the TVM execution, the code of this exception is returned as the exit code:
 57 7.1. Loading the Fift assembler 2 3 9 x{122} runvmcode .s produces execute XCHG s1,s2 handling exception code 6: invalid or too short opcode default exception handler, terminating vm with exit code 6 0 6 ok Notice that TVM is executed with internal logging enabled, and its log is displayed in the standard output.
-Simple TVM programs may be represented by Slice literals with the aid of the x{...} construct similarly to the above examples. More sophisticated programs are usually created with the aid of the Fift assembler as explained in the next chapter.
+Simple TVM programs may be represented by _Slice_ literals with the aid of the x{...} construct similarly to the above examples. More sophisticated programs are usually created with the aid of the Fift assembler as explained in the next chapter.
 7 Using the Fift assembler The Fift assembler is a short program (currently less than 30KiB) written completely in Fift that transforms human-readable mnemonics of TVM instructions into their binary representation. For instance, one could write <{
 s1 s2 XCHG OVER }>s instead of x{1221} in the example discussed in 6.4,
 provided the Fift assembler has been loaded beforehand (usually by the phrase "Asm.fif" include).
@@ -1453,22 +1526,22 @@ In the future, almost all of the words defined by the Fift assembler will be mov
 For instance, the TVM assembler instruction represented as XCHG s1,s2 in [4] is represented in the Fift assembler as s1 s2 XCHG.
 Fift assembler code is usually opened by a special opening word, such as <{, and terminated by a closing word, such as }> or }>s. For instance,
 "Asm.fif" include <{ s1 s2 XCHG OVER }>s csr.
-compiles two TVM instructions XCHG s1,s2 and OVER, and returns the result as a Slice (because }>s is used). The resulting Slice is displayed by csr.,
+compiles two TVM instructions XCHG s1,s2 and OVER, and returns the result as a _Slice_ (because }>s is used). The resulting _Slice_ is displayed by csr.,
 yielding x{1221}
 One can use Appendix A of [4] and verify that x{12} is indeed the (codepage zero) code of the TVM instruction XCHG s1,s2, and that x{21} is the code of the TVM instruction OVER (not to be confused with Fift primitive over).
 In the future, we will assume that the Fift assember is already loaded and omit the phrase "Asm.fif" include from our examples.
-The Fift assembler uses the Fift stack in a straightforward fashion, using the top several stack entries to hold a Builder with the code being assembled,
+The Fift assembler uses the Fift stack in a straightforward fashion, using the top several stack entries to hold a _Builder_ with the code being assembled,
 and the arguments to TVM instructions. For example:
-- <{ ( – b), begins a portion of Fift assembler code by pushing an empty Builder into the Fift stack (and potentially switching the namespace to the one containing all Fift assembler-specific words). Approximately equivalent to  (b – b 0 ), terminates a portion of Fift assembler code and returns the assembled portion as a Builder (and potentially recovers the original namespace). Approximately equivalent to nop in most situations.
-- }>c (b – c), terminates a portion of Fift assembler code and returns the assembled portion as a Cell (and potentially recovers the original namespace). Approximately equivalent to b>.
+- <{ ( – b), begins a portion of Fift assembler code by pushing an empty _Builder_ into the Fift stack (and potentially switching the namespace to the one containing all Fift assembler-specific words). Approximately equivalent to  (b – b 0 ), terminates a portion of Fift assembler code and returns the assembled portion as a _Builder_ (and potentially recovers the original namespace). Approximately equivalent to nop in most situations.
+- }>c (b – c), terminates a portion of Fift assembler code and returns the assembled portion as a _Cell_ (and potentially recovers the original namespace). Approximately equivalent to b>.
 - }>s (b – s), terminates a portion of Fift assembler code similarly to }>,
-but returns the assembled portion as a Slice. Equivalent to }>c s is a valid way to assemble a PUSHINT 4063 instruction, because 239·17 = 4063.
+but returns the assembled portion as a _Slice_. Equivalent to }>c s is a valid way to assemble a PUSHINT 4063 instruction, because 239·17 = 4063.
 Notice that the multiplication is performed by Fift during assemble time, not during the TVM runtime. The latter computation might be performed by means of <{ 239 INT 17 INT MUL }>s:
 <{ 239 17 * INT }>s dup csr. runvmcode .s 2drop <{ 239 INT 17 INT MUL }>s dup csr. runvmcode .s 2drop produces x{810FDF}
 execute PUSHINT 4063 execute implicit RET 4063 0 ok x{8100EF8011A8}
 execute PUSHINT 239 execute PUSHINT 17 execute MUL execute implicit RET 4063 0 ok Notice that the Fift assembler chooses the shortest encoding of the PUSHINT x instruction depending on its argument x.
 61 7.4. Immediate arguments 7.4 Immediate arguments Some TVM instructions (such as PUSHINT) accept immediate arguments.
-These arguments are usually passed to the Fift word assembling the corresponding instruction in the Fift stack. Integer immediate arguments are usually represented by Integer s, cells by Cells, continuations by Builder s and Cells, and cell slices by Slices. For instance, 17 ADDCONST assembles TVM instruction ADDCONST 17, and x{ABCD_} PUSHSLICE assembles PUSHSLICE xABCD_:
+These arguments are usually passed to the Fift word assembling the corresponding instruction in the Fift stack. Integer immediate arguments are usually represented by Integer s, cells by _Cell_'s, continuations by _Builder_'s and _Cell_'s, and cell slices by _Slice_'s. For instance, 17 ADDCONST assembles TVM instruction ADDCONST 17, and x{ABCD_} PUSHSLICE assembles PUSHSLICE xABCD_:
 239 <{ 17 ADDCONST x{ABCD_} PUSHSLICE }>s dup csr.
 runvmcode . swap . csr.
 produces x{A6118B2ABCD0}
@@ -1480,7 +1553,7 @@ execute PUSHINT 239 execute ADD execute implicit RET 256 0 We can see that “AD
 In some cases, there are several versions of the same TVM instructions,
 one accepting an immediate argument and another without any arguments.
 62 7.5. Immediate continuations For instance, there are both LSHIFT n and LSHIFT instructions. In the Fift assembler, such variants are assigned distinct mnemonics. In particular, LSHIFT n is represented by n LSHIFT#, and LSHIFT is represented by itself.
-7.5 Immediate continuations When an immediate argument is a continuation, it is convenient to create the corresponding Builder in the Fift stack by means of a nested <{ . . . }>
+7.5 Immediate continuations When an immediate argument is a continuation, it is convenient to create the corresponding _Builder_ in the Fift stack by means of a nested <{ . . . }>
 construct. For instance, TVM assembler instructions PUSHINT 1 SWAP PUSHCONT {
 MULCONST 10 }
 REPEAT can be assembled and executed by 7 <{ 1 INT SWAP <{ 10 MULCONST }> PUSHCONT REPEAT }>s dup csr.
@@ -1496,7 +1569,7 @@ runvmcode drop .
 or 7 <{ 1 INT SWAP REPEAT: 10 MULCONST }>s dup csr.
 runvmcode drop .
 both produce “x{7101E7A70A}” and output “10000000” after seven iterations of the loop.
-Notice that several TVM instructions that store a continuation in a separate cell reference (such as JMPREF) accept their argument in a Cell, not in a Builder. In such situations, the <{ ... }>c construct can be used to produce this immediate argument.
+Notice that several TVM instructions that store a continuation in a separate cell reference (such as JMPREF) accept their argument in a _Cell_, not in a _Builder_. In such situations, the <{ ... }>c construct can be used to produce this immediate argument.
 7.6 Control flow: loops and conditionals Almost all TVM control flow instructions—such as IF, IFNOT, IFRET, IFNOTRET,
 IFELSE, WHILE, WHILEEND, REPEAT, REPEATEND, UNTIL, and UNTILEND—can be assembled similarly to REPEAT and REPEATEND in the examples of 7.5 when applied to literal continuations. For instance, TVM assembler code 64 7.6. Control flow: loops and conditionals DUP PUSHINT 1 AND PUSHCONT {
 MULCONST 3 INC }
@@ -1558,12 +1631,12 @@ implicit PUSH 0 at start execute SETCP 0 execute DICTPUSHCONST 14 (xC_,1)
 execute DICTIGETJMP execute PUSHINT 5 69 7.8. Larger programs and subroutines execute PUSHINT 1 execute 2DUP execute CALLDICT 3 execute SETCP 0 execute DICTPUSHCONST 14 (xC_,1)
 execute DICTIGETJMP execute PUSH2 s3,s1 execute MUL ...
 execute ROTREV execute MUL execute ADD execute implicit RET 114244 114244 0 Some observations and comments based on the previous example follow:
-- A TVM program is opened by PROGRAM{ and closed by either }END>c (which returns the assembled program as a Cell) or }END>s (which returns a Slice).
+- A TVM program is opened by PROGRAM{ and closed by either }END>c (which returns the assembled program as a Cell) or }END>s (which returns a _Slice_).
 - A new subroutine is declared by means of the phrase NEWPROC hnamei.
 This declaration assigns the next positive integer as a selector for the newly-declared subroutine, and stores this integer into the constant hnamei. For instance, the above declarations define add, sub, and mul as integer constants equal to 1, 2, and 3, respectively.
 - Some subroutines are predeclared and do not need to be declared again by NEWPROC. For instance, main is a subroutine identifier bound to the integer constant (selector) 0.
 - Other predefined subroutine selectors such as recv_internal (equal to 0) or recv_external (equal to −1), useful for implementing TON Blockchain smart contracts (cf. [5, 4.4]), can be declared by means of constant (e.g., -1 constant recv_external).
-- A subroutine can be defined either with the aid of the word PROC, which accepts the integer selector of the subroutine and the Slice containing the code for this subroutine, or with the aid of the construct hselectori PROC:<{ ... }>, convenient for defining larger subroutines.
+- A subroutine can be defined either with the aid of the word PROC, which accepts the integer selector of the subroutine and the _Slice_ containing the code for this subroutine, or with the aid of the construct hselectori PROC:<{ ... }>, convenient for defining larger subroutines.
 70 7.8. Larger programs and subroutines - CALLDICT and JMPDICT instructions may be assembled with the aid of the words CALL and JMP, which accept the integer selector of the subroutine to be called as an immediate argument passed in the Fift stack.
 - The current implementation of the Fift assembler collects all subroutines into a dictionary with 14-bit signed integer keys. Therefore, all subroutine selectors must be in the range −2 13 . . . 2 13 − 1.
 - If a subroutine with an unknown selector is called during runtime, an exception with code 11 is thrown by the code automatically inserted by the Fift assembler. This code also automatically selects codepage zero for instruction encoding by means of a SETCP0 instruction.
@@ -1594,15 +1667,15 @@ B) instead of ( – B 1 e), even though the real effect of the execution of the 
 - $() (x – S), pushes the x-th command-line argument similarly to $n,
 but with Integer x ≥ 0 taken from the stack, cf. 2.18. Defined only when the Fift interpreter is invoked in script mode (with the -s command line argument).
 - $+ (S S0 – S.S0 ), concatenates two strings, cf. 2.10.
-- $, (b S – b 0 ), appends String S to Builder b, cf. 5.2. The string is interpreted as a binary string of length 8n, where n is the number of bytes in the UTF-8 representation of S.
+- $, (b S – b 0 ), appends String S to _Builder_ b, cf. 5.2. The string is interpreted as a binary string of length 8n, where n is the number of bytes in the UTF-8 representation of S.
 - $n ( – S), pushes the n-th command-line argument as a String S,
 cf. 2.18. For instance, $0 pushes the name of the script being executed,
 $1 the first command line argument, and so on. Defined only when the Fift interpreter is invoked in script mode (with the -s command line argument).
 - $= (S S0 – ?), returns −1 if strings S and S 0 are equal, 0 otherwise,
 cf. 2.13. Equivalent to $cmp 0=.
-- $>s (S – s), transforms the String S into a Slice, cf. 5.3. Equivalent to  smca (S – x y z −1 or 0), unpacks a standard TON smart-contract address from its human-readable string representation S, cf. 6.2. On success, returns the signed 32-bit workchain x, the unsigned 256-bit in-workchain address y, the flags z (where +1 means that the address is non-bounceable, +2 that the address is testnet-only), and −1. On failure, pushes 0.
-75 Appendix A. List of Fift words - $@ (s x – S), fetches the first x bytes (i.e., 8x bits) from Slice s, and returns them as a UTF-8 String S, cf. 5.3. If there are not enough data bits in s, throws an exception.
-- $@+ (s x – S s0 ), similar to $@, but returns the remainder of Slice s as well, cf. 5.3.
+- $>s (S – s), transforms the String S into a _Slice_, cf. 5.3. Equivalent to  smca (S – x y z −1 or 0), unpacks a standard TON smart-contract address from its human-readable string representation S, cf. 6.2. On success, returns the signed 32-bit workchain x, the unsigned 256-bit in-workchain address y, the flags z (where +1 means that the address is non-bounceable, +2 that the address is testnet-only), and −1. On failure, pushes 0.
+75 Appendix A. List of Fift words - $@ (s x – S), fetches the first x bytes (i.e., 8x bits) from _Slice_ s, and returns them as a UTF-8 String S, cf. 5.3. If there are not enough data bits in s, throws an exception.
+- $@+ (s x – S s0 ), similar to $@, but returns the remainder of _Slice_ s as well, cf. 5.3.
 - $@? (s x – S −1 or 0), similar to $@, but uses a flag to indicate failure instead of throwing an exception, cf. 5.3.
 - $@?+ (s x – S s0 −1 or s 0), similar to $@+, but uses a flag to indicate failure instead of throwing an exception, cf. 5.3.
 - $cmp (S S0 – x), returns 0 if strings S and S 0 are equal, −1 if S is lexicographically less than S 0 , and 1 if S is lexicographically greater than S 0 , cf. 2.13.
@@ -1731,7 +1804,7 @@ cf. 2.5. Otherwise leaves it intact.
 - @’ <word-name> ( – e), recovers the definition of the specified word at execution time, performing a dictionary lookup each time it is invoked, and then executes this definition, cf. 2.7 and 4.6. May be used to recover current values of constants inside word definitions and other blocks by using the phrase @’ <word-name>, equivalent to (’)
 <word-name> execute.
 - B+ (B0 B00 – B), concatenates two Bytes values, cf. 5.6.
-- B, (b B – b 0 ), appends Bytes B to Builder b, cf. 5.2. If there is no room in b for B, throws an exception.
+- B, (b B – b 0 ), appends Bytes B to _Builder_ b, cf. 5.2. If there is no room in b for B, throws an exception.
 - B= (B B0 – ?), checks whether two Bytes sequences are equal, and returns −1 or 0 depending on the comparison outcome, cf. 5.6.
 - B>Li@ (B x – y), deserializes the first x/8 bytes of a Bytes value B as a signed little-endian x-bit Integer y, cf. 5.6.
 84 Appendix A. List of Fift words - B>Li@+ (B x – B0 y), deserializes the first x/8 bytes of B as a signed little-endian x-bit Integer y similarly to B>Li@, but also returns the remaining bytes of B, cf. 5.6.
@@ -1743,8 +1816,8 @@ cf. 2.5. Otherwise leaves it intact.
 - B>i@+ (B x – B0 y), deserializes the first x/8 bytes of B as a signed bigendian x-bit Integer y similarly to B>i@, but also returns the remaining bytes of B, cf. 5.6.
 - B>u@ (B x – y), deserializes the first x/8 bytes of a Bytes value B as an unsigned big-endian x-bit Integer y, cf. 5.6.
 - B>u@+ (B x – B0 y), deserializes the first x/8 bytes of B as an unsigned big-endian x-bit Integer y similarly to B>u@, but also returns the remaining bytes of B, cf. 5.6.
-- B@ (s x – B), fetches the first x bytes (i.e., 8x bits) from Slice s, and returns them as a Bytes value B, cf. 5.3. If there are not enough data bits in s, throws an exception.
-- B@+ (s x – B s0 ), similar to B@, but returns the remainder of Slice s as well, cf. 5.3.
+- B@ (s x – B), fetches the first x bytes (i.e., 8x bits) from _Slice_ s, and returns them as a Bytes value B, cf. 5.3. If there are not enough data bits in s, throws an exception.
+- B@+ (s x – B s0 ), similar to B@, but returns the remainder of _Slice_ s as well, cf. 5.3.
 - B@? (s x – B −1 or 0), similar to B@, but uses a flag to indicate failure instead of throwing an exception, cf. 5.3.
 85 Appendix A. List of Fift words - B@?+ (s x – B s0 −1 or s 0), similar to B@+, but uses a flag to indicate failure instead of throwing an exception, cf. 5.3.
 - Bcmp (B B0 – x), lexicographically compares two Bytes sequences, and returns −1, 0, or 1, depending on the comparison result, cf. 5.6.
@@ -1772,16 +1845,16 @@ and invokes (compile) or (execute) afterwards depending on whether state is grea
 - anon ( – a), creates a new unique anonymous Atom, cf. 2.17.
 - atom (S – a), returns the only _Atom_ a with the name S, creating such an atom if necessary, cf. 2.17. Equivalent to true (atom) drop.
 - atom? (u – ?), checks whether u is an Atom, cf. 2.17.
-- b+ (b b0 – b 00), concatenates two Builders b and b 0 , cf. 5.2.
+- b+ (b b0 – b 00), concatenates two _Builder_'s b and b 0 , cf. 5.2.
 - b. (x – ), prints the binary representation of an Integer x, followed by a single space. Equivalent to b._ space.
 - b._ (x – ), prints the binary representation of an Integer x without any spaces. Equivalent to (b.) type.
-- b> (b – c), transforms a Builder b into a new Cell c containing the same data as b, cf. 5.2.
-87 Appendix A. List of Fift words - b>idict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a Builder) with key given by signed big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success, cf. 6.3. Otherwise the unchanged dictionary s and 0 are returned.
+- b> (b – c), transforms a _Builder_ b into a new Cell c containing the same data as b, cf. 5.2.
+87 Appendix A. List of Fift words - b>idict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a _Builder_) with key given by signed big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success, cf. 6.3. Otherwise the unchanged dictionary s and 0 are returned.
 - b>idict!+ (v x s n – s 0 −1 or s 0), adds a new key-value pair (x, v) into dictionary s similarly to b>idict!, but fails if the key already exists by returning the unchanged dictionary s and 0, cf. 6.3.
-- b>udict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a Builder) with key given by unsigned big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success, cf. 6.3. Otherwise the unchanged dictionary s and 0 are returned.
+- b>udict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a _Builder_) with key given by unsigned big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success, cf. 6.3. Otherwise the unchanged dictionary s and 0 are returned.
 - b>udict!+ (v x s n – s 0 −1 or s 0), adds a new key-value pair (x, v) into dictionary s similarly to b>udict!, but fails if the key already exists by returning the unchanged dictionary s and 0, cf. 6.3.
-- bbitrefs (b – x y), returns both the number of data bits x and the number of references y already stored in Builder b, cf. 5.2.
-- bbits (b – x), returns the number of data bits already stored in Builder b.
+- bbitrefs (b – x y), returns both the number of data bits x and the number of references y already stored in _Builder_ b, cf. 5.2.
+- bbits (b – x), returns the number of data bits already stored in _Builder_ b.
 The result x is an Integer in the range 0 . . . 1023, cf. 5.2.
 - bl ( – x), pushes the Unicode codepoint of a space, i.e., 32, cf. 2.10.
 - boc+>B (c x – B), creates and serializes a “standard” bag of cells, containing one root Cell c along with all its descendants, cf. 5.5. An Integer parameter 0 ≤ x ≤ 31 is used to pass flags indicating the additional options for bag-of-cells serialization, with individual bits having the following effect:
@@ -1795,12 +1868,12 @@ TON Blockchain external messages) and x = 31 for large bags of cells (e.g., TON 
 - boc>B (c – B), serializes a small “standard” bag of cells with root Cell c and all its descendants, cf. 5.5. Equivalent to 0 boc+>B.
 - box (x – p), creates a new Box containing specified value x, cf. 2.14.
 Equivalent to hole tuck !.
-- brefs (b – x), returns the number of references already stored in Builder b, cf. 5.2. The result x is an Integer in the range 0 . . . 4.
-- brembitrefs (b – x y), returns both the maximum number of additional data bits 0 ≤ x ≤ 1023 and the maximum number of additional cell references 0 ≤ y ≤ 4 that can be stored in Builder b, cf. 5.2.
-- brembits (b – x), returns the maximum number of additional data bits that can be stored in Builder b, cf. 5.2. Equivalent to bbits 1023 swap -.
-- bremrefs (b – x), returns the maximum number of additional cell references that can be stored in Builder b, cf. 5.2.
+- brefs (b – x), returns the number of references already stored in _Builder_ b, cf. 5.2. The result x is an Integer in the range 0 . . . 4.
+- brembitrefs (b – x y), returns both the maximum number of additional data bits 0 ≤ x ≤ 1023 and the maximum number of additional cell references 0 ≤ y ≤ 4 that can be stored in _Builder_ b, cf. 5.2.
+- brembits (b – x), returns the maximum number of additional data bits that can be stored in _Builder_ b, cf. 5.2. Equivalent to bbits 1023 swap -.
+- bremrefs (b – x), returns the maximum number of additional cell references that can be stored in _Builder_ b, cf. 5.2.
 - bye ( – ), quits the Fift interpreter to the operating system with a zero exit code, cf. 2.3. Equivalent to 0 halt.
-- b{hbinary-datai} ( – s), creates a Slice s that contains no references and up to 1023 data bits specified in hbinary-datai, which must be a string consisting only of the characters ‘0’ and ‘1’, cf. 5.1.
+- b{<binary-data>} ( – s), creates a _Slice_ s that contains no references and up to 1023 data bits specified in <binary-data>, which must be a string consisting only of the characters ‘0’ and ‘1’, cf. 5.1.
 - caddr (l – h 00), returns the third element of a list. Equivalent to cddr car.
 89 Appendix A. List of Fift words - cadr (l – h 0 ), returns the second element of a list, cf. 2.16. Equivalent to cdr car.
 - car (l – h), returns the head of a list, cf. 2.16. Equivalent to first.
@@ -1820,16 +1893,16 @@ cf. 4.5 and 2.7.
 - cr ( – ), outputs a carriage return (or a newline character) into the standard output, cf. 2.10.
 - create (e – ), defines a new ordinary word with the name equal to the next word scanned from the input, using WordDef e as its definition,
 cf. 4.5. If the word already exists, it is tacitly redefined.
-90 Appendix A. List of Fift words - csr. (s – ), recursively prints a Slice s, cf. 5.3. On the first line,
-the data bits of s are displayed in hexadecimal form embedded into an x{...} construct similar to the one used for Slice literals (cf. 5.1).
+90 Appendix A. List of Fift words - csr. (s – ), recursively prints a _Slice_ s, cf. 5.3. On the first line,
+the data bits of s are displayed in hexadecimal form embedded into an x{...} construct similar to the one used for _Slice_ literals (cf. 5.1).
 On the next lines, the cells referred to by s are printed with larger indentation.
 - def? hword-name i ( – ?), checks whether the word <word-name> is defined at execution time, and returns −1 or 0 accordingly.
 - depth ( – n), returns the current depth (the total number of entries)
 of the Fift stack as an Integer n ≥ 0.
-- dictmap (s n e – s 0 ), applies execution token e (i.e., an anonymous function) to each of the key-value pairs stored in a dictionary s with n-bit keys, cf. 6.3. The execution token is executed once for each keyvalue pair, with a Builder b and a Slice v (containing the value) pushed into the stack before executing e. After the execution e must leave in the stack either a modified Builder b 0 (containing all data from b along with the new value v 0 ) and −1, or 0 indicating failure. In the latter case, the corresponding key is omitted from the new dictionary.
+- dictmap (s n e – s 0 ), applies execution token e (i.e., an anonymous function) to each of the key-value pairs stored in a dictionary s with n-bit keys, cf. 6.3. The execution token is executed once for each keyvalue pair, with a _Builder_ b and a _Slice_ v (containing the value) pushed into the stack before executing e. After the execution e must leave in the stack either a modified _Builder_ b 0 (containing all data from b along with the new value v 0 ) and −1, or 0 indicating failure. In the latter case, the corresponding key is omitted from the new dictionary.
 - dictmerge (s s0 n e – s 00), combines two dictionaries s and s 0 with n-bit keys into one dictionary s 00 with the same keys, cf. 6.3. If a key is present in only one of the dictionaries s and s 0 , this key and the corresponding value are copied verbatim to the new dictionary s 00. Otherwise the execution token (anonymous function) e is invoked to merge the two values v and v 0 corresponding to the same key k in s and s 0 ,
-respectively. Before e is invoked, a Builder b and two Slices v and v 0 representing the two values to be merged are pushed. After the execution e leaves either a modified Builder b 0 (containing the original data from b along with the combined value) and −1, or 0 on failure. In the latter case, the corresponding key is omitted from the new dictionary.
-- dictnew ( – s), pushes a Slice that represents a new empty dictionary,
+respectively. Before e is invoked, a _Builder_ b and two _Slice_'s v and v 0 representing the two values to be merged are pushed. After the execution e leaves either a modified _Builder_ b 0 (containing the original data from b along with the combined value) and −1, or 0 on failure. In the latter case, the corresponding key is omitted from the new dictionary.
+- dictnew ( – s), pushes a _Slice_ that represents a new empty dictionary,
 cf. 6.3. Equivalent to b{0}.
 - does (x1 . . . xn n e – e 0 ), creates a new execution token e 0 that would push n values x1, . . . , xn into the stack and then execute e when invoked, cf. 4.7. It is roughly equivalent to a combination of ({),
 (compile), and (}).
@@ -1842,7 +1915,7 @@ signature of data B with the public key B00, cf. 6.1.
 bit integer x into a 32-byte sequence and signs it using the Ed25519 private key B0 similarly to ed25519_sign, cf. 6.1. Equivalent to swap 256 u>B swap ed25519_sign. The integer x to be signed is typically computed as the hash of some data.
 - emit (x – ), prints a UTF-8 encoded character with Unicode codepoint given by Integer x into the standard output, cf. 2.10. For instance, 42 emit prints an asterisk “*”, and 916 emit prints a Greek Delta “∆”.
 Equivalent to chr type.
-- empty? (s – ?), checks whether a Slice is empty (i.e., has no data bits and no references left), and returns −1 or 0 accordingly, cf. 5.3.
+- empty? (s – ?), checks whether a _Slice_ is empty (i.e., has no data bits and no references left), and returns −1 or 0 accordingly, cf. 5.3.
 - eq? (u v – ?), checks whether u and v are equal Integer s, Atoms, or Nulls, cf. 2.17. If they are not equal, or if they are of different types,
 or not of one of the types listed, returns zero.
 - exch (xn . . . x0 n – x0 . . . xn), interchanges the top of the stack with the n-th stack entry from the top, where n ≥ 0 is also taken from the stack, cf. 2.5. In particular, 1 exch is equivalent to swap, and 2 exch to swap rot.
@@ -1858,29 +1931,29 @@ or not of one of the types listed, returns zero.
 whether −2 y−1 ≤ x < 2 y−1 for 0 ≤ y ≤ 1023), and returns −1 or 0 accordingly.
 - forget ( – ), forgets (removes from the dictionary) the definition of the next word scanned from the input, cf. 4.5.
 - gasrunvm (. . . s c z – . . . x c0 z 0 ), a gas-aware version of runvm, cf. 6.4:
-invokes a new instance of TVM with both the current continuation cc and the special register c3 initialized from Slice s, and pushes a zero into the initial TVM stack similarly to runvmdict, but also initializes special register c4 (the “root of persistent data”, cf. [4, 1.4]) with Cell c.
+invokes a new instance of TVM with both the current continuation cc and the special register c3 initialized from _Slice_ s, and pushes a zero into the initial TVM stack similarly to runvmdict, but also initializes special register c4 (the “root of persistent data”, cf. [4, 1.4]) with Cell c.
 Then starts the new TVM instance with the gas limit set to z. The actually consumed gas z 0 is returned at the top of the final Fift stack,
 and the final value of c4 is returned immediately below the top of the final Fift stack as another Cell c 0 .
 - gasrunvmcode (. . . s z – . . . x z0 ), a gas-aware version of runvmcode,
-cf. 6.4: invokes a new instance of TVM with the current continuation cc initialized from Slice s and with the gas limit set to z, thus executing code s in TVM. The original Fift stack (without s) is passed in its entirety as the initial stack of the new TVM instance. When TVM 93 Appendix A. List of Fift words terminates, its resulting stack is used as the new Fift stack, with the exit code x and the actually consumed gas z 0 pushed at its top. If x is non-zero, indicating that TVM has been terminated by an unhandled exception, the next stack entry from the top contains the parameter of this exception, and x is the exception code. All other entries are removed from the stack in this case.
+cf. 6.4: invokes a new instance of TVM with the current continuation cc initialized from _Slice_ s and with the gas limit set to z, thus executing code s in TVM. The original Fift stack (without s) is passed in its entirety as the initial stack of the new TVM instance. When TVM 93 Appendix A. List of Fift words terminates, its resulting stack is used as the new Fift stack, with the exit code x and the actually consumed gas z 0 pushed at its top. If x is non-zero, indicating that TVM has been terminated by an unhandled exception, the next stack entry from the top contains the parameter of this exception, and x is the exception code. All other entries are removed from the stack in this case.
 - gasrunvmdict (. . . s z – . . . x z0 ), a gas-aware version of runvmdict,
-cf. 6.4: invokes a new instance of TVM with the current continuation cc initialized from Slice s and sets the gas limit to z similarly to gasrunvmcode, but also initializes the special register c3 with the same value, and pushes a zero into the initial TVM stack before the TVM execution begins. The actually consumed gas is returned as an Integer z 0 . In a typical application Slice s consists of a subroutine selection code that uses the top-of-stack Integer to select the subroutine to be executed, thus enabling the definition and execution of several mutually-recursive subroutines (cf. [4, 4.6] and 7.8). The selector equal to zero corresponds to the main() subroutine in a large TVM program.
+cf. 6.4: invokes a new instance of TVM with the current continuation cc initialized from _Slice_ s and sets the gas limit to z similarly to gasrunvmcode, but also initializes the special register c3 with the same value, and pushes a zero into the initial TVM stack before the TVM execution begins. The actually consumed gas is returned as an Integer z 0 . In a typical application _Slice_ s consists of a subroutine selection code that uses the top-of-stack Integer to select the subroutine to be executed, thus enabling the definition and execution of several mutually-recursive subroutines (cf. [4, 4.6] and 7.8). The selector equal to zero corresponds to the main() subroutine in a large TVM program.
 - halt (x – ), quits to the operating system similarly to bye, but uses Integer x as the exit code, cf. 2.3.
 - hash (c – B), computes the sha256-based representation hash of Cell c (cf. [4, 3.1]), which unambiguously defines c and all its descendants (provided there are no collisions for sha256), cf. 5.4. The result is returned as a Bytes value consisting of exactly 32 bytes.
 - hold (S x – S 0 ), appends to String S one UTF-8 encoded character with Unicode codepoint x. Equivalent to chr $+.
 - hole ( – p), creates a new Box p that does not hold any value, cf. 2.14.
 Equivalent to null box.
-- i, (b x y – b 0 ), appends the big-endian binary representation of a signed y-bit integer x to Builder b, where 0 ≤ y ≤ 257, cf. 5.2. If there is not enough room in b (i.e., if b already contains more than 1023 − y data bits), or if Integer x does not fit into y bits, an exception is thrown.
+- i, (b x y – b 0 ), appends the big-endian binary representation of a signed y-bit integer x to _Builder_ b, where 0 ≤ y ≤ 257, cf. 5.2. If there is not enough room in b (i.e., if b already contains more than 1023 − y data bits), or if Integer x does not fit into y bits, an exception is thrown.
 - i>B (x y – B), stores a signed big-endian y-bit Integer x into a Bytes value B consisting of exactly y/8 bytes. Integer y must be a multiple of eight in the range 0 . . . 256, cf. 5.6.
-94 Appendix A. List of Fift words - i@ (s x – y), fetches a signed big-endian x-bit integer from the first x bits of Slice s, cf. 5.3. If s contains less than x data bits, an exception is thrown.
-- i@+ (s x – y s0 ), fetches a signed big-endian x-bit integer from the first x bits of Slice s similarly to i@, but returns the remainder of s as well,
+94 Appendix A. List of Fift words - i@ (s x – y), fetches a signed big-endian x-bit integer from the first x bits of _Slice_ s, cf. 5.3. If s contains less than x data bits, an exception is thrown.
+- i@+ (s x – y s0 ), fetches a signed big-endian x-bit integer from the first x bits of _Slice_ s similarly to i@, but returns the remainder of s as well,
 cf. 5.3.
-- i@? (s x – y −1 or 0), fetches a signed big-endian integer from a Slice similarly to i@, but pushes integer −1 afterwards on success, cf. 5.3. If there are less than x bits left in s, pushes integer 0 to indicate failure.
-- i@?+ (s x – y s0 −1 or s 0), fetches a signed big-endian integer from Slice s and computes the remainder of this Slice similarly to i@+, but pushes −1 afterwards to indicate success, cf. 5.3. On failure, pushes the unchanged Slice s and 0 to indicate failure.
-- idict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a Slice) with key given by signed big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success, cf. 6.3. Otherwise the unchanged dictionary s and 0 are returned.
+- i@? (s x – y −1 or 0), fetches a signed big-endian integer from a _Slice_ similarly to i@, but pushes integer −1 afterwards on success, cf. 5.3. If there are less than x bits left in s, pushes integer 0 to indicate failure.
+- i@?+ (s x – y s0 −1 or s 0), fetches a signed big-endian integer from _Slice_ s and computes the remainder of this _Slice_ similarly to i@+, but pushes −1 afterwards to indicate success, cf. 5.3. On failure, pushes the unchanged _Slice_ s and 0 to indicate failure.
+- idict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a _Slice_) with key given by signed big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success, cf. 6.3. Otherwise the unchanged dictionary s and 0 are returned.
 - idict!+ (v x s n – s 0 −1 or s 0), adds a new key-value pair (x, v) into dictionary s similarly to idict!, but fails if the key already exists by returning the unchanged dictionary s and 0, cf. 6.3.
-- idict@ (x s n – v −1 or 0), looks up key represented by signed bigendian n-bit Integer x in the dictionary represented by Slice s, cf. 6.3.
-If the key is found, returns the corresponding value as a Slice v and −1. Otherwise returns 0.
+- idict@ (x s n – v −1 or 0), looks up key represented by signed bigendian n-bit Integer x in the dictionary represented by _Slice_ s, cf. 6.3.
+If the key is found, returns the corresponding value as a _Slice_ v and −1. Otherwise returns 0.
 - if (x e – ), executes execution token (i.e., a WordDef ) e, but only if Integer x is non-zero, cf. 3.2.
 - ifnot (x e – ), executes execution token e, but only if Integer x is zero,
 cf. 3.2.
@@ -1905,43 +1978,43 @@ cf. 2.4.
 - or (x y – x|y), computes the bitwise OR of two Integer s, cf. 2.4.
 - over (x y – x y x), creates a copy of the second stack entry from the top over the top-of-stack entry, cf. 2.5.
 - pair (x y – t), creates new pair t = (x, y), cf. 2.15. Equivalent to 2 tuple or to | rot , swap ,.
-- pfxdict! (v k s n – s 0 −1 or s 0), adds key-value pair (k, v), both represented by Slices, into a prefix dictionary s with keys of length at most n, cf. 6.3. On success, returns the modified dictionary s 0 and −1.
+- pfxdict! (v k s n – s 0 −1 or s 0), adds key-value pair (k, v), both represented by _Slice_'s, into a prefix dictionary s with keys of length at most n, cf. 6.3. On success, returns the modified dictionary s 0 and −1.
 On failure, returns the original dictionary s and 0.
 - pfxdict!+ (v k s n – s 0 −1 or s 0), adds key-value pair (k, v) into prefix dictionary s similarly to pfxdict!, but fails if the key already exists, cf. 6.3.
-- pfxdict@ (k s n – v −1 or 0), looks up key k (represented by a Slice) in the prefix dictionary s with the length of keys limited by n bits, cf. 6.3.
-On success, returns the value found as a Slice v and −1. On failure,
+- pfxdict@ (k s n – v −1 or 0), looks up key k (represented by a _Slice_) in the prefix dictionary s with the length of keys limited by n bits, cf. 6.3.
+On success, returns the value found as a _Slice_ v and −1. On failure,
 returns 0.
 - pick (xn . . . x0 n – xn . . . x0 xn), creates a copy of the n-th entry from the top of the stack, where n ≥ 0 is also passed in the stack, cf. 2.5.
 In particular, 0 pick is equivalent to dup, and 1 pick to over.
 - priv>pub (B – B0 ), computes the public key corresponding to a private Ed25519 key, cf. 6.1. Both the public key B0 and the private key B are represented by 32-byte Bytes values.
 - quit (. . . – ), exits to the topmost level of the Fift interpreter (without printing an ok in interactive mode) and clears the stack, cf. 2.3.
-- ref, (b c – b 0 ), appends to Builder b a reference to Cell c, cf. 5.2. If b already contains four references, an exception is thrown.
-97 Appendix A. List of Fift words - ref@ (s – c), fetches the first reference from the Slice s and returns the Cell c referred to, cf. 5.3. If there are no references left, throws an exception.
-- ref@+ (s – s 0 c), fetches the first reference from the Slice s similarly to ref@, but returns the remainder of s as well, cf. 5.3.
-- ref@? (s – c −1 or 0), fetches the first reference from the Slice s similarly to ref@, but uses a flag to indicate failure instead of throwing an exception, cf. 5.3.
+- ref, (b c – b 0 ), appends to _Builder_ b a reference to Cell c, cf. 5.2. If b already contains four references, an exception is thrown.
+97 Appendix A. List of Fift words - ref@ (s – c), fetches the first reference from the _Slice_ s and returns the Cell c referred to, cf. 5.3. If there are no references left, throws an exception.
+- ref@+ (s – s 0 c), fetches the first reference from the _Slice_ s similarly to ref@, but returns the remainder of s as well, cf. 5.3.
+- ref@? (s – c −1 or 0), fetches the first reference from the _Slice_ s similarly to ref@, but uses a flag to indicate failure instead of throwing an exception, cf. 5.3.
 - ref@?+ (s – s 0 c −1 or s 0), similar to ref@+, but uses a flag to indicate failure instead of throwing an exception, cf. 5.3.
-- remaining (s – x y), returns both the number of data bits x and the number of cell references y remaining in the Slice s, cf. 5.3.
+- remaining (s – x y), returns both the number of data bits x and the number of cell references y remaining in the _Slice_ s, cf. 5.3.
 - reverse (x1 . . . xn y1 . . . ym n m – xn . . . x1 y1 . . . ym), reverses the order of n stack entries located immediately below the topmost m elements,
 where both 0 ≤ m, n ≤ 255 are passed in the stack.
 - roll (xn . . . x0 n – xn−1 . . . x0 xn), rotates the top n stack entries,
 where n ≥ 0 is also passed in the stack, cf. 2.5. In particular, 1 roll is equivalent to swap, and 2 roll to rot.
 - rot (x y z – y z x), rotates the three topmost stack entries.
-- runvmcode (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from Slice s, thus executing code s in TVM, cf. 6.4. The original Fift stack (without s) is passed in its entirety as the initial stack of the new TVM instance. When TVM terminates, its resulting stack is used as the new Fift stack, with the exit code x pushed at its top. If x is non-zero, indicating that TVM has been terminated by an unhandled exception, the next stack entry from the top contains the parameter of this exception, and x is the exception code. All other entries are removed from the stack in this case.
-- runvmdict (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from Slice s similarly to runvmcode,
-but also initializes the special register c3 with the same value, and 98 Appendix A. List of Fift words pushes a zero into the initial TVM stack before start, cf. 6.4. In a typical application Slice s consists of a subroutine selection code that uses the top-of-stack Integer to select the subroutine to be executed,
+- runvmcode (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from _Slice_ s, thus executing code s in TVM, cf. 6.4. The original Fift stack (without s) is passed in its entirety as the initial stack of the new TVM instance. When TVM terminates, its resulting stack is used as the new Fift stack, with the exit code x pushed at its top. If x is non-zero, indicating that TVM has been terminated by an unhandled exception, the next stack entry from the top contains the parameter of this exception, and x is the exception code. All other entries are removed from the stack in this case.
+- runvmdict (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from _Slice_ s similarly to runvmcode,
+but also initializes the special register c3 with the same value, and 98 Appendix A. List of Fift words pushes a zero into the initial TVM stack before start, cf. 6.4. In a typical application _Slice_ s consists of a subroutine selection code that uses the top-of-stack Integer to select the subroutine to be executed,
 thus enabling the definition and execution of several mutually-recursive subroutines (cf. [4, 4.6] and 7.8). The selector equal to zero corresponds to the main() subroutine in a large TVM program.
-- runvm (. . . s c – . . . x c0 ), invokes a new instance of TVM with both the current continuation cc and the special register c3 initialized from Slice s, and pushes a zero into the initial TVM stack similarly to runvmdict, but also initializes special register c4 (the “root of persistent data”, cf. [4, 1.4]) with Cell c, cf. 6.4. The final value of c4 is returned at the top of the final Fift stack as another Cell c 0 . In this way one can emulate the execution of smart contracts that inspect or modify their persistent storage.
-- s, (b s – b 0 ), appends data bits and references taken from Slice s to Builder b, cf. 5.2.
-- s> (s – ), throws an exception if Slice s is non-empty, cf. 5.3. It usually marks the end of the deserialization of a cell, checking whether there are any unprocessed data bits or references left.
-- s>c (s – c), creates a Cell c directly from a Slice s, cf. 5.3. Equivalent to .
-- sbitrefs (s – x y), returns both the number of data bits x and the number of cell references y remaining in Slice s, cf. 5.3. Equivalent to remaining.
-- sbits (s – x), returns the number of data bits x remaining in Slice s,
+- runvm (. . . s c – . . . x c0 ), invokes a new instance of TVM with both the current continuation cc and the special register c3 initialized from _Slice_ s, and pushes a zero into the initial TVM stack similarly to runvmdict, but also initializes special register c4 (the “root of persistent data”, cf. [4, 1.4]) with Cell c, cf. 6.4. The final value of c4 is returned at the top of the final Fift stack as another Cell c 0 . In this way one can emulate the execution of smart contracts that inspect or modify their persistent storage.
+- s, (b s – b 0 ), appends data bits and references taken from _Slice_ s to _Builder_ b, cf. 5.2.
+- s> (s – ), throws an exception if _Slice_ s is non-empty, cf. 5.3. It usually marks the end of the deserialization of a cell, checking whether there are any unprocessed data bits or references left.
+- s>c (s – c), creates a Cell c directly from a _Slice_ s, cf. 5.3. Equivalent to .
+- sbitrefs (s – x y), returns both the number of data bits x and the number of cell references y remaining in _Slice_ s, cf. 5.3. Equivalent to remaining.
+- sbits (s – x), returns the number of data bits x remaining in _Slice_ s,
 cf. 5.3.
 - second (t – x), returns the second component of a Tuple, cf. 2.15.
 Equivalent to 1 [].
 - sgn (x – y), computes the sign of an Integer x (i.e., pushes 1 if x > 0,
 −1 if x < 0, and 0 if x = 0), cf. 2.12. Equivalent to 0 cmp.
-99 Appendix A. List of Fift words - shash (s – B), computes the sha256-based representation hash of a Slice by first transforming it into a cell, cf. 5.4. Equivalent to s>c hash.
+99 Appendix A. List of Fift words - shash (s – B), computes the sha256-based representation hash of a _Slice_ by first transforming it into a cell, cf. 5.4. Equivalent to s>c hash.
 - sign (S x – S 0 ), appends a minus sign “-” to String S if Integer x is negative. Otherwise leaves S intact.
 - single (x – t), creates new singleton t = (x), i.e., a one-element Tuple.
 Equivalent to 1 tuple.
@@ -1950,9 +2023,9 @@ Equivalent to 1 tuple.
 Possible individual flags in z are: +1 for non-bounceable addresses,
 +2 for testnet-only addresses, and +4 for base64url output instead of base64.
 - space ( – ), outputs a single space. Equivalent to bl emit or to ." ".
-- sr, (b s – b 0 ), constructs a new Cell containing all data and references from Slice s, and appends a reference to this cell to Builder b, cf. 5.2.
+- sr, (b s – b 0 ), constructs a new Cell containing all data and references from _Slice_ s, and appends a reference to this cell to _Builder_ b, cf. 5.2.
 Equivalent to s>c ref,.
-- srefs (s – x), returns the number of cell references x remaining in Slice s, cf. 5.3.
+- srefs (s – x), returns the number of cell references x remaining in _Slice_ s, cf. 5.3.
 - swap (x y – y x), interchanges the two topmost stack entries, cf. 2.5.
 - ten ( – 10), pushes Integer constant 10.
 - third (t – x), returns the third component of a Tuple, cf. 2.15. Equivalent to 2 [].
@@ -1966,17 +2039,17 @@ if n ≥ 0, cf. 3.3. If n is negative, throws an exception.
 swap , } rot times, but more efficient.
 - tuple? (t – ?), checks whether t is a Tuple, and returns −1 or 0 accordingly.
 - type (s – ), prints a String s taken from the top of the stack into the standard output, cf. 2.10.
-- u, (b x y – b 0 ), appends the big-endian binary representation of an unsigned y-bit integer x to Builder b, where 0 ≤ y ≤ 256, cf. 5.2. If the operation is impossible, an exception is thrown.
+- u, (b x y – b 0 ), appends the big-endian binary representation of an unsigned y-bit integer x to _Builder_ b, where 0 ≤ y ≤ 256, cf. 5.2. If the operation is impossible, an exception is thrown.
 - u>B (x y – B), stores an unsigned big-endian y-bit Integer x into a Bytes value B consisting of exactly y/8 bytes. Integer y must be a multiple of eight in the range 0 . . . 256, cf. 5.6.
-- u@ (s x – y), fetches an unsigned big-endian x-bit integer from the first x bits of Slice s, cf. 5.3. If s contains less than x data bits, an exception is thrown.
-- u@+ (s x – y s0 ), fetches an unsigned big-endian x-bit integer from the first x bits of Slice s similarly to u@, but returns the remainder of s as well, cf. 5.3.
-- u@? (s x – y −1 or 0), fetches an unsigned big-endian integer from a Slice similarly to u@, but pushes integer −1 afterwards on success,
+- u@ (s x – y), fetches an unsigned big-endian x-bit integer from the first x bits of _Slice_ s, cf. 5.3. If s contains less than x data bits, an exception is thrown.
+- u@+ (s x – y s0 ), fetches an unsigned big-endian x-bit integer from the first x bits of _Slice_ s similarly to u@, but returns the remainder of s as well, cf. 5.3.
+- u@? (s x – y −1 or 0), fetches an unsigned big-endian integer from a _Slice_ similarly to u@, but pushes integer −1 afterwards on success,
 cf. 5.3. If there are less than x bits left in s, pushes integer 0 to indicate failure.
-- u@?+ (s x – y s0 −1 or s 0), fetches an unsigned big-endian integer from Slice s and computes the remainder of this Slice similarly to u@+, but pushes −1 afterwards to indicate success, cf. 5.3. On failure, pushes the unchanged Slice s and 0 to indicate failure.
-101 Appendix A. List of Fift words - udict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a Slice) with key given by big-endian unsigned n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success, cf. 6.3. Otherwise the unchanged dictionary s and 0 are returned.
+- u@?+ (s x – y s0 −1 or s 0), fetches an unsigned big-endian integer from _Slice_ s and computes the remainder of this _Slice_ similarly to u@+, but pushes −1 afterwards to indicate success, cf. 5.3. On failure, pushes the unchanged _Slice_ s and 0 to indicate failure.
+101 Appendix A. List of Fift words - udict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a _Slice_) with key given by big-endian unsigned n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success, cf. 6.3. Otherwise the unchanged dictionary s and 0 are returned.
 - udict!+ (v x s n – s 0 −1 or s 0), adds a new key-value pair (x, v) into dictionary s similarly to udict!, but fails if the key already exists by returning the unchanged dictionary s and 0, cf. 6.3.
-- udict@ (x s n – v −1 or 0), looks up key represented by unsigned bigendian n-bit Integer x in the dictionary represented by Slice s, cf. 6.3.
-If the key is found, returns the corresponding value as a Slice v and −1. Otherwise returns 0.
+- udict@ (x s n – v −1 or 0), looks up key represented by unsigned bigendian n-bit Integer x in the dictionary represented by _Slice_ s, cf. 6.3.
+If the key is found, returns the corresponding value as a _Slice_ v and −1. Otherwise returns 0.
 - ufits (x y – ?), checks whether Integer x is an unsigned y-bit integer (i.e., whether 0 ≤ x < 2 y for 0 ≤ y ≤ 1023), and returns −1 or 0 accordingly.
 - uncons (l – h t), decomposes a non-empty list into its head and its tail,
 cf. 2.16. Equivalent to unpair.
@@ -1999,9 +2072,9 @@ of an Integer x, followed by a single space. Equivalent to x._ space.
 - x._ (x – ), prints the hexadecimal representation (without the 0x prefix) of an Integer x without any spaces. Equivalent to (x.) type.
 - xor (x y – x ⊕ y), computes the bitwise eXclusive OR of two Integer s,
 cf. 2.4.
-- x{hhex-datai} ( – s), creates a Slice s that contains no references and up to 1023 data bits specified in hhex-datai, cf. 5.1. More precisely,
-each hex digit from hhex-datai is transformed into four binary digits in the usual fashion. After that, if the last character of hhex-datai is an underscore _, then all trailing binary zeroes and the binary one immediately preceding them are removed from the resulting binary string (cf. [4, 1.0] for more details). For instance, x{6C_} is equivalent to b{01101}.
+- x{<hex-data>} ( – s), creates a _Slice_ s that contains no references and up to 1023 data bits specified in <hex-data>, cf. 5.1. More precisely,
+each hex digit from <hex-data> is transformed into four binary digits in the usual fashion. After that, if the last character of <hex-data> is an underscore _, then all trailing binary zeroes and the binary one immediately preceding them are removed from the resulting binary string (cf. [4, 1.0] for more details). For instance, x{6C_} is equivalent to b{01101}.
 - { ( – l), an active word that increases internal variable state by one and pushes a new empty WordList into the stack, cf. 4.7.
 103 Appendix A. List of Fift words - | ( – t), creates an empty Tuple t = (), cf. 2.15. Equivalent to nil and to 0 tuple.
-- |+ (s s0 – s 00), concatenates two Slices s and s 0 , cf. 5.1. This means that the data bits of the new Slice s 00 are obtained by concatenating the data bits of s and s 0 , and the list of Cell references of s 00 is constructed similarly by concatenating the corresponding lists for s and s 0 .
+- |+ (s s0 – s 00), concatenates two _Slice_'s s and s 0 , cf. 5.1. This means that the data bits of the new _Slice_ s 00 are obtained by concatenating the data bits of s and s 0 , and the list of Cell references of s 00 is constructed similarly by concatenating the corresponding lists for s and s 0 .
 Equivalent to  c ref, b>
