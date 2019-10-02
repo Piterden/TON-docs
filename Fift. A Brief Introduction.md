@@ -1530,66 +1530,121 @@ This chapter describes the TON-specific Fift words, with the exception of the wo
 
 Fift offers an interface to the same Ed25519 elliptic curve cryptography used by TVM, described in Appendix A of [5]:
 
-- now ( – x), returns the current Unixtime as an _Integer_.
-- newkeypair ( – B B0 ), generates a new Ed25519 private/public key pair, and returns both the private key B and the public key B0 as 32-
-byte _Bytes_ values. The quality of the keys is good enough for testing purposes. Real applications must feed enough entropy into OpenSSL PRNG before generating Ed25519 keypairs.
-- priv>pub (B – B0 ), computes the public key corresponding to a private Ed25519 key. Both the public key B0 and the private key B are represented by 32-byte _Bytes_ values.
-- ed25519_sign (B B0 – B00), signs data B with the Ed25519 private key B0 (a 32-byte _Bytes_ value) and returns the signature as a 64-byte _Bytes_ value B00 .
-- ed25519_sign_uint (x B0 – B00), converts a big-endian unsigned 256-
-bit integer x into a 32-byte sequence and signs it using the Ed25519 private key B0 similarly to ed25519_sign. Equivalent to swap 256 u>B swap ed25519_sign. The integer x to be signed is typically computed as the hash of some data.
-- ed25519_chksign (B B0 B00 – ?), checks whether B0 is a valid Ed25519 signature of data B with the public key B00 .
-6.2 Smart-contract address parser Two special words can be used to parse TON smart-contract addresses in human-readable (base64 or base64url) forms:
-- smca>$ (x y z – S), packs a standard TON smart-contract address with workchain x (a signed 32-bit Integer) and in-workchain address y (an unsigned 256-bit Integer ) into a 48-character string S (the humanreadable representation of the address) according to flags z. Possible individual flags in z are: +1 for non-bounceable addresses, +2 for testnet-only addresses, and +4 for base64url output instead of base64.
-53 6.3. Dictionary manipulation - $>smca (S – x y z −1 or 0), unpacks a standard TON smart-contract address from its human-readable string representation S. On success, returns the signed 32-bit workchain x, the unsigned 256-bit inworkchain address y, the flags z (where +1 means that the address is non-bounceable, +2 that the address is testnet-only), and −1. On failure, pushes 0.
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`now`** | _`( – x)`_ | returns the current Unixtime as an _Integer_. |
+| **`newkeypair`** | _`( – B B0 )`_ | generates a new Ed25519 private/public key pair, and returns both the private key `B` and the public key B0 as 32-byte _Bytes_ values. The quality of the keys is good enough for testing purposes. Real applications must feed enough entropy into OpenSSL PRNG before generating Ed25519 keypairs. |
+| **`priv>pub`** | _`(B – B0 )`_ | computes the public key corresponding to a private Ed25519 key. Both the public key B0 and the private key B are represented by 32-byte _Bytes_ values. |
+| **`ed25519_sign`** | _`(B B0 – B00)`_ | signs data B with the Ed25519 private key B0 (a 32-byte _Bytes_ value) and returns the signature as a 64-byte _Bytes_ value B00 . |
+| **`ed25519_sign_uint`** | _`(x B0 – B00)`_ | converts a big-endian unsigned 256-bit integer x into a 32-byte sequence and signs it using the Ed25519 private key B0 similarly to ed25519_sign. Equivalent to swap 256 u>B swap ed25519_sign. The integer x to be signed is typically computed as the hash of some data. |
+| **`ed25519_chksign`** | _`(B B0 B00 – ?)`_ | checks whether B0 is a valid Ed25519 signature of data B with the public key B00 . |
+
+### 6.2 Smart-contract address parser
+
+Two special words can be used to parse TON smart-contract addresses in human-readable (base64 or base64url) forms:
+
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`smca>$`** | _`(x y z – S)`_ | packs a standard TON smart-contract address with workchain `x` (a signed 32-bit _Integer_) and in-workchain address `y` (an unsigned 256-bit _Integer_) into a 48-character string `S` (the humanreadable representation of the address) according to flags `z`. Possible individual flags in `z` are: `+1` for non-bounceable addresses, `+2` for testnet-only addresses, and `+4` for base64url output instead of base64. |
+| **`$>smca`** | _`(S – x y z −1 or 0)`_ | unpacks a standard TON smart-contract address from its human-readable string representation `S`. On success, returns the signed 32-bit workchain `x`, the unsigned 256-bit inworkchain address `y`, the flags `z` (where `+1` means that the address is non-bounceable, `+2` that the address is testnet-only), and `−1`. On failure, pushes `0`. |
+
 A sample human-readable smart-contract address could be deserialized and displayed as follows:
+
+```sh
 "Ef9Tj6fMJP-OqhAdhKXxq36DL-HYSzCc3-9O6UNzqsgPfYFX"
 $>smca 0= abort"bad address"
-rot . swap x. . cr outputs “-1 538fa7...0f7d 0”, meaning that the specified address is in workchain −1 (the masterchain of the TON Blockchain), and that the 256-bit address inside workchain −1 is 0x538. . . f7d.
-6.3 Dictionary manipulation Fift has several words for hashmap or (TVM) dictionary manipulation, corresponding to values of TL-B type HashmapE n X as described in [4, 3.3].
-These (TVM) dictionaries are not to be confused with the Fift dictionary,
-which is a completely different thing. A dictionary of TL-B type HashmapE n X is essentially a key-value collection with distinct n-bit keys (where 0 ≤ n ≤ 1023) and values of an arbitrary TL-B type X. Dictionaries are represented by trees of cells (the complete layout may be found in [4, 3.3])
-and stored as values of type _Cell_ or _Slice_ in the Fift stack.
-- dictnew ( – s), pushes a _Slice_ that represents a new empty dictionary.
-- idict! (v x s n – s 0 −1 or s 0), adds a new value v (represented by a _Slice_) with key given by signed big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success. Otherwise the unchanged dictionary s and 0 are returned.
-- idict!+ (v x s n – s 0 −1 or s 0), adds a new key-value pair (x, v) into dictionary s similarly to idict!, but fails if the key already exists by returning the unchanged dictionary s and 0.
-54 6.3. Dictionary manipulation - b>idict!, b>idict!+, variants of idict! and idict!+ accepting the new value v in a _Builder_ instead of a _Slice_.
-- udict!, udict!+, b>udict!, b>udict!+, variants of idict!, idict!+,
-b>idict!, b>idict!+, but with an unsigned n-bit integer x used as a key.
-- idict@ (x s n – v −1 or 0), looks up the key represented by signed big-endian n-bit Integer x in the dictionary represented by _Slice_ s. If the key is found, returns the corresponding value as a _Slice_ v and −1.
-Otherwise returns 0.
-- udict@ (x s n – v −1 or 0), similar to idict@, but with an unsigned big-endian n-bit Integer x used as a key.
-- dictmap (s n e – s 0 ), applies execution token e (i.e., an anonymous function) to each of the key-value pairs stored in a dictionary s with n-bit keys. The execution token is executed once for each key-value pair, with a _Builder_ b and a _Slice_ v (containing the value) pushed into the stack before executing e. After the execution e must leave in the stack either a modified _Builder_ b 0 (containing all data from b along with the new value v 0 ) and −1, or 0 indicating failure. In the latter case,
-the corresponding key is omitted from the new dictionary.
-- dictmerge (s s0 n e – s 00), combines two dictionaries s and s 0 with n-bit keys into one dictionary s 00 with the same keys. If a key is present in only one of the dictionaries s and s 0 , this key and the corresponding value are copied verbatim to the new dictionary s 00. Otherwise the execution token (anonymous function) e is invoked to merge the two values v and v 0 corresponding to the same key k in s and s 0 , respectively.
-Before e is invoked, a _Builder_ b and two _Slice_'s v and v 0 representing the two values to be merged are pushed. After the execution e leaves either a modified _Builder_ b 0 (containing the original data from b along with the combined value) and −1, or 0 on failure. In the latter case,
-the corresponding key is omitted from the new dictionary.
+rot . swap x. . cr
+```
+
+outputs `“-1 538fa7...0f7d 0”`, meaning that the specified address is in workchain `−1` (the masterchain of the TON Blockchain), and that the 256-bit address inside workchain `−1` is `0x538. . . f7d`.
+
+### 6.3 Dictionary manipulation
+
+Fift has several words for hashmap or (TVM) dictionary manipulation, corresponding to values of TL-B type `HashmapE n X` as described in [4, 3.3]. These (TVM) dictionaries are not to be confused with the Fift dictionary, which is a completely different thing. A dictionary of TL-B type `HashmapE n X` is essentially a key-value collection with distinct n-bit keys (where `0 ≤ n ≤ 1023`) and values of an arbitrary TL-B type `X`. Dictionaries are represented by trees of cells (the complete layout may be found in [4, 3.3]) and stored as values of type _Cell_ or _Slice_ in the Fift stack.
+
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`dictnew`** | _`( – s)`_ | pushes a _Slice_ that represents a new empty dictionary. |
+| **`idict!`** | _`(v x s n – s 0 −1 or s 0)`_ | adds a new value v (represented by a _Slice_) with key given by signed big-endian n-bit integer x into dictionary s with n-bit keys, and returns the new dictionary s 0 and −1 on success. Otherwise the unchanged dictionary s and 0 are returned. |
+| **`idict!+`** | _`(v x s n – s 0 −1 or s 0)`_ | adds a new key-value pair `(x, v)` into dictionary `s` similarly to `idict!`, but fails if the key already exists by returning the unchanged dictionary `s` and `0`. |
+| **`b>idict!, b>idict!+`** | | variants of `idict!` and `idict!+` accepting the new value v in a _Builder_ instead of a _Slice_. |
+| **`udict!, udict!+, b>udict!, b>udict!+`** | | variants of `idict!`, `idict!+`, `b>idict!`, `b>idict!+`, but with an unsigned n-bit integer `x` used as a key. |
+| **`idict@`** | _`(x s n – v −1 or 0)`_ | looks up the key represented by signed big-endian n-bit _Integer_ `x` in the dictionary represented by _Slice_ `s`. If the key is found, returns the corresponding value as a _Slice_ `v` and `−1`. Otherwise returns `0`. |
+| **`udict@`** | _`(x s n – v −1 or 0)`_ | similar to `idict@`, but with an unsigned big-endian n-bit _Integer_ `x` used as a key. |
+| **`dictmap`** | _`(s n e – s 0 )`_ | applies execution token `e` (i.e., an anonymous function) to each of the key-value pairs stored in a dictionary `s` with n-bit keys. The execution token is executed once for each key-value pair, with a _Builder_ `b` and a _Slice_ `v` (containing the value) pushed into the stack before executing `e`. After the execution `e` must leave in the stack either a modified _Builder_ `b 0` (containing all data from `b` along with the new value `v 0` ) and `−1`, or `0` indicating failure. In the latter case, the corresponding key is omitted from the new dictionary. |
+| **`dictmerge`** | _`(s s0 n e – s 00)`_ | combines two dictionaries `s` and `s 0` with n-bit keys into one dictionary `s 00` with the same keys. If a key is present in only one of the dictionaries `s` and `s 0` , this key and the corresponding value are copied verbatim to the new dictionary `s 00`. Otherwise the execution token (anonymous function) `e` is invoked to merge the two values `v` and `v 0` corresponding to the same key `k` in `s` and `s 0` , respectively. Before `e` is invoked, a _Builder_ `b` and two _Slice_'s `v` and `v 0` representing the two values to be merged are pushed. After the execution `e` leaves either a modified _Builder_ `b 0` (containing the original data from `b` along with the combined value) and `−1`, or `0` on failure. In the latter case, the corresponding key is omitted from the new dictionary. |
+
 Fift also offers some support for prefix dictionaries:
-- pfxdict! (v k s n – s 0 −1 or s 0), adds key-value pair (k, v), both represented by _Slice_'s, into a prefix dictionary s with keys of length at 55 6.4. Invoking TVM from Fift most n. On success, returns the modified dictionary s 0 and −1. On failure, returns the original dictionary s and 0.
-- pfxdict!+ (v k s n – s 0 −1 or s 0), adds key-value pair (k, v) into prefix dictionary s similarly to pfxdict!, but fails if the key already exists.
-- pfxdict@ (k s n – v −1 or 0), looks up key k (represented by a _Slice_)
-in the prefix dictionary s with the length of keys limited by n bits. On success, returns the value found v and −1. On failure, returns 0.
-6.4 Invoking TVM from Fift TVM can be linked with the Fift interpreter. In this case, several Fift primitives become available that can be used to invoke TVM with arguments provided from Fift. The arguments can be prepared in the Fift stack, which is passed in its entirety to the new instance of TVM. The resulting stack and the exit code are passed back to Fift and can be examined afterwards.
-- runvmcode (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from _Slice_ s, thus executing code s in TVM. The original Fift stack (without s) is passed in its entirety as the initial stack of TVM. When TVM terminates, its resulting stack is used as the new Fift stack, with the exit code x pushed at its top. If x is non-zero, indicating that TVM has been terminated by an unhandled exception, the next stack entry from the top contains the parameter of this exception, and x is the exception code. All other entries are removed from the stack in this case.
-- runvmdict (. . . s – . . . x), invokes a new instance of TVM with the current continuation cc initialized from _Slice_ s similarly to runvmcode,
-but also initializes the special register c3 with the same value, and pushes a zero into the initial TVM stack before the TVM execution begins. In a typical application _Slice_ s consists of a subroutine selection code that uses the top-of-stack Integer to select the subroutine to be executed, thus enabling the definition and execution of several mutually-recursive subroutines (cf. [4, 4.6] and 7.8). The selector equal to zero corresponds to the main() subroutine in a large TVM program.
-56 6.4. Invoking TVM from Fift - runvm (. . . s c – . . . x c0 ), invokes a new instance of TVM with both the current continuation cc and the special register c3 initialized from _Slice_ s, and pushes a zero into the initial TVM stack similarly to runvmdict, but also initializes special register c4 (the “root of persistent data”, cf. [4, 1.4]) with _Cell_ c. The final value of c4 is returned at the top of the final Fift stack as another _Cell_ c 0 . In this way one can emulate the execution of smart contracts that inspect or modify their persistent storage.
-- gasrunvmcode (. . . s z – . . . x z0 ), a gas-aware version of runvmcode that accepts an extra Integer argument z (the original gas limit) at the top of the stack, and returns the gas consumed by this TVM run as a new top-of-stack Integer value z 0 .
-- gasrunvmdict (. . . s z – . . . x z0 ), a gas-aware version of runvmdict.
-- gasrunvm (. . . s c z – . . . x c0 z 0 ), a gas-aware version of runvm.
+
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`pfxdict!`** | _`(v k s n – s 0 −1 or s 0)`_ | adds key-value pair `(k, v)`, both represented by _Slice_'s, into a prefix dictionary `s` with keys of length at most `n`. On success, returns the modified dictionary `s 0` and `−1`. On failure, returns the original dictionary `s` and `0`. |
+| **`pfxdict!+`** | _`(v k s n – s 0 −1 or s 0)`_ | adds key-value pair `(k, v)` into prefix dictionary `s` similarly to `pfxdict!`, but fails if the key already exists. |
+| **`pfxdict@`** | _`(k s n – v −1 or 0)`_ | looks up key `k` (represented by a _Slice_) in the prefix dictionary `s` with the length of keys limited by `n` bits. On success, returns the value found `v` and `−1`. On failure, returns `0`. |
+
+### 6.4 Invoking TVM from Fift
+
+TVM can be linked with the Fift interpreter. In this case, several Fift primitives become available that can be used to invoke TVM with arguments provided from Fift. The arguments can be prepared in the Fift stack, which is passed in its entirety to the new instance of TVM. The resulting stack and the exit code are passed back to Fift and can be examined afterwards.
+
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`runvmcode`** | _`(. . . s – . . . x)`_ | invokes a new instance of TVM with the current continuation `cc` initialized from _Slice_ `s`, thus executing code `s` in TVM. The original Fift stack (without `s`) is passed in its entirety as the initial stack of TVM. When TVM terminates, its resulting stack is used as the new Fift stack, with the exit code `x` pushed at its top. If `x` is non-zero, indicating that TVM has been terminated by an unhandled exception, the next stack entry from the top contains the parameter of this exception, and `x` is the exception code. All other entries are removed from the stack in this case. |
+| **`runvmdict`** | _`(. . . s – . . . x)`_ | invokes a new instance of TVM with the current continuation `cc` initialized from _Slice_ `s` similarly to `runvmcode`, but also initializes the special register `c3` with the same value, and pushes a zero into the initial TVM stack before the TVM execution begins. In a typical application _Slice_ `s` consists of a subroutine selection code that uses the top-of-stack _Integer_ to select the subroutine to be executed, thus enabling the definition and execution of several mutually-recursive subroutines (cf. [4, 4.6] and 7.8). The selector equal to zero corresponds to the `main()` subroutine in a large TVM program. |
+| **`runvm`** | _`(. . . s c – . . . x c0 )`_ | invokes a new instance of TVM with both the current continuation `cc` and the special register `c3` initialized from _Slice_ `s`, and pushes a zero into the initial TVM stack similarly to `runvmdict`, but also initializes special register `c4` (the “root of persistent data”, cf. [4, 1.4]) with _Cell_ `c`. The final value of `c4` is returned at the top of the final Fift stack as another _Cell_ `c 0` . In this way one can emulate the execution of smart contracts that inspect or modify their persistent storage. |
+| **`gasrunvmcode`** | _`(. . . s z – . . . x z0 )`_ | a gas-aware version of `runvmcode` that accepts an extra _Integer_ argument `z` (the original gas limit) at the top of the stack, and returns the gas consumed by this TVM run as a new top-of-stack _Integer_ value `z 0`. |
+| **`gasrunvmdict`** | _`(. . . s z – . . . x z0 )`_ | a gas-aware version of `runvmdict`. |
+| **`gasrunvm`** | _`(. . . s c z – . . . x c0 z 0 )`_ | a gas-aware version of runvm. |
+
 For example, one can create an instance of TVM running some simple code as follows:
-2 3 9 x{1221} runvmcode .s The TVM stack is initialized by three integers 2, 3, and 9 (in this order; 9 is the topmost entry), and then the _Slice_ x{1221} containing 16 data bits and no references is transformed into a TVM continuation and executed.
-By consulting Appendix A of [4], we see that x{12} is the code of the TVM instruction XCHG s1, s2, and that x{21} is the code of the TVM instruction OVER (not to be confused with the Fift primitive over, which incidentally has the same effect on the stack). The result of the above execution is:
-execute XCHG s1,s2 execute OVER execute implicit RET 3 2 9 2 0 ok Here 0 is the exit code (indicating successful TVM termination), and 3 2 9 2 is the final TVM stack state.
+
+```sh
+2 3 9 x{1221} runvmcode .s
+```
+
+The TVM stack is initialized by three integers 2, 3, and 9 (in this order; 9 is the topmost entry), and then the _Slice_ `x{1221}` containing 16 data bits and no references is transformed into a TVM continuation and executed. By consulting Appendix A of [4], we see that x{12} is the code of the TVM instruction XCHG s1, s2, and that x{21} is the code of the TVM instruction OVER (not to be confused with the Fift primitive over, which incidentally has the same effect on the stack). The result of the above execution is:
+
+```sh
+execute XCHG s1,s2
+execute OVER
+execute implicit RET
+3 2 9 2 0
+ ok
+```
+
+Here 0 is the exit code (indicating successful TVM termination), and 3 2 9 2 is the final TVM stack state.
 If an unhandled exception is generated during the TVM execution, the code of this exception is returned as the exit code:
-57 7.1. Loading the Fift assembler 2 3 9 x{122} runvmcode .s produces execute XCHG s1,s2 handling exception code 6: invalid or too short opcode default exception handler, terminating vm with exit code 6 0 6 ok Notice that TVM is executed with internal logging enabled, and its log is displayed in the standard output.
-Simple TVM programs may be represented by _Slice_ literals with the aid of the x{...} construct similarly to the above examples. More sophisticated programs are usually created with the aid of the Fift assembler as explained in the next chapter.
-7 Using the Fift assembler The Fift assembler is a short program (currently less than 30KiB) written completely in Fift that transforms human-readable mnemonics of TVM instructions into their binary representation. For instance, one could write <{
-s1 s2 XCHG OVER }>s instead of x{1221} in the example discussed in 6.4,
-provided the Fift assembler has been loaded beforehand (usually by the phrase "Asm.fif" include).
-7.1 Loading the Fift assembler The Fift assembler is usually located in file Asm.fif in the Fift library directory (which usually contains standard Fift library files such as Fift.fif).
-It is typically loaded by putting the phrase "Asm.fif" include at the very beginning of a program that needs to use Fift assembler:
-- include (S – ), loads and interprets a Fift source file from the path given by String S. If the filename S does not begin with a slash, the Fift include search path, typically taken from the FIFTPATH environment variable or the -I command-line argument of the Fift interpreter (and equal to /usr/lib/fift if both are absent), is used to locate S.
-58 7.2. Fift assembler basics The current implementation of the Fift assembler makes heavy use of custom defining words (cf. 4.8); its source can be studied as a good example of how defining words might be used to write very compact Fift programs (cf. also the original edition of [1], where a simple 8080 Forth assembler is discussed).
+
+```sh
+2 3 9 x{122} runvmcode .s
+```
+
+produces
+
+```sh
+execute XCHG s1,s2
+handling exception code 6: invalid or too short opcode
+default exception handler, terminating vm with exit code 6
+0 6
+ ok
+```
+
+Notice that TVM is executed with internal logging enabled, and its log is displayed in the standard output.
+
+Simple TVM programs may be represented by _Slice_ literals with the aid of the `x{...}` construct similarly to the above examples. More sophisticated programs are usually created with the aid of the Fift assembler as explained in the next chapter.
+
+## 7 Using the Fift assembler
+
+The _Fift assembler_ is a short program (currently less than 30KiB) written completely in Fift that transforms human-readable mnemonics of TVM instructions into their binary representation. For instance, one could write `<{ s1 s2 XCHG OVER }>s` instead of `x{1221}` in the example discussed in 6.4, provided the Fift assembler has been loaded beforehand (usually by the phrase "Asm.fif" include).
+
+### 7.1 Loading the Fift assembler
+
+The Fift assembler is usually located in file `Asm.fif` in the Fift library directory (which usually contains standard Fift library files such as Fift.fif). It is typically loaded by putting the phrase "Asm.fif" include at the very beginning of a program that needs to use Fift assembler:
+
+| <span style="color:transparent">x</span> | <span style="color:transparent">xxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`include`** | _`(S – )`_ | loads and interprets a Fift source file from the path given by _String_ `S`. If the filename `S` does not begin with a slash, the Fift include search path, typically taken from the `FIFTPATH` environment variable or the `-I` command-line argument of the Fift interpreter (and equal to `/usr/lib/fift` if both are absent), is used to locate `S`. |
+
+The current implementation of the Fift assembler makes heavy use of custom defining words (cf. 4.8); its source can be studied as a good example of how defining words might be used to write very compact Fift programs (cf. also the original edition of [1], where a simple 8080 Forth assembler is discussed).
 In the future, almost all of the words defined by the Fift assembler will be moved to a separate vocabulary (namespace). Currently they are defined in the global namespace, because Fift does not support namespaces yet.
 7.2 Fift assembler basics The Fift assembler inherits from Fift its postfix operation notation, i.e., the arguments or parameters are written before the corresponding instructions.
 For instance, the TVM assembler instruction represented as XCHG s1,s2 in [4] is represented in the Fift assembler as s1 s2 XCHG.
