@@ -1645,56 +1645,201 @@ The Fift assembler is usually located in file `Asm.fif` in the Fift library dire
 | **`include`** | _`(S – )`_ | loads and interprets a Fift source file from the path given by _String_ `S`. If the filename `S` does not begin with a slash, the Fift include search path, typically taken from the `FIFTPATH` environment variable or the `-I` command-line argument of the Fift interpreter (and equal to `/usr/lib/fift` if both are absent), is used to locate `S`. |
 
 The current implementation of the Fift assembler makes heavy use of custom defining words (cf. 4.8); its source can be studied as a good example of how defining words might be used to write very compact Fift programs (cf. also the original edition of [1], where a simple 8080 Forth assembler is discussed).
+
 In the future, almost all of the words defined by the Fift assembler will be moved to a separate vocabulary (namespace). Currently they are defined in the global namespace, because Fift does not support namespaces yet.
-7.2 Fift assembler basics The Fift assembler inherits from Fift its postfix operation notation, i.e., the arguments or parameters are written before the corresponding instructions.
-For instance, the TVM assembler instruction represented as XCHG s1,s2 in [4] is represented in the Fift assembler as s1 s2 XCHG.
-Fift assembler code is usually opened by a special opening word, such as <{, and terminated by a closing word, such as }> or }>s. For instance,
-"Asm.fif" include <{ s1 s2 XCHG OVER }>s csr.
-compiles two TVM instructions XCHG s1,s2 and OVER, and returns the result as a _Slice_ (because }>s is used). The resulting _Slice_ is displayed by csr.,
-yielding x{1221}
-One can use Appendix A of [4] and verify that x{12} is indeed the (codepage zero) code of the TVM instruction XCHG s1,s2, and that x{21} is the code of the TVM instruction OVER (not to be confused with Fift primitive over).
-In the future, we will assume that the Fift assember is already loaded and omit the phrase "Asm.fif" include from our examples.
+
+### 7.2 Fift assembler basics
+
+The Fift assembler inherits from Fift its postfix operation notation, i.e., the arguments or parameters are written before the corresponding instructions. For instance, the TVM assembler instruction represented as `XCHG s1,s2` in [4] is represented in the Fift assembler as `s1 s2 XCHG`.
+
+Fift assembler code is usually opened by a special opening word, such as `<{`, and terminated by a closing word, such as `}>` or `}>s`. For instance,
+
+```sh
+"Asm.fif" include
+<{ s1 s2 XCHG OVER }>s
+csr.
+```
+
+compiles two TVM instructions `XCHG s1,s2` and OVER, and returns the result as a _Slice_ (because `}>s` is used). The resulting _Slice_ is displayed by `csr.`, yielding
+
+```sh
+x{1221}
+```
+
+One can use Appendix A of [4] and verify that `x{12}` is indeed the (codepage zero) code of the TVM instruction `XCHG s1,s2`, and that `x{21}` is the code of the TVM instruction `OVER` (not to be confused with Fift primitive `over`).
+
+In the future, we will assume that the Fift assember is already loaded and omit the phrase `"Asm.fif" include` from our examples.
+
 The Fift assembler uses the Fift stack in a straightforward fashion, using the top several stack entries to hold a _Builder_ with the code being assembled,
 and the arguments to TVM instructions. For example:
-- <{ ( – b), begins a portion of Fift assembler code by pushing an empty _Builder_ into the Fift stack (and potentially switching the namespace to the one containing all Fift assembler-specific words). Approximately equivalent to  (b – b 0 ), terminates a portion of Fift assembler code and returns the assembled portion as a _Builder_ (and potentially recovers the original namespace). Approximately equivalent to nop in most situations.
-- }>c (b – c), terminates a portion of Fift assembler code and returns the assembled portion as a _Cell_ (and potentially recovers the original namespace). Approximately equivalent to b>.
-- }>s (b – s), terminates a portion of Fift assembler code similarly to }>,
-but returns the assembled portion as a _Slice_. Equivalent to }>c s is a valid way to assemble a PUSHINT 4063 instruction, because 239·17 = 4063.
-Notice that the multiplication is performed by Fift during assemble time, not during the TVM runtime. The latter computation might be performed by means of <{ 239 INT 17 INT MUL }>s:
-<{ 239 17 * INT }>s dup csr. runvmcode .s 2drop <{ 239 INT 17 INT MUL }>s dup csr. runvmcode .s 2drop produces x{810FDF}
-execute PUSHINT 4063 execute implicit RET 4063 0 ok x{8100EF8011A8}
-execute PUSHINT 239 execute PUSHINT 17 execute MUL execute implicit RET 4063 0 ok Notice that the Fift assembler chooses the shortest encoding of the PUSHINT x instruction depending on its argument x.
-61 7.4. Immediate arguments 7.4 Immediate arguments Some TVM instructions (such as PUSHINT) accept immediate arguments.
-These arguments are usually passed to the Fift word assembling the corresponding instruction in the Fift stack. Integer immediate arguments are usually represented by Integer s, cells by _Cell_'s, continuations by _Builder_'s and _Cell_'s, and cell slices by _Slice_'s. For instance, 17 ADDCONST assembles TVM instruction ADDCONST 17, and x{ABCD_} PUSHSLICE assembles PUSHSLICE xABCD_:
+
+| <span style="color:transparent">xxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`<{`** | _`( – b)`_ | begins a portion of Fift assembler code by pushing an empty _Builder_ into the Fift stack (and potentially switching the namespace to the one containing all Fift assembler-specific words). Approximately equivalent to `<b`. |
+| **`}>`** | _`(b – b0)`_ | terminates a portion of Fift assembler code and returns the assembled portion as a _Builder_ (and potentially recovers the original namespace). Approximately equivalent to `nop` in most situations. |
+| **`}>c`** | _`(b – c)`_ | terminates a portion of Fift assembler code and returns the assembled portion as a _Cell_ (and potentially recovers the original namespace). Approximately equivalent to `b>`. |
+| **`}>s`** | _`(b – s)`_ | terminates a portion of Fift assembler code similarly to }>, but returns the assembled portion as a _Slice_. Equivalent to `}>c <s`. |
+| **`OVER`** | _`(b – b0)`_ | assembles the code of the TVM instruction `OVER` by appending it to the Builder at the top of the stack. Approximately equivalent to `x{21} s,`. |
+| **`s1`** | _`( – s)`_ | pushes a special Slice used by the Fift assembler to represent the “stack register” s1 of TVM. |
+| **`s0. . . s15`** | _`( – s)`_ | words similar to `s1`, but pushing the Slice representing other “stack registers” of TVM. Notice that `s16. . . s255` must be accessed using the word `s()`. |
+| **`s()`** | _`(x – s)`_ | takes an _Integer_ argument `0 ≤ x ≤ 255` and returns a special _Slice_ used by the Fift assembler to represent “stack register” `s(x)`. |
+| **`XCHG`** | _`(b s s0 – b0)`_ | takes two special Slices representing two “stack registers” `s(i)` and `s(j)` from the stack, and appends to _Builder_ `b` the code for the TVM instruction `XCHG s(i),s(j)`. |
+
+In particular, note that the word OVER defined by the Fift assembler has a completely different effect from Fift primitive over.
+
+The actual action of OVER and other Fift assembler words is somewhat more complicated than that of x{21} s,. If the new instruction code does not fit into the Builder b (i.e., if b would contain more than 1023 data bits after adding the new instruction code), then this and all subsequent instructions are assembled into a new Builder ˜b, and the old Builder b is augmented by a reference to the Cell obtained from ˜b once the generation of ˜b is finished. In this way long stretches of TVM code are automatically split into chains of valid Cells containing at most 1023 bits each. Because TVM interprets a lonely cell reference at the end of a continuation as an implicit JMPREF, this partitioning of TVM code into cells has almost no effect on the execution.
+
+### 7.3 Pushing integer constants
+
+The TVM instruction `PUSHINT x`, pushing an _Integer_ constant `x` when invoked, can be assembled with the aid of Fift assembler words `INT` or `PUSHINT`:
+
+| <span style="color:transparent">xxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxx</span> |  |
+| :--- | :--- | :------------------------    |
+| **`PUSHINT`** | _`(b x – b0)`_ | assembles TVM instruction `PUSHINT x` into a _Builder_. |
+| **`INT`** | _`(b x – b0)`_ | equivalent to `PUSHINT`. |
+
+Notice that the argument to `PUSHINT` is an _Integer_ value taken from the Fift stack and is not necessarily a literal. For instance, `<{ 239 17 * INT }>s` is a valid way to assemble a `PUSHINT 4063` instruction, because `239·17 = 4063`. Notice that the multiplication is performed by Fift during assemble time, not during the TVM runtime. The latter computation might be performed by means of `<{ 239 INT 17 INT MUL }>s`:
+
+```sh
+<{ 239 17 * INT }>s dup csr. runvmcode .s 2drop
+<{ 239 INT 17 INT MUL }>s dup csr. runvmcode .s 2drop
+```
+
+produces
+
+```sh
+x{810FDF}
+execute PUSHINT 4063
+execute implicit RET
+4063 0
+ ok
+x{8100EF8011A8}
+execute PUSHINT 239
+execute PUSHINT 17
+execute MUL
+execute implicit RET
+4063 0
+ ok
+```
+
+Notice that the Fift assembler chooses the shortest encoding of the `PUSHINT x` instruction depending on its argument `x`.
+
+### 7.4 Immediate arguments
+
+Some TVM instructions (such as PUSHINT) accept immediate arguments. These arguments are usually passed to the Fift word assembling the corresponding instruction in the Fift stack. Integer immediate arguments are usually represented by _Integer_'s, cells by _Cell_'s, continuations by _Builder_'s and _Cell_'s, and cell slices by _Slice_'s. For instance, `17 ADDCONST` assembles TVM instruction `ADDCONST 17`, and `x{ABCD_} PUSHSLICE` assembles `PUSHSLICE xABCD_:
+
+```sh
 239 <{ 17 ADDCONST x{ABCD_} PUSHSLICE }>s dup csr.
 runvmcode . swap . csr.
-produces x{A6118B2ABCD0}
-execute ADDINT 17 execute PUSHSLICE xABCD_ execute implicit RET 0 256 x{ABCD_}
-On some occasions, the Fift assembler pretends to be able to accept immediate arguments that are out of range for the corresponding TVM instruction.
-For instance, ADDCONST x is defined only for −128 ≤ x < 128, but the Fift assembler accepts 239 ADDCONST:
-17 <{ 239 ADDCONST }>s dup csr. runvmcode .s produces x{8100EFA0}
-execute PUSHINT 239 execute ADD execute implicit RET 256 0 We can see that “ADDCONST 239” has been tacitly replaced by PUSHINT 239 and ADD. This feature is convenient when the immediate argument to ADDCONST is itself a result of a Fift computation, and it is difficult to estimate whether it will always fit into the required range.
-In some cases, there are several versions of the same TVM instructions,
-one accepting an immediate argument and another without any arguments.
-62 7.5. Immediate continuations For instance, there are both LSHIFT n and LSHIFT instructions. In the Fift assembler, such variants are assigned distinct mnemonics. In particular, LSHIFT n is represented by n LSHIFT#, and LSHIFT is represented by itself.
-7.5 Immediate continuations When an immediate argument is a continuation, it is convenient to create the corresponding _Builder_ in the Fift stack by means of a nested <{ . . . }>
-construct. For instance, TVM assembler instructions PUSHINT 1 SWAP PUSHCONT {
-MULCONST 10 }
-REPEAT can be assembled and executed by 7 <{ 1 INT SWAP <{ 10 MULCONST }> PUSHCONT REPEAT }>s dup csr.
+```
+
+produces
+
+```sh
+x{A6118B2ABCD0}
+execute ADDINT 17
+execute PUSHSLICE xABCD_
+execute implicit RET
+0 256 x{ABCD_}
+```
+
+On some occasions, the Fift assembler pretends to be able to accept immediate arguments that are out of range for the corresponding TVM instruction. For instance, `ADDCONST x` is defined only for `−128 ≤ x < 128`, but the Fift assembler accepts `239 ADDCONST`:
+
+```sh
+17 <{ 239 ADDCONST }>s dup csr. runvmcode .s
+```
+
+produces
+
+```sh
+x{8100EFA0}
+execute PUSHINT 239
+execute ADD
+execute implicit RET
+256 0
+```
+
+We can see that `“ADDCONST 239”` has been tacitly replaced by `PUSHINT 239` and `ADD`. This feature is convenient when the immediate argument to `ADDCONST` is itself a result of a Fift computation, and it is difficult to estimate whether it will always fit into the required range.
+
+In some cases, there are several versions of the same TVM instructions, one accepting an immediate argument and another without any arguments. For instance, there are both `LSHIFT n` and `LSHIFT` instructions. In the Fift assembler, such variants are assigned distinct mnemonics. In particular, `LSHIFT n` is represented by `n LSHIFT#`, and `LSHIFT` is represented by itself.
+
+### 7.5 Immediate continuations
+
+When an immediate argument is a continuation, it is convenient to create the corresponding _Builder_ in the Fift stack by means of a nested `<{ . . . }>` construct. For instance, TVM assembler instructions
+
+```sh
+PUSHINT 1
+SWAP
+PUSHCONT {
+    MULCONST 10
+}
+REPEAT
+```
+
+can be assembled and executed by
+
+```sh
+7
+<{ 1 INT SWAP <{ 10 MULCONST }> PUSHCONT REPEAT }>s dup csr.
 runvmcode drop .
-producing x{710192A70AE4}
-execute PUSHINT 1 execute SWAP execute PUSHCONT xA70A execute REPEAT repeat 7 more times execute MULINT 10 execute implicit RET repeat 6 more times ...
-repeat 1 more times execute MULINT 10 execute implicit RET repeat 0 more times 63 7.6. Control flow: loops and conditionals execute implicit RET 10000000 More convenient ways to use literal continuations created by means of the Fift assembler exist. For instance, the above example can be also assembled by <{ 1 INT SWAP CONT:<{ 10 MULCONST }> REPEAT }>s csr.
-or even <{ 1 INT SWAP REPEAT:<{ 10 MULCONST }> }>s csr.
-both producing “x{710192A70AE4} ok”.
-Incidentally, a better way of implementing the above loop is by means of REPEATEND:
+```
+
+producing
+
+```sh
+x{710192A70AE4}
+execute PUSHINT 1
+execute SWAP
+execute PUSHCONT xA70A
+execute REPEAT
+repeat 7 more times
+execute MULINT 10
+execute implicit RET
+repeat 6 more times
+...
+repeat 1 more times
+execute MULINT 10
+execute implicit RET
+repeat 0 more times
+execute implicit RET
+10000000
+```
+
+More convenient ways to use literal continuations created by means of the Fift assembler exist. For instance, the above example can be also assembled by
+
+```sh
+<{ 1 INT SWAP CONT:<{ 10 MULCONST }> REPEAT }>s csr.
+```
+
+or even
+
+```sh
+<{ 1 INT SWAP REPEAT:<{ 10 MULCONST }> }>s csr.
+```
+
+both producing `“x{710192A70AE4} ok”`.
+
+Incidentally, a better way of implementing the above loop is by means of `REPEATEND`:
+
+```sh
 7 <{ 1 INT SWAP REPEATEND 10 MULCONST }>s dup csr.
 runvmcode drop .
-or 7 <{ 1 INT SWAP REPEAT: 10 MULCONST }>s dup csr.
+```
+
+or
+
+```sh
+7 <{ 1 INT SWAP REPEAT: 10 MULCONST }>s dup csr.
 runvmcode drop .
-both produce “x{7101E7A70A}” and output “10000000” after seven iterations of the loop.
+```
+
+both produce `“x{7101E7A70A}”` and output `“10000000”` after seven iterations of the loop.
+
 Notice that several TVM instructions that store a continuation in a separate cell reference (such as JMPREF) accept their argument in a _Cell_, not in a _Builder_. In such situations, the <{ ... }>c construct can be used to produce this immediate argument.
-7.6 Control flow: loops and conditionals Almost all TVM control flow instructions—such as IF, IFNOT, IFRET, IFNOTRET,
+
+### 7.6 Control flow: loops and conditionals
+
+Almost all TVM control flow instructions—such as IF, IFNOT, IFRET, IFNOTRET,
 IFELSE, WHILE, WHILEEND, REPEAT, REPEATEND, UNTIL, and UNTILEND—can be assembled similarly to REPEAT and REPEATEND in the examples of 7.5 when applied to literal continuations. For instance, TVM assembler code 64 7.6. Control flow: loops and conditionals DUP PUSHINT 1 AND PUSHCONT {
 MULCONST 3 INC }
 PUSHCONT {
