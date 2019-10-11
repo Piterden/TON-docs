@@ -1370,7 +1370,7 @@ and may be used to serialize values of this TL-B type.
 
 The following words can be used to manipulate values of the type Slice, which represents a read-only view of a portion of a Cell. In this way data previously stored into a Cell may be deserialized, by first transforming a Cell into a Slice, and then extracting the required data from this Slice step-by-step.
 
-| <span style="color:transparent">xxxxxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxx`** | _`xxxxxxxxx</span> |  |
+| <span style="color:transparent">xxxxxxxxxxxxxxxxxxx</span> | <span style="color:transparent">xxxxxxxxxxxxxxxxxxxxxx</span> |  |
 | :--- | :--- | :------------------------    |
 | **`<s`** | _`(c – s)`_ | transforms a Cell c into a Slice s containing the same data. It usually marks the start of the deserialization of a cell. |
 | **`s>`** | _`(s – )`_ | throws an exception if _Slice_ s is non-empty. It usually marks the end of the deserialization of a cell, checking whether there are any unprocessed data bits or references left. |
